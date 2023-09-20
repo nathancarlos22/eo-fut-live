@@ -1,0 +1,15 @@
+betfair-certs
+venv
+formatojson.txt
+notas2.txt
+mlruns
+*.csv
+*.pkl
+# *.pickle
+*.log
+.vscode
+__pycache__
+chromedriver_locations
+.env
+venv
+credenciais.ini
