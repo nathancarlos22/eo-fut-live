@@ -13,13 +13,13 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-def append_to_list(thread_safe_list, lock, df):
-    with lock:
-        thread_safe_list.append(df)
+# def append_to_list(thread_safe_list, lock, df):
+#     with lock:
+#         thread_safe_list.append(df)
 
 
-def main_function(date_str, thread_safe_list, lock, df):
-# def main_function(date_str, df):
+# def main_function(date_str, thread_safe_list, lock, df):
+def main_function(date_str, df):
     dfs = []
 
     try:
@@ -236,6 +236,6 @@ def main_function(date_str, thread_safe_list, lock, df):
                 print(e)
                 continue
         
-    # return pd.concat(dfs, ignore_index=True)
-    append_to_list(thread_safe_list, lock, pd.concat(dfs, ignore_index=True))
+    return pd.concat(dfs, ignore_index=True)
+    # append_to_list(thread_safe_list, lock, pd.concat(dfs, ignore_index=True))
 
