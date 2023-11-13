@@ -19,7 +19,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 # def main_function(date_str, thread_safe_list, lock, df):
-def main_function(date_str, df):
+def main_function(date_str):
+    df = pd.read_csv('C:/Users/Pichau/Desktop/eofut/src/data_live_scores.csv').drop_duplicates()
     dfs = []
 
     try:
@@ -80,6 +81,7 @@ def main_function(date_str, df):
         print("Existem " + str(len(dict_league_links[league])) + " jogos para a liga " + league)
         df_game = []
         for links in dict_league_links[league]:
+            df = pd.read_csv('data_live_scores.csv').drop_duplicates()
             try:
                 flag = 0
 
@@ -100,6 +102,27 @@ def main_function(date_str, df):
                 if match_id in df['match_id'].unique():
                     print('Jogo já existe no dataframe')
                     continue
+                
+                print('Jogo não existe no dataframe')
+                print('Iniciando a coleta de dados')
+                print('-------------------')
+
+
+                # fazendo dicionario com as colunas nulas menos o match_id
+                dict_null = {}
+                for col in df.columns:
+                    if col != 'match_id':
+                        dict_null[col] = None
+                    if col == 'match_id':
+                        dict_null[col] = match_id
+
+                # Adiciona um novo registro com o match_id e o resto das colunas nulas
+                # df = df.append(dict_null, ignore_index=True)
+                df = pd.concat([df, pd.DataFrame(dict_null, index=[0])], ignore_index=True)
+
+                #Salvando o dataframe para não pegar o mesmo jogo
+                df.to_csv('data_live_scores.csv', index=False)
+
                 # Clica no botão "First half"
                 button.click()
 
@@ -131,7 +154,7 @@ def main_function(date_str, df):
 
                     team_tabs_xpaths = [
                         '//*[@id="Opta_2"]/div/div/div[1]/div/ul/li[2]/a',
-                        '/html/body/div[1]/div[3]/div[1]/div[2]/div[2]/div/div/div[1]/div/ul/li[3]/a'
+                        '//*[@id="Opta_2"]/div/div/div[1]/div/ul/li[3]/a'
                     ]
 
                     all_dataframes = {}
@@ -211,6 +234,9 @@ def main_function(date_str, df):
                             dfs_combined['result'] = 1
 
                         dfs.append(dfs_combined)
+                        print("Salvando o dataframe")
+                        df = pd.read_csv('data_live_scores.csv').drop_duplicates()
+                        pd.concat([df] + dfs, ignore_index=True).to_csv('data_live_scores.csv', index=False)
                         break
                         # append_to_list(thread_safe_list, lock, dfs_combined)
                         # return dfs_combined
@@ -226,6 +252,9 @@ def main_function(date_str, df):
                     print('Sem gol')
                     print('Juntando os dataframes')
                     dfs.append(dfs_combined)
+                    print("Salvando o dataframe")
+                    df = pd.read_csv('data_live_scores.csv').drop_duplicates()
+                    pd.concat([df] + dfs, ignore_index=True).to_csv('data_live_scores.csv', index=False)
                     break
                     # append_to_list(thread_safe_list, lock,
                                 #    pd.concat(dfs, ignore_index=True))
@@ -236,6 +265,10 @@ def main_function(date_str, df):
                 print(e)
                 continue
         
-    return pd.concat(dfs, ignore_index=True)
+    # return pd.concat(dfs, ignore_index=True)
+    print("Salvando o dataframe")
+    df = pd.read_csv('data_live_scores.csv').drop_duplicates()
+    pd.concat([df] + dfs, ignore_index=True).to_csv('data_live_scores.csv', index=False)
+
     # append_to_list(thread_safe_list, lock, pd.concat(dfs, ignore_index=True))
 
