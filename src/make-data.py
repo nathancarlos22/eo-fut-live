@@ -41,7 +41,7 @@ def main():
     for data in list_of_dates:
         i+=1
         if i == args.numero:
-            main_function(data)
+            main_function(data, args.numero)
             i=0
 
 

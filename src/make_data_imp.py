@@ -19,9 +19,11 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 # def main_function(date_str, thread_safe_list, lock, df):
-def main_function(date_str):
-    df = pd.read_csv('C:/Users/Pichau/Desktop/eofut/src/data_live_scores.csv').drop_duplicates()
-    dfs = []
+
+file_path = 'C:/Users/Pichau/Desktop/eofut/src/data_live_scores.csv'
+
+def main_function(date_str, num):
+    df = pd.read_csv(file_path, index_col=False)
 
     try:
         service = Service(ChromeDriverManager().install())
@@ -76,12 +78,12 @@ def main_function(date_str):
         # main_function(date_str, thread_safe_list, lock, df)
         pass
 
-    
+    dfs = []
     for league in dict_league_links:
         print("Existem " + str(len(dict_league_links[league])) + " jogos para a liga " + league)
         df_game = []
         for links in dict_league_links[league]:
-            df = pd.read_csv('data_live_scores.csv').drop_duplicates()
+            # df = pd.read_csv('data_live_scores.csv')
             try:
                 flag = 0
 
@@ -109,19 +111,19 @@ def main_function(date_str):
 
 
                 # fazendo dicionario com as colunas nulas menos o match_id
-                dict_null = {}
-                for col in df.columns:
-                    if col != 'match_id':
-                        dict_null[col] = None
-                    if col == 'match_id':
-                        dict_null[col] = match_id
+                # dict_null = {}
+                # for col in df.columns:
+                #     if col != 'match_id':
+                #         dict_null[col] = None
+                #     if col == 'match_id':
+                #         dict_null[col] = match_id
 
                 # Adiciona um novo registro com o match_id e o resto das colunas nulas
                 # df = df.append(dict_null, ignore_index=True)
-                df = pd.concat([df, pd.DataFrame(dict_null, index=[0])], ignore_index=True)
+                # df = pd.concat([df, pd.DataFrame(dict_null, index=[0])], ignore_index=True)
 
                 #Salvando o dataframe para não pegar o mesmo jogo
-                df.to_csv('data_live_scores.csv', index=False)
+                # df.to_csv('data_live_scores.csv', index=False)
 
                 # Clica no botão "First half"
                 button.click()
@@ -235,8 +237,10 @@ def main_function(date_str):
 
                         dfs.append(dfs_combined)
                         print("Salvando o dataframe")
-                        df = pd.read_csv('data_live_scores.csv').drop_duplicates()
-                        pd.concat([df] + dfs, ignore_index=True).to_csv('data_live_scores.csv', index=False)
+                        # df = pd.concat([df] + dfs, ignore_index=True)
+                        pd.concat(dfs, ignore_index=True).to_csv(f'data_live_scores_{num}.csv', index=False)
+
+                        # pd.concat([df] + dfs, ignore_index=True).to_csv('data_live_scores.csv', index=False)
                         break
                         # append_to_list(thread_safe_list, lock, dfs_combined)
                         # return dfs_combined
@@ -253,8 +257,7 @@ def main_function(date_str):
                     print('Juntando os dataframes')
                     dfs.append(dfs_combined)
                     print("Salvando o dataframe")
-                    df = pd.read_csv('data_live_scores.csv').drop_duplicates()
-                    pd.concat([df] + dfs, ignore_index=True).to_csv('data_live_scores.csv', index=False)
+                    pd.concat(dfs, ignore_index=True).to_csv(f'data_live_scores_{num}.csv', index=False)
                     break
                     # append_to_list(thread_safe_list, lock,
                                 #    pd.concat(dfs, ignore_index=True))
@@ -264,11 +267,13 @@ def main_function(date_str):
             except Exception as e:
                 print(e)
                 continue
-        
-    # return pd.concat(dfs, ignore_index=True)
-    print("Salvando o dataframe")
-    df = pd.read_csv('data_live_scores.csv').drop_duplicates()
-    pd.concat([df] + dfs, ignore_index=True).to_csv('data_live_scores.csv', index=False)
+    print('Finalizando o driver')
+    # concatenando os dataframes data_live_scores{num}.csv
+    df_num = pd.read_csv(f'data_live_scores_{num}.csv', index_col=False)
+    df = pd.read_csv('data_live_scores.csv', index_col=False)
+    df = pd.concat([df, df_num], ignore_index=True)
+    df.to_csv(file_path, index=False)
+    driver.quit()
 
     # append_to_list(thread_safe_list, lock, pd.concat(dfs, ignore_index=True))
 
