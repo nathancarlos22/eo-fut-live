@@ -22,12 +22,14 @@ from selenium.webdriver.support import expected_conditions as EC
 
 file_path = 'C:/Users/Pichau/Desktop/eofut/src/data_live_scores.csv'
 
-def main_function(date_str, num):
+def main_function(date_str):
     df = pd.read_csv(file_path, index_col=False)
 
     try:
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service)
+        # service = Service(ChromeDriverManager().install())
+        # driver = webdriver.Chrome(service=service)
+        options = webdriver.ChromeOptions()
+        driver = webdriver.Remote(command_executor='http://localhost:4444', options=options)
         time.sleep(1)
 
 
@@ -238,7 +240,7 @@ def main_function(date_str, num):
                         dfs.append(dfs_combined)
                         print("Salvando o dataframe")
                         # df = pd.concat([df] + dfs, ignore_index=True)
-                        pd.concat(dfs, ignore_index=True).to_csv(f'data_live_scores_{num}.csv', index=False)
+                        pd.concat(dfs, ignore_index=True).to_csv(f'data_live_scores_{date_str}.csv', index=False)
 
                         # pd.concat([df] + dfs, ignore_index=True).to_csv('data_live_scores.csv', index=False)
                         break
@@ -257,7 +259,7 @@ def main_function(date_str, num):
                     print('Juntando os dataframes')
                     dfs.append(dfs_combined)
                     print("Salvando o dataframe")
-                    pd.concat(dfs, ignore_index=True).to_csv(f'data_live_scores_{num}.csv', index=False)
+                    pd.concat(dfs, ignore_index=True).to_csv(f'data_live_scores_{date_str}.csv', index=False)
                     break
                     # append_to_list(thread_safe_list, lock,
                                 #    pd.concat(dfs, ignore_index=True))
