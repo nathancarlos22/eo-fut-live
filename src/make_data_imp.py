@@ -24,9 +24,9 @@ import csv
 file_path = 'C:/Users/Pichau/Desktop/eofut/src/data_live_scores.csv'
 
 def main_function(date_str):
-    df = pd.read_csv(file_path, index_col=False)
 
     try:
+        df = pd.read_csv(file_path, encoding='ISO-8859-1')
         # service = Service(ChromeDriverManager().install())
         # driver = webdriver.Chrome(service=service)
         options = webdriver.ChromeOptions()

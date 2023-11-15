@@ -65,8 +65,6 @@ def main():
     # list_of_dates = list_of_dates[-10:]
     print(len(list_of_dates))
 
-    
-
     with concurrent.futures.ProcessPoolExecutor(max_workers=10) as executor:
         executor.map(main_function, list_of_dates)
 
