@@ -49,7 +49,8 @@ import concurrent.futures
 
 
 def main():
-    date_strings = ['2022-05-21']
+    # date_strings = ['2022-05-21']
+    date_strings = ['2023-03-24']
 
     date_objects = [datetime.datetime.strptime(date, '%Y-%m-%d') for date in date_strings]
     sorted_dates = sorted(date_objects)
@@ -66,7 +67,7 @@ def main():
 
     
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=12) as executor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=10) as executor:
         executor.map(main_function, list_of_dates)
 
 if __name__ == "__main__":

@@ -1,5 +1,0 @@
-tmux new -s eo-fut-live # criar sessão tmux
-tmux a -t eo-fut-live # ver a sessao do tmux
-
-/home/natchancarlos/eo-fut-neural/dataset_live_goalsHT.csv
-/home/natchancarlos/eo-fut-neural/dataset_live_goalsFT.csv

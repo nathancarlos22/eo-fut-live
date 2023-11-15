@@ -12,6 +12,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import csv
 
 # def append_to_list(thread_safe_list, lock, df):
 #     with lock:
@@ -39,6 +40,8 @@ def main_function(date_str):
         driver.get(
             f'https://optaplayerstats.statsperform.com/en_GB/soccer?date={date_str}')
         time.sleep(10)
+        driver.maximize_window()
+        
 
         # Espera a página carregar
         WebDriverWait(driver, 30).until(lambda d: d.execute_script(
@@ -81,6 +84,13 @@ def main_function(date_str):
         pass
 
     dfs = []
+    colunas_ordenadas =  ['date', 'minute', 'homeTeam', 'awayTeam', 'league', 'corners_home',
+                            'corners_away', 'redcards_home', 'redcards_away', 'shotsOffgoal_home',
+                            'shotsOffgoal_away', 'shotsOngoal_home', 'shotsOngoal_away',
+                            'yellowcards_home', 'yellowcards_away', 'passes_home', 'passes_away',
+                            'fouls_c_home', 'fouls_c_away', 'fouls_won_home', 'fouls_won_away',
+                            'offsides_home', 'offsides_away', 'tackles_home', 'tackles_away',
+                            'result', 'match_id']
     for league in dict_league_links:
         print("Existem " + str(len(dict_league_links[league])) + " jogos para a liga " + league)
         df_game = []
@@ -240,7 +250,21 @@ def main_function(date_str):
                         dfs.append(dfs_combined)
                         print("Salvando o dataframe")
                         # df = pd.concat([df] + dfs, ignore_index=True)
-                        pd.concat(dfs, ignore_index=True).to_csv(f'data_live_scores_{date_str}.csv', index=False)
+                        # pd.concat(dfs, ignore_index=True).to_csv(f'data_live_scores_{date_str}.csv', index=False)
+                        
+                        df_concat = pd.concat(dfs, ignore_index=True)
+
+                        # Reordenar as colunas do DataFrame
+                        df_concat = df_concat[colunas_ordenadas]
+                        # Abrir o arquivo em modo de anexação
+                        with open('data_live_scores.csv', 'a', newline='') as file:
+                            writer = csv.writer(file)
+
+                            # Iterar sobre as linhas do DataFrame
+                            for index, row in df_concat.iterrows():
+                                # Converter a linha em uma lista e escrevê-la no arquivo
+                                writer.writerow(row.tolist())
+
 
                         # pd.concat([df] + dfs, ignore_index=True).to_csv('data_live_scores.csv', index=False)
                         break
@@ -259,7 +283,20 @@ def main_function(date_str):
                     print('Juntando os dataframes')
                     dfs.append(dfs_combined)
                     print("Salvando o dataframe")
-                    pd.concat(dfs, ignore_index=True).to_csv(f'data_live_scores_{date_str}.csv', index=False)
+                    # pd.concat(dfs, ignore_index=True).to_csv(f'data_live_scores_{date_str}.csv', index=False)
+                      # ajuste esta lista conforme a ordem do seu arquivo CSV
+
+                    # Reordenar as colunas do DataFrame
+                    df_concat = pd.concat(dfs, ignore_index=True)
+                    df_concat = df_concat[colunas_ordenadas]
+                    # Abrir o arquivo em modo de anexação
+                    with open('data_live_scores.csv', 'a', newline='') as file:
+                        writer = csv.writer(file)
+
+                        # Iterar sobre as linhas do DataFrame
+                        for index, row in df_concat.iterrows():
+                            # Converter a linha em uma lista e escrevê-la no arquivo
+                            writer.writerow(row.tolist())
                     break
                     # append_to_list(thread_safe_list, lock,
                                 #    pd.concat(dfs, ignore_index=True))
@@ -271,10 +308,10 @@ def main_function(date_str):
                 continue
     print('Finalizando o driver')
     # concatenando os dataframes data_live_scores{num}.csv
-    df_num = pd.read_csv(f'data_live_scores_{num}.csv', index_col=False)
-    df = pd.read_csv('data_live_scores.csv', index_col=False)
-    df = pd.concat([df, df_num], ignore_index=True)
-    df.to_csv(file_path, index=False)
+    # df_num = pd.read_csv(f'data_live_scores_{date_str}.csv', index_col=False)
+    # df = pd.read_csv(file_path, index_col=False)
+    # df = pd.concat([df, df_num], ignore_index=True)
+    # df.to_csv(file_path, index=False)
     driver.quit()
 
     # append_to_list(thread_safe_list, lock, pd.concat(dfs, ignore_index=True))
