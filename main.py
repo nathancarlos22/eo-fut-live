@@ -251,6 +251,15 @@ while True:
         dic_response = response.json()
 
         for game in dic_response['data']:
+            awayTeam = game['awayTeam']['name']
+            homeTeam = game['homeTeam']['name']
+            status = game['status']
+            minute = game['currentTime']['minute']
+            awayTeamScore = game['scores']['homeTeamScore']
+            homeTeamScore = game['scores']['awayTeamScore']
+            print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {awayTeamScore} x {homeTeamScore}')
+
+        for game in dic_response['data']:
             date = game['date']
 
             awayTeam = game['awayTeam']['name']
@@ -465,8 +474,8 @@ while True:
             if Xht.isna().sum().sum() > 0:
                 continue
 
-            print(
-                f'{homeTeam} x {awayTeam} - {minute} - {status} - {awayTeamScore} x {homeTeamScore}')
+            # print(
+            #     f'{homeTeam} x {awayTeam} - {minute} - {status} - {awayTeamScore} x {homeTeamScore}')
             
 
             # rede neural
