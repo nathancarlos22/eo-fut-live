@@ -49,8 +49,8 @@ import concurrent.futures
 
 
 def main():
-    # date_strings = ['2022-05-21']
-    date_strings = ['2023-03-24']
+    date_strings = ['2020-01-21']
+    # date_strings = ['2023-03-24']
 
     date_objects = [datetime.datetime.strptime(date, '%Y-%m-%d') for date in date_strings]
     sorted_dates = sorted(date_objects)

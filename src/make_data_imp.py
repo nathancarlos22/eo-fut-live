@@ -26,7 +26,7 @@ file_path = 'C:/Users/Pichau/Desktop/eofut/src/data_live_scores.csv'
 def main_function(date_str):
 
     try:
-        df = pd.read_csv(file_path, encoding='ISO-8859-1')
+        df = pd.read_csv(file_path, encoding='utf-8')
         # service = Service(ChromeDriverManager().install())
         # driver = webdriver.Chrome(service=service)
         options = webdriver.ChromeOptions()
@@ -257,7 +257,7 @@ def main_function(date_str):
                         # Reordenar as colunas do DataFrame
                         df_concat = df_concat[colunas_ordenadas]
                         # Abrir o arquivo em modo de anexação
-                        with open('data_live_scores.csv', 'a', newline='') as file:
+                        with open('data_live_scores.csv', 'a', newline='', encoding='utf-8') as file:
                             writer = csv.writer(file)
 
                             # Iterar sobre as linhas do DataFrame
@@ -290,7 +290,7 @@ def main_function(date_str):
                     df_concat = pd.concat(dfs, ignore_index=True)
                     df_concat = df_concat[colunas_ordenadas]
                     # Abrir o arquivo em modo de anexação
-                    with open('data_live_scores.csv', 'a', newline='') as file:
+                    with open('data_live_scores.csv', 'a', newline='', encoding='utf-8') as file:
                         writer = csv.writer(file)
 
                         # Iterar sobre as linhas do DataFrame
