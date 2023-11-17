@@ -617,13 +617,13 @@ while True:
                     print(
                         f"{homeTeam} x {awayTeam} Automl: {h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']}")
 
-                    if model.predict(Xht)[0][0] >= 0.5:
+                    if model.predict(Xht)[0][0] >= 0.75:
 
                         condicao5min = 1
                     # if model_randomforest.predict_proba(Xht)[0][1] >= 0.75:
                     #     condicao5min_randomforest = 1
 
-                    if h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1'] >= 0.5:
+                    if h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1'] >= 0.75:
                         condicao5min_Automl = 1
 
             if condicao5min == 1 and iD not in id_over05HTmodel:
