@@ -257,7 +257,9 @@ while True:
             minute = game['currentTime']['minute']
             awayTeamScore = game['scores']['homeTeamScore']
             homeTeamScore = game['scores']['awayTeamScore']
-            print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {awayTeamScore} x {homeTeamScore}')
+            league = game['league']['name']
+
+            print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {awayTeamScore} x {homeTeamScore} ({league})')
 
         for game in dic_response['data']:
             date = game['date']
