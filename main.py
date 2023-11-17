@@ -64,7 +64,7 @@ model = keras.models.load_model('models/model_redeht.h5')
 # model_Automl = keras.models.load_model('model_Automl.h5')
 # Inicializar o cluster H2O
 h2o.init()
-model_Automl = loaded_model = h2o.load_model("C:/Users/Pichau/Desktop/eofut/models/model_automl")
+model_Automl = loaded_model = h2o.load_model("./models/model_automl")
 # model_randomforest = pickle.load(
 #     open('models/random_forestht.pkl', 'rb'))
 

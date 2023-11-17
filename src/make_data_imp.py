@@ -21,7 +21,7 @@ import csv
 
 # def main_function(date_str, thread_safe_list, lock, df):
 
-file_path = 'C:/Users/Pichau/Desktop/eofut/src/data_live_scores.csv'
+file_path = './data_live_scores.csv'
 
 def main_function(date_str):
 
