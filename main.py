@@ -594,7 +594,7 @@ while True:
             # condicao5min_randomforest = 0
             condicao5min_Automl = 0
 
-            if minute >= 15 and minute < 35:
+            if minute >= 1 and minute < 45:
                 try:
                     preprocessor = pickle.load(
                         open('models/preprocessor.pickle', 'rb'))
