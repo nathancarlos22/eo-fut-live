@@ -79,6 +79,7 @@ def main_function(date_str):
                         dict_league_links[league_name].append(
                             'https://optaplayerstats.statsperform.com' + link['href'])
     except Exception as e:
+        print('Erro na data: ' + date_str)
         print(e)
         # main_function(date_str, thread_safe_list, lock, df)
         pass
@@ -304,6 +305,7 @@ def main_function(date_str):
                     # return dfs_combined
                 
             except Exception as e:
+                print('Erro no jogo: ' + match_id)
                 print(e)
                 continue
     print('Finalizando o driver')
