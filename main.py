@@ -9,20 +9,16 @@ import warnings
 import keras
 
 import pandas as pd
-import betfairlightweight
-import configparser
 import h2o
-# from h2o.automl import H2Oautoml
 from dotenv import load_dotenv
 import os
 from datetime import datetime
+# import betfairlightweight
+# import configparser
 
 
 
 warnings.filterwarnings('ignore')
-
-# hora = datetime.now().hour
-
 
 load_dotenv()
 
@@ -41,32 +37,24 @@ id_over05HTmodel = []
 winht_model = 0
 loseht_model = 0
 
-# id_over05HTrandomforest = []
-# winht_randomforest = 0
-# loseht_randomforest = 0
-
 id_over05HTAutoml = []
 winht_Automl = 0
 loseht_Automl = 0
 
 text = ' '
-
-# intervalo_horas = 10
-# intervalo_segundos = intervalo_horas * 60 * 60
-# tempo_atual = time.time()
-# tempo_termino = tempo_atual + intervalo_segundos
 resultados = {}
 
 minutoss = datetime.now().minute
 flag = 0
 
 model = keras.models.load_model('models/model_redeht.h5')
-# model_Automl = keras.models.load_model('model_Automl.h5')
+
 # Inicializar o cluster H2O
 h2o.init()
 model_Automl = loaded_model = h2o.load_model("./models/model_automl")
-# model_randomforest = pickle.load(
-#     open('models/random_forestht.pkl', 'rb'))
+
+preprocessor = pickle.load(
+                        open('models/preprocessor.pickle', 'rb'))
 
 id_over05HTmodel = []
 winht_model = 0
@@ -75,8 +63,6 @@ loseht_model = 0
 id_over05HTAutoml = []
 winht_Automl = 0
 loseht_Automl = 0
-
-# tempo_termino = tempo_atual + intervalo_segundos
 
 id_evento = ''
 
@@ -267,12 +253,8 @@ while True:
             awayTeam = game['awayTeam']['name']
             homeTeam = game['homeTeam']['name']
             league = game['league']['name']
-
-            
-
             minute = game['currentTime']['minute']
             second = game['currentTime']['second']
-
             awayTeamScore = game['scores']['homeTeamScore']
             homeTeamScore = game['scores']['awayTeamScore']
 
@@ -283,32 +265,8 @@ while True:
 
             iD = game['stats']['_id']
 
-            # at_over_0_5 = game['probabilities']['AT_over_0_5']
-            # at_over_1_5 = game['probabilities']['AT_over_1_5']
-            # at_under_0_5 = game['probabilities']['AT_under_0_5']
-            # at_under_1_5 = game['probabilities']['AT_under_1_5']
-            # ht_over_0_5 = game['probabilities']['HT_over_0_5']
-            # ht_over_1_5 = game['probabilities']['HT_over_1_5']
-            # ht_under_0_5 = game['probabilities']['HT_under_0_5']
-            # ht_under_1_5 = game['probabilities']['HT_under_1_5']
-            # away = game['probabilities']['away']
-            # btts = game['probabilities']['btts']
-            # draw = game['probabilities']['draw']
-            # home = game['probabilities']['home']
-            # over_0_5 = game['probabilities']['over_0_5']
-            # over_1_5 = game['probabilities']['over_1_5']
-            # over_2_5 = game['probabilities']['over_2_5']
-            # over_3_5 = game['probabilities']['over_3_5']
-            # under_0_5 = game['probabilities']['under_0_5']
-            # under_1_5 = game['probabilities']['under_1_5']
-            # under_2_5 = game['probabilities']['under_2_5']
-            # under_3_5 = game['probabilities']['under_3_5']
-
             attacks_home = game['stats']['attacks']['home']
             attacks_away = game['stats']['attacks']['away']
-
-            # ballSafe_home = game['stats']['ballSafe']['home']
-            # ballSafe_away = game['stats']['ballSafe']['away']
 
             corners_home = game['stats']['corners']['home']
             corners_away = game['stats']['corners']['away']
@@ -319,41 +277,17 @@ while True:
             fouls_home = game['stats']['fouls']['home']
             fouls_away = game['stats']['fouls']['away']
 
-            # freeKick_home = game['stats']['freeKick']['home']
-            # freeKick_away = game['stats']['freeKick']['away']
-
-            # goalAttempts_home = game['stats']['goalAttempts']['home']
-            # goalAttempts_away = game['stats']['goalAttempts']['away']
-
-            # goalKick_home = game['stats']['goalKick']['home']
-            # goalKick_away = game['stats']['goalKick']['away']
-
             goals_home = game['stats']['goals']['home']
             goals_away = game['stats']['goals']['away']
 
-            # injuries_home = game['stats']['injuries']['home']
-            # injuries_away = game['stats']['injuries']['away']
-
             offsides_home = game['stats']['offsides']['home']
             offsides_away = game['stats']['offsides']['away']
-
-            # penalties_home = game['stats']['penalties']['home']
-            # penalties_away = game['stats']['penalties']['away']
 
             possessiontime_home = game['stats']['possessiontime']['home']
             possessiontime_away = game['stats']['possessiontime']['away']
 
             redcards_home = game['stats']['redcards']['home']
             redcards_away = game['stats']['redcards']['away']
-
-            # saves_home = game['stats']['saves']['home']
-            # saves_away = game['stats']['saves']['away']
-
-            # shotsBlocked_home = game['stats']['shotsBlocked']['home']
-            # shotsBlocked_away = game['stats']['shotsBlocked']['away']
-
-            # shotsInsidebox_home = game['stats']['shotsInsidebox']['home']
-            # shotsInsidebox_away = game['stats']['shotsInsidebox']['away']
 
             shotsOffgoal_home = game['stats']['shotsOffgoal']['home']
             shotsOffgoal_away = game['stats']['shotsOffgoal']['away']
@@ -364,77 +298,17 @@ while True:
             shotsOutsidebox_home = game['stats']['shotsOutsidebox']['home']
             shotsOutsidebox_away = game['stats']['shotsOutsidebox']['away']
 
-            # substitutions_home = game['stats']['substitutions']['home']
-            # substitutions_away = game['stats']['substitutions']['away']
-
             tackles_home = game['stats']['tackles']['home']
             tackles_away = game['stats']['tackles']['away']
-
-            # throwIn_home = game['stats']['throwIn']['home']
-            # throwIn_away = game['stats']['throwIn']['away']
 
             yellowcards_home = game['stats']['yellowcards']['home']
             yellowcards_away = game['stats']['yellowcards']['away']
 
-            # yellowredcards_home = game['stats']['yellowredcards']['home']
-            # yellowredcards_away = game['stats']['yellowredcards']['away']
-
-            # dangerousAttacks_home = game['stats']['dangerousAttacks']['home']
-            # dangerousAttacks_away = game['stats']['dangerousAttacks']['away']
-
-            # appm1_home = game['pressureStats']['appm1']['home']
-            # appm1_away = game['pressureStats']['appm1']['away']
-
-            # appm2_home = game['pressureStats']['appm2']['home']
-            # appm2_away = game['pressureStats']['appm2']['away']
-
-            # attack_momentum_home = game['pressureStats']['attack_momentum']['home']
-            # attack_momentum_away = game['pressureStats']['attack_momentum']['away']
-
-            # exg_home = game['pressureStats']['exg']['home']
-            # exg_away = game['pressureStats']['exg']['away']
-
-            # mh1_home = game['pressureStats']['mh1']['home']
-            # mh1_away = game['pressureStats']['mh1']['away']
-
-            # mh2_home = game['pressureStats']['mh2']['home']
-            # mh2_away = game['pressureStats']['mh2']['away']
-
-            # mh3_home = game['pressureStats']['mh3']['home']
-            # mh3_away = game['pressureStats']['mh3']['away']
-
             novo_dado = {
-                # 'id':iD,
                 'minute': minute,
-                # 'homeTeam': homeTeam,
-                # 'awayTeam': awayTeam,
                 'league': league,
-                # 'at_over_0_5': at_over_0_5,
-                # 'at_over_1_5': at_over_1_5,
-                # 'at_under_0_5': at_under_0_5,
-                # 'at_under_1_5': at_under_1_5,
-                # 'ht_over_0_5': ht_over_0_5,
-                # 'ht_over_1_5': ht_over_1_5,
-                # 'ht_under_0_5': ht_under_0_5,
-                # 'ht_under_1_5': ht_under_1_5,
-                # 'away': away,
-                # 'btts': btts,
-                # 'draw': draw,
-                # 'home': home,
-                # 'over_0_5': over_0_5,
-                # 'over_1_5': over_1_5,
-                # 'over_2_5': over_2_5,
-                # 'over_3_5': over_3_5,
-                # 'under_0_5': under_0_5,
-                # 'under_1_5': under_1_5,
-                # 'under_2_5': under_2_5,
-                # 'under_3_5': under_3_5,
-                # 'attacks_home': attacks_home,
-                # 'attacks_away': attacks_away,
                 'corners_home': corners_home,
                 'corners_away': corners_away,
-                # 'dangerousAttacks_home': dangerousAttacks_home,
-                # 'dangerousAttacks_away': dangerousAttacks_away,
                 'possessiontime_home': possessiontime_home,
                 'possessiontime_away': possessiontime_away,
                 'redcards_home': redcards_home,
@@ -451,19 +325,7 @@ while True:
                 'offsides_away': offsides_away,
                 'tackles_home': tackles_home,
                 'tackles_away': tackles_away,
-                # 'attack_momentum_home': attack_momentum_home,
-                # 'attack_momentum_away': attack_momentum_away,
-                # 'exg_home': exg_home,
-                # 'exg_away': exg_away,
-                # 'appm1_home': appm1_home,
-                # 'appm1_away': appm1_away,
-                # 'mh1_home': mh1_home,
-                # 'mh1_away': mh1_away,
-                # 'mh2_home': mh2_home,
-                # 'mh2_away': mh2_away,
-                # 'mh3_home': mh3_home,
-                # 'mh3_away': mh3_away,
-                # 'result': '0'
+
             }
 
             Xht = pd.DataFrame(novo_dado, index=[0])
@@ -480,10 +342,6 @@ while True:
 
             if Xht.isna().sum().sum() > 0:
                 continue
-
-            # print(
-            #     f'{homeTeam} x {awayTeam} - {minute} - {status} - {awayTeamScore} x {homeTeamScore}')
-            
 
             # rede neural
             if iD in id_over05HTmodel:
@@ -502,6 +360,18 @@ while True:
             ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
             🏆 Liga: {league}
             ⏱️ Minuto: {minute}
+
+            📋 Estatísticas
+            🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+            🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+            ⛳ Escanteios: {corners_home} - {corners_away}
+            📈 Ataques: {attacks_home} - {attacks_away}
+            ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+            🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+            🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+            🔴 Faltas: {fouls_home} - {fouls_away}
+            🚩 Impedimentos: {offsides_home} - {offsides_away}
+            🛑 Desarmes: {tackles_home} - {tackles_away}
     '''
                     sendMenssageTelegram(text)
 
@@ -518,44 +388,20 @@ while True:
             ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
             🏆 Liga: {league}
             ⏱️ Minuto: {minute}
+            
+            📋 Estatísticas
+            🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+            🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+            ⛳ Escanteios: {corners_home} - {corners_away}
+            📈 Ataques: {attacks_home} - {attacks_away}
+            ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+            🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+            🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+            🔴 Faltas: {fouls_home} - {fouls_away}
+            🚩 Impedimentos: {offsides_home} - {offsides_away}
+            🛑 Desarmes: {tackles_home} - {tackles_away}
     '''
                     sendMenssageTelegram(text)
-
-            # random forest
-    #         if iD in id_over05HTrandomforest:
-    #             if minute <= 45 and (awayTeamScore + homeTeamScore) > 0:
-    #                 winht_randomforest += 1
-    #                 id_over05HTrandomforest.remove(iD)
-    #                 valor = valorEsperado - 5
-    #                 lucro += valor
-
-    #                 text = f'''{len(id_over05HTrandomforest)} 👑 Modelo Random Forest over 0.5 ht
-
-    #         ✅ Win {winht_randomforest} - {loseht_randomforest}
-    #         💰 Lucro: {lucro:.2f}
-
-    #         🚨 Jogo: {homeTeam} x {awayTeam}
-    #         ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-    #         🏆 Liga: {league}
-    #         ⏱️ Minuto: {minute}
-    # '''
-    #                 sendMenssageTelegram(text)
-
-    #             if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-    #                 loseht_randomforest += 1
-    #                 id_over05HTrandomforest.remove(iD)
-    #                 lucro -= 5
-    #                 text = f'''{len(id_over05HTrandomforest)} 👑 Modelo Random Forest over 0.5 ht
-
-    #         🛑 Lose {winht_randomforest} - {loseht_randomforest}
-    #         💰 Lucro: {lucro:.2f}
-            
-    #         🚨 Jogo: {homeTeam} x {awayTeam}
-    #         ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-    #         🏆 Liga: {league}
-    #         ⏱️ Minuto: {minute}
-    # '''
-    #                 sendMenssageTelegram(text)
 
             # Automl
             if iD in id_over05HTAutoml:
@@ -574,6 +420,18 @@ while True:
             ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
             🏆 Liga: {league}
             ⏱️ Minuto: {minute}
+
+            📋 Estatísticas
+            🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+            🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+            ⛳ Escanteios: {corners_home} - {corners_away}
+            📈 Ataques: {attacks_home} - {attacks_away}
+            ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+            🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+            🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+            🔴 Faltas: {fouls_home} - {fouls_away}
+            🚩 Impedimentos: {offsides_home} - {offsides_away}
+            🛑 Desarmes: {tackles_home} - {tackles_away}
     '''
                     sendMenssageTelegram(text)
                 
@@ -590,21 +448,30 @@ while True:
             ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
             🏆 Liga: {league}
             ⏱️ Minuto: {minute}
+
+            📋 Estatísticas
+            🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+            🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+            ⛳ Escanteios: {corners_home} - {corners_away}
+            📈 Ataques: {attacks_home} - {attacks_away}
+            ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+            🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+            🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+            🔴 Faltas: {fouls_home} - {fouls_away}
+            🚩 Impedimentos: {offsides_home} - {offsides_away}
+            🛑 Desarmes: {tackles_home} - {tackles_away}
     '''
                     sendMenssageTelegram(text)
             
 
 
             condicao5min = 0
-            # condicao5min_randomforest = 0
             condicao5min_Automl = 0
 
             if minute >= 1 and minute < 45:
                 try:
-                    preprocessor = pickle.load(
-                        open('models/preprocessor.pickle', 'rb'))
+                    
 
-                    # Xht = preprocessor.transform(Xht).toarray()
                     Xht = preprocessor.transform(Xht)
                     Xht_h2o = h2o.H2OFrame(Xht)
 
@@ -615,9 +482,6 @@ while True:
                 if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
                     print(
                         f'{homeTeam} x {awayTeam} rede: {model.predict(Xht)[0][0]}')
-                    # print(f'{homeTeam} x {awayTeam} rede: {model.predict_proba(Xht)[0][1]}')
-                    # print(
-                    #     f'{homeTeam} x {awayTeam} randomforest: {model_randomforest.predict_proba(Xht)[0][1]}')
 
                     print(
                         f"{homeTeam} x {awayTeam} Automl: {h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']}")
@@ -625,8 +489,6 @@ while True:
                     if model.predict(Xht)[0][0] >= 0.75:
 
                         condicao5min = 1
-                    # if model_randomforest.predict_proba(Xht)[0][1] >= 0.75:
-                    #     condicao5min_randomforest = 1
 
                     if h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1'] >= 0.75:
                         condicao5min_Automl = 1
@@ -654,37 +516,14 @@ while True:
     ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
     🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
     🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+    🔴 Faltas: {fouls_home} - {fouls_away}
+    🚩 Impedimentos: {offsides_home} - {offsides_away}
+    🛑 Desarmes: {tackles_home} - {tackles_away}
 '''
+
                 if '&' in text:
                     text = text.replace('&', '')
                 sendMenssageTelegram(text)
-
-#             if condicao5min_randomforest == 1 and iD not in id_over05HTrandomforest:
-#                 id_over05HTrandomforest.append(iD)
-#                 # state, valorEsperado = makeBet(id_evento)
-#                 state, valorEsperado = 'SUCCESS', 10
-
-#                 text = f'''{len(id_over05HTrandomforest)} 👑 Modelo Random Forest over 0.5 ht
-#     🚨 Jogo: {homeTeam} x {awayTeam}
-#     💭 Previsão: {model_randomforest.predict_proba(Xht)[0][1]}
-#     📈 Estado da aposta: {state}
-#     💰 Valor esperado da aposta: {valorEsperado:.2f}
-#     ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-#     🏆 Liga: {league}
-#     ⏱️ Minuto: {minute}
-
-#     📋 Estatísticas
-#     🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
-#     🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
-#     ⛳ Escanteios: {corners_home} - {corners_away}
-#     📈 Ataques: {attacks_home} - {attacks_away}
-#     ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
-#     🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
-#     🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
-# '''
-#                 if '&' in text:
-#                     text = text.replace('&', '')
-#                 sendMenssageTelegram(text)
 
             if condicao5min_Automl == 1 and iD not in id_over05HTAutoml:
                 id_over05HTAutoml.append(iD)
@@ -708,6 +547,9 @@ while True:
     ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
     🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
     🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+    🔴 Faltas: {fouls_home} - {fouls_away}
+    🚩 Impedimentos: {offsides_home} - {offsides_away}
+    🛑 Desarmes: {tackles_home} - {tackles_away}
 '''
                 if '&' in text:
                     text = text.replace('&', '')
