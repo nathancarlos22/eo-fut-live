@@ -13,6 +13,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import csv
+import re
 
 file_path = './data_live_scores.csv'
 
@@ -90,6 +91,7 @@ def main_function(date_str):
                 driver.get(links)
                 driver.minimize_window()
                 driver.maximize_window()
+                
                 # Espera a página carregar
                 WebDriverWait(driver, 30).until(lambda d: d.execute_script(
                     'return document.readyState') == 'complete')
@@ -110,6 +112,7 @@ def main_function(date_str):
                     print('Jogo já existe no dataframe')
                     continue
                 
+
                 print('Jogo não existe no dataframe')
                 print('Iniciando a coleta de dados')
                 print('-------------------')
@@ -185,7 +188,36 @@ def main_function(date_str):
                     script = """
                     return document.querySelector('g.Opta-TimeBox.Opta-end text').textContent;
                     """
-                    minute.append(driver.execute_script(script))
+                    minuto = driver.execute_script(script)
+
+                    
+                    numero_extraido = re.findall('(\d+)\+', minuto)
+                    numero_int = int(numero_extraido[0]) if numero_extraido else 0
+
+                    # Convertendo para inteiro
+
+                    # se houver algum erro na extração do minuto, altera o dragger para obter o valor correto
+                    while numero_int > 45:
+                        driver.execute_script(
+                        f"arguments[0].setAttribute('transform', 'translate({value}, 45)')", dragger)
+                        actions.click_and_hold(dragger).move_by_offset(
+                        4, 0).release().perform()
+
+                        page_source = driver.page_source
+
+                        dataframes = pd.read_html(page_source)
+
+                        all_dataframes[f'Team_1'] = dataframes
+
+                        script = """
+                        return document.querySelector('g.Opta-TimeBox.Opta-end text').textContent;
+                        """
+                        minuto = driver.execute_script(script)
+                        numero_extraido = re.findall('(\d+)\+', minuto)
+                        numero_int = int(numero_extraido[0]) if numero_extraido else 0
+                        
+                    
+                    minute.append(minuto)
 
                     team1_stats = all_dataframes['Team_1'][2]
                     team2_stats = all_dataframes['Team_1'][3]

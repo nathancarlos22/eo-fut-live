@@ -467,6 +467,10 @@ while True:
             }
 
             Xht = pd.DataFrame(novo_dado, index=[0])
+            
+            # Tratando ligas com nomes diferentes, varios grupos, etc..
+            if 'Asia - AFC Champions League' in league:
+                league = 'Asia - AFC Champions League'
 
             # try:
             #     id_evento = game['betfairId']
