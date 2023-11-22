@@ -471,6 +471,7 @@ while True:
             # Tratando ligas com nomes diferentes, varios grupos, etc..
             if 'Asia - AFC Champions League' in league:
                 league = 'Asia - AFC Champions League'
+                Xht['league'] = league
 
             # try:
             #     id_evento = game['betfairId']
