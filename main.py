@@ -432,7 +432,7 @@ while True:
                     Xht = preprocessor.transform(Xht)
                     Xht_h2o = h2o.H2OFrame(Xht)
 
-                    X_ht = torch.from_numpy(Xht.values).float()
+                    X_ht = torch.from_numpy(Xht).float()
 
                 except Exception as e:
                     print(e)
