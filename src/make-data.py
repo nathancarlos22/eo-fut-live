@@ -1,9 +1,10 @@
 from make_data_imp import main_function
 import datetime
 import concurrent.futures 
+import pandas as pd
 
 def main():
-    date_strings = ['2020-10-01']
+    date_strings = ['2023-11-20']
     # date_strings = ['2023-03-24']
 
     date_objects = [datetime.datetime.strptime(date, '%Y-%m-%d') for date in date_strings]
@@ -14,8 +15,8 @@ def main():
     date_now = datetime.datetime.now().strftime('%Y-%m-%d')
 
     # list of dates unilt today
-    # list_of_dates = pd.date_range(start=recent_date, end=date_now).strftime('%Y-%m-%d').tolist()
-    list_of_dates = ['2020-10-14']
+    list_of_dates = pd.date_range(start=recent_date, end=date_now).strftime('%Y-%m-%d').tolist()
+    # list_of_dates = ['2020-10-14']
     # pegar os ultimos 10 dias
     # list_of_dates = list_of_dates[-10:]
     print(len(list_of_dates))

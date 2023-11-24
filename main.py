@@ -56,6 +56,31 @@ model_Automl = loaded_model = h2o.load_model("./models/model_automl")
 preprocessor = pickle.load(
                         open('models/preprocessor.pickle', 'rb'))
 
+# carregando modelo
+import torch
+import torch.nn as nn
+
+class BinaryClassificationModel(nn.Module):
+    def __init__(self, input_shape):
+        super(BinaryClassificationModel, self).__init__()
+        self.layer1 = nn.Linear(input_shape, 128)
+        self.layer2 = nn.Linear(128, 64)
+        self.layer3 = nn.Linear(64, 1)
+
+    def forward(self, x):
+        x = torch.relu(self.layer1(x))
+        x = torch.relu(self.layer2(x))
+        x = torch.sigmoid(self.layer3(x))
+        return x
+# Crie uma instância do modelo
+model_py = BinaryClassificationModel(input_shape=50)  # 50 é o número de colunas de recursos
+
+# Carregue os pesos salvos
+model_py.load_state_dict(torch.load('./models/model_redeht.pth'))
+
+# Coloque o modelo em modo de avaliação (isso é importante para desativar características como dropout, se aplicável)
+model_py.eval()
+
 id_over05HTmodel = []
 winht_model = 0
 loseht_model = 0
@@ -64,146 +89,17 @@ id_over05HTAutoml = []
 winht_Automl = 0
 loseht_Automl = 0
 
+id_over05HTmodelPy = []
+winht_modelPy = 0
+loseht_modelPy = 0
+
 id_evento = ''
 
 lucro = 0
 valorEsperado = 0
 state = ''
 while True:
-
-    # hora = datetime.now().hour
     print('🤖 Procurando jogos...\n')
-
-    # tempo_atual = time.time()
-    # if tempo_atual >= tempo_termino or flag == 0 or hora == 0 and minutoss == 0:
-        # flag = 1
-
-
-        # def makeBet(id_evento):
-
-        # try:
-        #     config = configparser.ConfigParser()
-        #     config.read('credenciais.ini')
-
-        #     app_key = config['api_credentials']['app_key']
-        #     username = config['api_credentials']['username']
-        #     password = config['api_credentials']['password']
-
-        #     trading = betfairlightweight.APIClient(username, password, app_key=app_key, cert_files=("./betfair-certs/nc-odds.crt", "./betfair-certs/nc-odds.key"))
-        #     trading.login()
-
-        #     filtros_mercado = betfairlightweight.filters.market_filter()
-
-        #     eventos_fut = trading.betting.list_events(filter=filtros_mercado)
-
-        #     competitions = trading.betting.list_competitions(filter=filtros_mercado)
-
-        #     planilha_eventos = pd.DataFrame({
-        #         'NomeEvento': [evento.event.name for evento in eventos_fut],
-        #         'IdEvento': [evento.event.id for evento in eventos_fut],
-        #         'LocalEvento': [evento.event.venue for evento in eventos_fut],
-        #         'CodPais': [evento.event.country_code for evento in eventos_fut],
-        #         'Timezone': [evento.event.time_zone for evento in eventos_fut],
-        #         'DataAbertura': [evento.event.open_date for evento in eventos_fut],
-        #         'TotalMercados': [evento.market_count for evento in eventos_fut],
-        #         'DataLocal': [evento.event.open_date.replace(tzinfo=datetime.timezone.utc).astimezone(tz=None) for evento in eventos_fut],
-
-        #     })
-
-        #     planilha_eventos = planilha_eventos[planilha_eventos['NomeEvento'].str.contains(' v ')] # retirando mercados de eventos que não são partidas de futebol
-        #     planilha_eventos['IdEvento'] = planilha_eventos['IdEvento'].astype(str)
-
-        #     jogo = planilha_eventos[planilha_eventos['IdEvento'] == id_evento]
-
-        #     filtros_mercado = betfairlightweight.filters.market_filter(event_ids=[id_evento])
-
-        #     catalogos_mercado = trading.betting.list_market_catalogue(
-        #         filter=filtros_mercado,
-        #         max_results='100',
-        #         sort='FIRST_TO_START',
-        #         market_projection=['RUNNER_METADATA']
-        #     )
-
-        #     mercados = pd.DataFrame({
-        #         'NomeMercado': [mercado.market_name for mercado in catalogos_mercado],
-        #         'IdMercado': [mercado.market_id for mercado in catalogos_mercado],
-        #         'TotalCorrespondido': [mercado.total_matched for mercado in catalogos_mercado],
-        #         'Home': [mercado.runners[0].runner_name for mercado in catalogos_mercado],
-        #         'HomeId': [mercado.runners[0].selection_id for mercado in catalogos_mercado],
-        #         'Away': [mercado.runners[1].runner_name for mercado in catalogos_mercado],
-        #         'AwayId': [mercado.runners[1].selection_id for mercado in catalogos_mercado],
-        #         'Draw': [mercado.runners[2].runner_name if len(mercado.runners) > 2 else '' for mercado in catalogos_mercado],
-        #         'DrawId': [mercado.runners[2].selection_id if len(mercado.runners) > 2 else 0 for mercado in catalogos_mercado],
-
-        #     })
-
-        #     filtro_mercado_id_odds = mercados[(mercados['NomeMercado'] == 'First Half Goals 0.5')]
-
-        #     order_filter = betfairlightweight.filters.ex_best_offers_overrides(
-        #         best_prices_depth=3,
-        #     )
-
-        #     price_filter = betfairlightweight.filters.price_projection(
-        #         price_data=['EX_BEST_OFFERS'],
-        #         ex_best_offers_overrides=order_filter,
-        #     )
-
-        #     market_id_list = filtro_mercado_id_odds['IdMercado'].to_list()
-
-        #     market_books = trading.betting.list_market_book(
-        #         market_ids=market_id_list,
-        #         price_projection=price_filter,
-        #     )
-
-        #     odds = []
-        #     casa, empate, fora, over25, under25 = [], [], [], [], []
-
-        #     for market in market_books:
-        #         runners = market.runners
-
-        #         for i in range(0,3):
-        #             try:
-        #                 odds.append([runner_book.ex.available_to_back[i].price
-        #                             if runner_book.ex.available_to_back
-        #                             else 1.01
-        #                             for runner_book in runners])
-        #             except:
-        #                 odds.append([1.01, 1.01, 1.01])
-
-        #     if odds[0][1] > 1.01:
-        #         for mercado in catalogos_mercado:
-        #             if mercado.market_name == 'First Half Goals 0.5' and mercado.total_matched > 0:
-        #                 selecao_gols_acima = mercado.runners[0].selection_id
-        #                 odds_gols_acima = odds[0][1]
-        #                 valor_aposta = 5.0
-        #                 retorno_esperado = valor_aposta * odds_gols_acima
-
-        #                 limit_order_filter = betfairlightweight.filters.limit_order(
-        #                     size=valor_aposta,
-        #                     price=odds_gols_acima,
-        #                     persistence_type='PERSIST'
-        #                 )
-
-        #                 resposta = betfairlightweight.filters.place_instruction(
-        #                     selection_id=mercado.runners[1].selection_id,
-        #                     order_type="LIMIT",
-        #                     side="BACK",
-        #                     limit_order=limit_order_filter
-        #                 )
-
-        #                 # print(f"Aposta feita com sucesso! ID da aposta: {resposta['instructionReports'][0]['betId']}")
-        #                 # print(f"Valor apostado: {valor_aposta:.2f} / Odds: {odds_gols_acima:.2f} / Retorno esperado: {retorno_esperado:.2f}")
-
-        #                 order = trading.betting.place_orders (
-        #                 market_id=mercado.market_id, # The market id we obtained from before
-        #                 customer_strategy_ref='back_the_fav',
-        #                 instructions=[resposta] # This must be a list
-        #         )
-
-        #         return order.__dict__['_data']['instructionReports'][0]['status'], retorno_esperado
-        #         # return "SUCCESS", retorno_esperado
-        # except Exception as e:
-        #     traceback.print_exc()
 
     try:
 
@@ -402,6 +298,66 @@ while True:
             🛑 Desarmes: {tackles_home} - {tackles_away}
     '''
                     sendMenssageTelegram(text)
+            
+            # rede neural pytorch
+            if iD in id_over05HTmodelPy:
+                if minute <= 45 and (awayTeamScore + homeTeamScore) > 0:
+                    winht_modelPy += 1
+                    id_over05HTmodelPy.remove(iD)
+                    valor = valorEsperado - 5
+                    lucro += valor
+
+                    text = f'''{len(id_over05HTmodelPy)} 👑 Modelo de aprendizagem over 0.5 ht
+
+            ✅ Win {winht_modelPy} - {loseht_modelPy}
+            💰 Lucro: {lucro:.2f}
+
+            🚨 Jogo: {homeTeam} x {awayTeam}
+            ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+            🏆 Liga: {league}
+            ⏱️ Minuto: {minute}
+
+            📋 Estatísticas
+            🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+            🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+            ⛳ Escanteios: {corners_home} - {corners_away}
+            📈 Ataques: {attacks_home} - {attacks_away}
+            ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+            🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+            🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+            🔴 Faltas: {fouls_home} - {fouls_away}
+            🚩 Impedimentos: {offsides_home} - {offsides_away}
+            🛑 Desarmes: {tackles_home} - {tackles_away}
+    '''
+                    sendMenssageTelegram(text)
+
+                if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
+                    loseht_modelPy += 1
+                    id_over05HTmodelPy.remove(iD)
+                    lucro -= 5
+                    text = f'''{len(id_over05HTmodelPy)} 👑 Modelo de aprendizagem over 0.5 ht
+
+            🛑 Lose {winht_modelPy} - {loseht_modelPy}
+            💰 Lucro: {lucro:.2f}
+
+            🚨 Jogo: {homeTeam} x {awayTeam}
+            ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+            🏆 Liga: {league}
+            ⏱️ Minuto: {minute}
+
+            📋 Estatísticas
+            🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+            🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+            ⛳ Escanteios: {corners_home} - {corners_away}
+            📈 Ataques: {attacks_home} - {attacks_away}
+            ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+            🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+            🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+            🔴 Faltas: {fouls_home} - {fouls_away}
+            🚩 Impedimentos: {offsides_home} - {offsides_away}
+            🛑 Desarmes: {tackles_home} - {tackles_away}
+    '''
+                    sendMenssageTelegram(text)
 
             # Automl
             if iD in id_over05HTAutoml:
@@ -467,6 +423,7 @@ while True:
 
             condicao5min = 0
             condicao5min_Automl = 0
+            condicao5minPy = 0
 
             if minute >= 1 and minute < 45:
                 try:
@@ -474,6 +431,8 @@ while True:
 
                     Xht = preprocessor.transform(Xht)
                     Xht_h2o = h2o.H2OFrame(Xht)
+
+                    X_ht = torch.from_numpy(Xht.values).float()
 
                 except Exception as e:
                     print(e)
@@ -485,6 +444,9 @@ while True:
 
                     print(
                         f"{homeTeam} x {awayTeam} Automl: {h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']}")
+                    
+                    print(
+                        f"{homeTeam} x {awayTeam} Pytorch: {model_py(X_ht)[0][0]}")
 
                     if model.predict(Xht)[0][0] >= 0.75:
 
@@ -492,6 +454,9 @@ while True:
 
                     if h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1'] >= 0.75:
                         condicao5min_Automl = 1
+
+                    if model_py(X_ht)[0][0] >= 0.75:
+                        condicao5minPy = 1
 
             if condicao5min == 1 and iD not in id_over05HTmodel:
                 id_over05HTmodel.append(iD)
@@ -554,6 +519,38 @@ while True:
                 if '&' in text:
                     text = text.replace('&', '')
                 sendMenssageTelegram(text)
+            
+            if condicao5minPy == 1 and iD not in id_over05HTmodelPy:
+                id_over05HTmodelPy.append(iD)
+                # state, valorEsperado = makeBet(id_evento)
+                state, valorEsperado = 'SUCCESS', 10
+
+                text = f'''{len(id_over05HTmodelPy)} 👑 Modelo Rede Neural Pytorch over 0.5 ht
+    🚨 Jogo: {homeTeam} x {awayTeam}
+    💭 Previsão: {h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']}
+    📈 Estado da aposta: {state}
+    💰 Valor esperado da aposta: {valorEsperado:.2f}
+    ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+    🏆 Liga: {league}
+    ⏱️ Minuto: {minute}
+
+    📋 Estatísticas
+    🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+    ⛳ Escanteios: {corners_home} - {corners_away}
+    📈 Ataques: {attacks_home} - {attacks_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+    🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+    🔴 Faltas: {fouls_home} - {fouls_away}
+    🚩 Impedimentos: {offsides_home} - {offsides_away}
+    🛑 Desarmes: {tackles_home} - {tackles_away}
+'''
+                if '&' in text:
+                    text = text.replace('&', '')
+                sendMenssageTelegram(text)
+                
+
 
         time.sleep(60)
     except Exception as e:
