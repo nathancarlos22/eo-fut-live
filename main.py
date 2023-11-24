@@ -307,7 +307,7 @@ while True:
                     valor = valorEsperado - 5
                     lucro += valor
 
-                    text = f'''{len(id_over05HTmodelPy)} 👑 Modelo de aprendizagem over 0.5 ht
+                    text = f'''{len(id_over05HTmodelPy)} 👑 Modelo Rede Neural Pytorch over 0.5 ht
 
             ✅ Win {winht_modelPy} - {loseht_modelPy}
             💰 Lucro: {lucro:.2f}
@@ -335,7 +335,7 @@ while True:
                     loseht_modelPy += 1
                     id_over05HTmodelPy.remove(iD)
                     lucro -= 5
-                    text = f'''{len(id_over05HTmodelPy)} 👑 Modelo de aprendizagem over 0.5 ht
+                    text = f'''{len(id_over05HTmodelPy)} 👑 Modelo Rede Neural Pytorch over 0.5 ht
 
             🛑 Lose {winht_modelPy} - {loseht_modelPy}
             💰 Lucro: {lucro:.2f}
