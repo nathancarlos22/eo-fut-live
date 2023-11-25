@@ -199,18 +199,13 @@ while True:
             if 'Asia - AFC Champions League' in league:
                 league = 'Asia - AFC Champions League'
                 Xht['league'] = league
-            
-            # Engenharia de recursos
-            total_passes = Xht['passes_away'] + Xht['passes_home']
-            Xht['possessiontime_away'] = round((Xht['passes_away'] / total_passes) * 100)
-            Xht['possessiontime_home'] = round((Xht['passes_home'] / total_passes) * 100)
 
             # Eficiência defensiva: razão entre desarmes e chutes ao gol do adversário
             Xht['defensive_efficiency'] = Xht['tackles_home'] / (Xht['shotsOngoal_away'] + 1)  # +1 para evitar divisão por zero
 
             # Agressividade ao longo do tempo: combinando faltas e cartões amarelos com minutos
-            Xht['aggressiveness_over_time_home'] = (Xht['fouls_c_home'] + Xht['yellowcards_home']) * Xht['minute']
-            Xht['aggressiveness_over_time_away'] = (Xht['fouls_c_away'] + Xht['yellowcards_away']) * Xht['minute']
+            Xht['aggressiveness_over_time_home'] = (Xht['fouls_home'] + Xht['yellowcards_home']) * Xht['minute']
+            Xht['aggressiveness_over_time_away'] = (Xht['fouls_away'] + Xht['yellowcards_away']) * Xht['minute']
 
             # Eficiência de posse de bola: razão entre tempo de posse e chutes ao gol
             Xht['possession_efficiency_home'] = Xht['possessiontime_home'] / (Xht['shotsOngoal_home'] + 1)
@@ -221,7 +216,7 @@ while True:
             Xht['total_redcards'] = Xht['redcards_home'] + Xht['redcards_away']
 
             # Total de faltas por jogo
-            Xht['total_fouls'] = Xht['fouls_c_home'] + Xht['fouls_c_away']
+            Xht['total_fouls'] = Xht['fouls_home'] + Xht['fouls_away']
 
             # try:
             #     id_evento = game['betfairId']
