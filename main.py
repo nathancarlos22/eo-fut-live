@@ -13,10 +13,6 @@ import h2o
 from dotenv import load_dotenv
 import os
 from datetime import datetime
-# import betfairlightweight
-# import configparser
-
-
 
 warnings.filterwarnings('ignore')
 
@@ -28,9 +24,18 @@ token = os.getenv('TOKEN')
 
 def sendMenssageTelegram(message):
     url_base = f'https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}'
-    results = requests.get(url_base)
-    print(results)
+    response = requests.get(url_base)
     print(message)
+    return response.json()['result']['message_id']
+
+def editMessageTelegram(message_id, new_message):
+    url_base = f'https://api.telegram.org/bot{token}/editMessageText?chat_id={chat_id}&message_id={message_id}&text={new_message}'
+    requests.get(url_base)
+
+id_jogos_mensagem = {
+    "id_over05HTmodel": [],
+    "id_over05HTAutoml": []
+}
 
 
 id_over05HTmodel = []
@@ -52,34 +57,11 @@ model = keras.models.load_model('models/model_redeht.h5')
 # Inicializar o cluster H2O
 h2o.init()
 model_Automl = loaded_model = h2o.load_model("./models/model_automl")
+# model_Automl = loaded_model = h2o.load_model("C:/Users/Pichau/Desktop/eo-fut-live/models/model_automl")
 
 preprocessor = pickle.load(
                         open('models/preprocessor.pickle', 'rb'))
 
-# carregando modelo
-import torch
-import torch.nn as nn
-
-class BinaryClassificationModel(nn.Module):
-    def __init__(self, input_shape):
-        super(BinaryClassificationModel, self).__init__()
-        self.layer1 = nn.Linear(input_shape, 128)
-        self.layer2 = nn.Linear(128, 64)
-        self.layer3 = nn.Linear(64, 1)
-
-    def forward(self, x):
-        x = torch.relu(self.layer1(x))
-        x = torch.relu(self.layer2(x))
-        x = torch.sigmoid(self.layer3(x))
-        return x
-# Crie uma instância do modelo
-model_py = BinaryClassificationModel(input_shape=50)  # 50 é o número de colunas de recursos
-
-# Carregue os pesos salvos
-model_py.load_state_dict(torch.load('./models/model_redeht.pth'))
-
-# Coloque o modelo em modo de avaliação (isso é importante para desativar características como dropout, se aplicável)
-model_py.eval()
 
 id_over05HTmodel = []
 winht_model = 0
@@ -89,15 +71,17 @@ id_over05HTAutoml = []
 winht_Automl = 0
 loseht_Automl = 0
 
-id_over05HTmodelPy = []
-winht_modelPy = 0
-loseht_modelPy = 0
+
 
 id_evento = ''
 
 lucro = 0
 valorEsperado = 0
 state = ''
+
+value_pred_rede = 0
+value_pred_automl = 0
+
 while True:
     print('🤖 Procurando jogos...\n')
 
@@ -131,17 +115,8 @@ while True:
             "GET", url, data=payload, headers=headers, params=querystring)
 
         dic_response = response.json()
-
-        for game in dic_response['data']:
-            awayTeam = game['awayTeam']['name']
-            homeTeam = game['homeTeam']['name']
-            status = game['status']
-            minute = game['currentTime']['minute']
-            awayTeamScore = game['scores']['homeTeamScore']
-            homeTeamScore = game['scores']['awayTeamScore']
-            league = game['league']['name']
-
-            print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {awayTeamScore} x {homeTeamScore} ({league})')
+        numero_jogos = len(dic_response['data'])
+        print(f'🤖 {numero_jogos} jogos encontrados\n')
 
         for game in dic_response['data']:
             date = game['date']
@@ -161,14 +136,8 @@ while True:
 
             iD = game['stats']['_id']
 
-            attacks_home = game['stats']['attacks']['home']
-            attacks_away = game['stats']['attacks']['away']
-
             corners_home = game['stats']['corners']['home']
             corners_away = game['stats']['corners']['away']
-
-            # dangerousAttacks_home = game['stats']['dangerousAttacks']['home']
-            # dangerousAttacks_away = game['stats']['dangerousAttacks']['away']
 
             fouls_home = game['stats']['fouls']['home']
             fouls_away = game['stats']['fouls']['away']
@@ -239,125 +208,126 @@ while True:
             if Xht.isna().sum().sum() > 0:
                 continue
 
+            print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {awayTeamScore} x {homeTeamScore} ({league})')
+
+            for key, value in id_jogos_mensagem.items():
+                if key == 'id_over05HTmodel':
+                    for jogos in value:
+                        if jogos['id'] == iD:
+                            editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTmodel)} 👑 Modelo de aprendizagem
+                                                
+    🚨 Jogo: {homeTeam} x {awayTeam}
+    ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+    🏆 Liga: {league}
+    ⏱️ Minuto: {minute}
+
+    📋 Estatísticas
+    🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+    ⛳ Escanteios: {corners_home} - {corners_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+    🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+    🔴 Faltas: {fouls_home} - {fouls_away}
+    🚩 Impedimentos: {offsides_home} - {offsides_away}
+    🛑 Desarmes: {tackles_home} - {tackles_away}
+        ''')
+                if key == 'id_over05HTAutoml':
+                    for jogos in value:
+                        if jogos['id'] == iD:
+                            editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTAutoml)} 👑 Modelo Automl
+                                            
+    🚨 Jogo: {homeTeam} x {awayTeam}
+    ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+    🏆 Liga: {league}
+    ⏱️ Minuto: {minute}
+
+    📋 Estatísticas
+    🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+    ⛳ Escanteios: {corners_home} - {corners_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+    🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+    🔴 Faltas: {fouls_home} - {fouls_away}
+    🚩 Impedimentos: {offsides_home} - {offsides_away}
+    🛑 Desarmes: {tackles_home} - {tackles_away}
+        ''')
+                                            
+                
+
+
             # rede neural
             if iD in id_over05HTmodel:
                 if minute <= 45 and (awayTeamScore + homeTeamScore) > 0:
                     winht_model += 1
                     id_over05HTmodel.remove(iD)
+                    
                     valor = valorEsperado - 5
                     lucro += valor
 
-                    text = f'''{len(id_over05HTmodel)} 👑 Modelo de aprendizagem over 0.5 ht
+                    for key, value in id_jogos_mensagem.items():
+                        if key == 'id_over05HTmodel':
+                            for jogos in value:
+                                if jogos['id'] == iD:
+                                    editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTmodel)} 👑 Modelo de aprendizagem
 
-            ✅ Win {winht_model} - {loseht_model}
-            💰 Lucro: {lucro:.2f}
+    ✅ Win {winht_model} - {loseht_model}
+    💰 Lucro: {lucro:.2f}
 
-            🚨 Jogo: {homeTeam} x {awayTeam}
-            ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-            🏆 Liga: {league}
-            ⏱️ Minuto: {minute}
+    🚨 Jogo: {homeTeam} x {awayTeam}
+    ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+    🏆 Liga: {league}
+    ⏱️ Minuto: {minute}
 
-            📋 Estatísticas
-            🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
-            🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
-            ⛳ Escanteios: {corners_home} - {corners_away}
-            📈 Ataques: {attacks_home} - {attacks_away}
-            ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
-            🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
-            🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
-            🔴 Faltas: {fouls_home} - {fouls_away}
-            🚩 Impedimentos: {offsides_home} - {offsides_away}
-            🛑 Desarmes: {tackles_home} - {tackles_away}
-    '''
-                    sendMenssageTelegram(text)
+    📋 Estatísticas
+    🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+    ⛳ Escanteios: {corners_home} - {corners_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+    🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+    🔴 Faltas: {fouls_home} - {fouls_away}
+    🚩 Impedimentos: {offsides_home} - {offsides_away}
+    🛑 Desarmes: {tackles_home} - {tackles_away}
+    ''')
+                    
+                                    # remove do dicionario
+                                    id_jogos_mensagem[key].remove(jogos)
 
                 if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
                     loseht_model += 1
                     id_over05HTmodel.remove(iD)
                     lucro -= 5
-                    text = f'''{len(id_over05HTmodel)} 👑 Modelo de aprendizagem over 0.5 ht
+                    for key, value in id_jogos_mensagem.items():
+                        if key == 'id_over05HTmodel':
+                            for jogos in value:
+                                if jogos['id'] == iD:
+                                    editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTmodel)} 👑 Modelo de aprendizagem
 
-            🛑 Lose {winht_model} - {loseht_model}
-            💰 Lucro: {lucro:.2f}
+    🛑 Lose {winht_model} - {loseht_model}
+    💰 Lucro: {lucro:.2f}
 
-            🚨 Jogo: {homeTeam} x {awayTeam}
-            ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-            🏆 Liga: {league}
-            ⏱️ Minuto: {minute}
+    🚨 Jogo: {homeTeam} x {awayTeam}
+    ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+    🏆 Liga: {league}
+    ⏱️ Minuto: {minute}
+
+    📋 Estatísticas
+    🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+    ⛳ Escanteios: {corners_home} - {corners_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+    🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+    🔴 Faltas: {fouls_home} - {fouls_away}
+    🚩 Impedimentos: {offsides_home} - {offsides_away}
+    🛑 Desarmes: {tackles_home} - {tackles_away}
+    ''')
+                                    # remove do dicionario
+                                    id_jogos_mensagem[key].remove(jogos)
             
-            📋 Estatísticas
-            🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
-            🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
-            ⛳ Escanteios: {corners_home} - {corners_away}
-            📈 Ataques: {attacks_home} - {attacks_away}
-            ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
-            🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
-            🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
-            🔴 Faltas: {fouls_home} - {fouls_away}
-            🚩 Impedimentos: {offsides_home} - {offsides_away}
-            🛑 Desarmes: {tackles_home} - {tackles_away}
-    '''
-                    sendMenssageTelegram(text)
             
-            # rede neural pytorch
-            if iD in id_over05HTmodelPy:
-                if minute <= 45 and (awayTeamScore + homeTeamScore) > 0:
-                    winht_modelPy += 1
-                    id_over05HTmodelPy.remove(iD)
-                    valor = valorEsperado - 5
-                    lucro += valor
-
-                    text = f'''{len(id_over05HTmodelPy)} 👑 Modelo Rede Neural Pytorch over 0.5 ht
-
-            ✅ Win {winht_modelPy} - {loseht_modelPy}
-            💰 Lucro: {lucro:.2f}
-
-            🚨 Jogo: {homeTeam} x {awayTeam}
-            ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-            🏆 Liga: {league}
-            ⏱️ Minuto: {minute}
-
-            📋 Estatísticas
-            🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
-            🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
-            ⛳ Escanteios: {corners_home} - {corners_away}
-            📈 Ataques: {attacks_home} - {attacks_away}
-            ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
-            🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
-            🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
-            🔴 Faltas: {fouls_home} - {fouls_away}
-            🚩 Impedimentos: {offsides_home} - {offsides_away}
-            🛑 Desarmes: {tackles_home} - {tackles_away}
-    '''
-                    sendMenssageTelegram(text)
-
-                if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                    loseht_modelPy += 1
-                    id_over05HTmodelPy.remove(iD)
-                    lucro -= 5
-                    text = f'''{len(id_over05HTmodelPy)} 👑 Modelo Rede Neural Pytorch over 0.5 ht
-
-            🛑 Lose {winht_modelPy} - {loseht_modelPy}
-            💰 Lucro: {lucro:.2f}
-
-            🚨 Jogo: {homeTeam} x {awayTeam}
-            ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-            🏆 Liga: {league}
-            ⏱️ Minuto: {minute}
-
-            📋 Estatísticas
-            🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
-            🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
-            ⛳ Escanteios: {corners_home} - {corners_away}
-            📈 Ataques: {attacks_home} - {attacks_away}
-            ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
-            🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
-            🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
-            🔴 Faltas: {fouls_home} - {fouls_away}
-            🚩 Impedimentos: {offsides_home} - {offsides_away}
-            🛑 Desarmes: {tackles_home} - {tackles_away}
-    '''
-                    sendMenssageTelegram(text)
 
             # Automl
             if iD in id_over05HTAutoml:
@@ -366,107 +336,108 @@ while True:
                     id_over05HTAutoml.remove(iD)
                     valor = valorEsperado - 5
                     lucro += valor
+                    for key, value in id_jogos_mensagem.items():
+                        if key == 'id_over05HTAutoml':
+                            for jogos in value:
+                                if jogos['id'] == iD:
+                                    editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTAutoml)} 👑 Modelo Automl
 
-                    text = f'''{len(id_over05HTAutoml)} 👑 Modelo Automl over 0.5 ht
+    ✅ Win {winht_Automl} - {loseht_Automl}
+    💰 Lucro: {lucro:.2f}
 
-            ✅ Win {winht_Automl} - {loseht_Automl}
-            💰 Lucro: {lucro:.2f}
+    🚨 Jogo: {homeTeam} x {awayTeam}
+    ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+    🏆 Liga: {league}
+    ⏱️ Minuto: {minute}
 
-            🚨 Jogo: {homeTeam} x {awayTeam}
-            ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-            🏆 Liga: {league}
-            ⏱️ Minuto: {minute}
-
-            📋 Estatísticas
-            🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
-            🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
-            ⛳ Escanteios: {corners_home} - {corners_away}
-            📈 Ataques: {attacks_home} - {attacks_away}
-            ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
-            🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
-            🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
-            🔴 Faltas: {fouls_home} - {fouls_away}
-            🚩 Impedimentos: {offsides_home} - {offsides_away}
-            🛑 Desarmes: {tackles_home} - {tackles_away}
-    '''
-                    sendMenssageTelegram(text)
+    📋 Estatísticas
+    🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+    ⛳ Escanteios: {corners_home} - {corners_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+    🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+    🔴 Faltas: {fouls_home} - {fouls_away}
+    🚩 Impedimentos: {offsides_home} - {offsides_away}
+    🛑 Desarmes: {tackles_home} - {tackles_away}
+    ''')
+                                    # remove do dicionario
+                                    id_jogos_mensagem[key].remove(jogos)
                 
                 if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
                     loseht_Automl += 1
                     id_over05HTAutoml.remove(iD)
                     lucro -= 5
-                    text = f'''{len(id_over05HTAutoml)} 👑 Modelo Automl over 0.5 ht
+                    for key, value in id_jogos_mensagem.items():
+                        if key == 'id_over05HTAutoml':
+                            for jogos in value:
+                                if jogos['id'] == iD:
+                                    editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTAutoml)} 👑 Modelo Automl
+                                                        
+    🛑 Lose {winht_Automl} - {loseht_Automl}
+    💰 Lucro: {lucro:.2f}
 
-            🛑 Lose {winht_Automl} - {loseht_Automl}
-            💰 Lucro: {lucro:.2f}
+    🚨 Jogo: {homeTeam} x {awayTeam}
+    ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+    🏆 Liga: {league}
+    ⏱️ Minuto: {minute}
 
-            🚨 Jogo: {homeTeam} x {awayTeam}
-            ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-            🏆 Liga: {league}
-            ⏱️ Minuto: {minute}
-
-            📋 Estatísticas
-            🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
-            🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
-            ⛳ Escanteios: {corners_home} - {corners_away}
-            📈 Ataques: {attacks_home} - {attacks_away}
-            ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
-            🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
-            🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
-            🔴 Faltas: {fouls_home} - {fouls_away}
-            🚩 Impedimentos: {offsides_home} - {offsides_away}
-            🛑 Desarmes: {tackles_home} - {tackles_away}
-    '''
-                    sendMenssageTelegram(text)
+    📋 Estatísticas
+    🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+    ⛳ Escanteios: {corners_home} - {corners_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
+    🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
+    🔴 Faltas: {fouls_home} - {fouls_away}
+    🚩 Impedimentos: {offsides_home} - {offsides_away}
+    🛑 Desarmes: {tackles_home} - {tackles_away}
+    ''')
+                                    # remove do dicionario
+                                    id_jogos_mensagem[key].remove(jogos)
             
 
 
             condicao5min = 0
             condicao5min_Automl = 0
-            condicao5minPy = 0
 
             if minute >= 1 and minute < 45:
                 try:
-                    
-
                     Xht = preprocessor.transform(Xht)
                     Xht_h2o = h2o.H2OFrame(Xht)
 
-                    X_ht = torch.from_numpy(Xht).float()
 
                 except Exception as e:
                     print(e)
                     continue
 
                 if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
+                    value_pred_rede = model.predict(Xht)[0][0]
+                    value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
+                     
                     print(
-                        f'{homeTeam} x {awayTeam} rede: {model.predict(Xht)[0][0]}')
+                        f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
 
                     print(
-                        f"{homeTeam} x {awayTeam} Automl: {h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']}")
+                        f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
                     
-                    print(
-                        f"{homeTeam} x {awayTeam} Pytorch: {model_py(X_ht)[0][0]}")
-
-                    if model.predict(Xht)[0][0] >= 0.75:
+                    if value_pred_rede >= 0.75:
 
                         condicao5min = 1
 
-                    if h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1'] >= 0.75:
+                    if value_pred_automl >= 0.75:
                         condicao5min_Automl = 1
 
-                    if model_py(X_ht)[0][0] >= 0.75:
-                        condicao5minPy = 1
 
             if condicao5min == 1 and iD not in id_over05HTmodel:
                 id_over05HTmodel.append(iD)
                 # state, valorEsperado = makeBet(id_evento)
                 state, valorEsperado = 'SUCCESS', 10
 
-                text = f'''{len(id_over05HTmodel)} 👑 Modelo Rede Neural over 0.5 ht
+                text = f'''{len(id_over05HTmodel)} 👑 Modelo Rede Neural 
 
     🚨 Jogo: {homeTeam} x {awayTeam}
-    💭 Previsão: {model.predict(Xht)[0][0]}
+    💭 Previsão: {value_pred_rede}
     📈 Estado da aposta: {state}
     💰 Valor esperado da aposta: {valorEsperado:.2f}
     ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
@@ -477,7 +448,6 @@ while True:
     🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
     🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     ⛳ Escanteios: {corners_home} - {corners_away}
-    📈 Ataques: {attacks_home} - {attacks_away}
     ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
     🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
     🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
@@ -488,16 +458,17 @@ while True:
 
                 if '&' in text:
                     text = text.replace('&', '')
-                sendMenssageTelegram(text)
+                id_jogos_mensagem["id_over05HTmodel"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
             if condicao5min_Automl == 1 and iD not in id_over05HTAutoml:
                 id_over05HTAutoml.append(iD)
                 # state, valorEsperado = makeBet(id_evento)
                 state, valorEsperado = 'SUCCESS', 10
 
-                text = f'''{len(id_over05HTAutoml)} 👑 Modelo Automl over 0.5 ht
+                text = f'''{len(id_over05HTAutoml)} 👑 Modelo Automl 
+    
     🚨 Jogo: {homeTeam} x {awayTeam}
-    💭 Previsão: {h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']}
+    💭 Previsão: {value_pred_automl}
     📈 Estado da aposta: {state}
     💰 Valor esperado da aposta: {valorEsperado:.2f}
     ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
@@ -508,7 +479,6 @@ while True:
     🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
     🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     ⛳ Escanteios: {corners_home} - {corners_away}
-    📈 Ataques: {attacks_home} - {attacks_away}
     ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
     🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
     🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
@@ -518,40 +488,8 @@ while True:
 '''
                 if '&' in text:
                     text = text.replace('&', '')
-                sendMenssageTelegram(text)
+                id_jogos_mensagem["id_over05HTAutoml"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
             
-            if condicao5minPy == 1 and iD not in id_over05HTmodelPy:
-                id_over05HTmodelPy.append(iD)
-                # state, valorEsperado = makeBet(id_evento)
-                state, valorEsperado = 'SUCCESS', 10
-
-                text = f'''{len(id_over05HTmodelPy)} 👑 Modelo Rede Neural Pytorch over 0.5 ht
-    🚨 Jogo: {homeTeam} x {awayTeam}
-    💭 Previsão: {h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']}
-    📈 Estado da aposta: {state}
-    💰 Valor esperado da aposta: {valorEsperado:.2f}
-    ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-    🏆 Liga: {league}
-    ⏱️ Minuto: {minute}
-
-    📋 Estatísticas
-    🦵 Chutes a gol: {shotsOngoal_home} - {shotsOngoal_away}
-    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
-    ⛳ Escanteios: {corners_home} - {corners_away}
-    📈 Ataques: {attacks_home} - {attacks_away}
-    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
-    🟥 Cartões vermelhos: {redcards_home} - {redcards_away}
-    🟨 Cartões amarelos: {yellowcards_home} - {yellowcards_away}
-    🔴 Faltas: {fouls_home} - {fouls_away}
-    🚩 Impedimentos: {offsides_home} - {offsides_away}
-    🛑 Desarmes: {tackles_home} - {tackles_away}
-'''
-                if '&' in text:
-                    text = text.replace('&', '')
-                sendMenssageTelegram(text)
-                
-
-
         time.sleep(60)
     except Exception as e:
         traceback.print_exc()
