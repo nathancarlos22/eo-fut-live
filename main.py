@@ -232,9 +232,10 @@ while True:
                 if key == 'id_over05HTmodel':
                     for jogos in value:
                         if jogos['id'] == iD:
-                            editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTmodel)} 👑 Modelo de aprendizagem
+                            editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTmodel)} 👑 Modelo Rede Neural
                                                 
     🚨 Jogo: {homeTeam} x {awayTeam}
+    💭 Previsão: {value_pred_rede}
     ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
     🏆 Liga: {league}
     ⏱️ Minuto: {minute}
@@ -253,9 +254,11 @@ while True:
                 if key == 'id_over05HTAutoml':
                     for jogos in value:
                         if jogos['id'] == iD:
-                            editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTAutoml)} 👑 Modelo Automl
+                            editMessageTelegram(jogos['message_id'], f'''
+    👑 Modelo Automl
                                             
     🚨 Jogo: {homeTeam} x {awayTeam}
+    💭 Previsão: {value_pred_automl}
     ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
     🏆 Liga: {league}
     ⏱️ Minuto: {minute}
@@ -288,7 +291,8 @@ while True:
                         if key == 'id_over05HTmodel':
                             for jogos in value:
                                 if jogos['id'] == iD:
-                                    editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTmodel)} 👑 Modelo de aprendizagem
+                                    text = f'''
+    👑 Modelo Rede Neural
 
     ✅ Win {winht_model} - {loseht_model}
     💰 Lucro: {lucro:.2f}
@@ -308,7 +312,10 @@ while True:
     🔴 Faltas: {fouls_home} - {fouls_away}
     🚩 Impedimentos: {offsides_home} - {offsides_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-    ''')
+    '''
+                                    if '&' in text:
+                                        text = text.replace('&', '')
+                                    sendMenssageTelegram(text)
                     
                                     # remove do dicionario
                                     id_jogos_mensagem[key].remove(jogos)
@@ -321,7 +328,8 @@ while True:
                         if key == 'id_over05HTmodel':
                             for jogos in value:
                                 if jogos['id'] == iD:
-                                    editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTmodel)} 👑 Modelo de aprendizagem
+                                    text = f'''
+    👑 Modelo Rede Neural
 
     🛑 Lose {winht_model} - {loseht_model}
     💰 Lucro: {lucro:.2f}
@@ -341,7 +349,12 @@ while True:
     🔴 Faltas: {fouls_home} - {fouls_away}
     🚩 Impedimentos: {offsides_home} - {offsides_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-    ''')
+    '''
+                                    if '&' in text:
+                                        text = text.replace('&', '')
+                                    sendMenssageTelegram(text)
+                                    # editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTmodel)} 
+    
                                     # remove do dicionario
                                     id_jogos_mensagem[key].remove(jogos)
             
@@ -358,7 +371,8 @@ while True:
                         if key == 'id_over05HTAutoml':
                             for jogos in value:
                                 if jogos['id'] == iD:
-                                    editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTAutoml)} 👑 Modelo Automl
+                                    text = f'''
+    👑 Modelo Automl
 
     ✅ Win {winht_Automl} - {loseht_Automl}
     💰 Lucro: {lucro:.2f}
@@ -378,8 +392,10 @@ while True:
     🔴 Faltas: {fouls_home} - {fouls_away}
     🚩 Impedimentos: {offsides_home} - {offsides_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-    ''')
-                                    # remove do dicionario
+    '''
+                                    if '&' in text:
+                                        text = text.replace('&', '')
+                                    sendMenssageTelegram(text)
                                     id_jogos_mensagem[key].remove(jogos)
                 
                 if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
@@ -390,7 +406,8 @@ while True:
                         if key == 'id_over05HTAutoml':
                             for jogos in value:
                                 if jogos['id'] == iD:
-                                    editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTAutoml)} 👑 Modelo Automl
+                                    text = f'''
+    👑 Modelo Automl
                                                         
     🛑 Lose {winht_Automl} - {loseht_Automl}
     💰 Lucro: {lucro:.2f}
@@ -410,7 +427,11 @@ while True:
     🔴 Faltas: {fouls_home} - {fouls_away}
     🚩 Impedimentos: {offsides_home} - {offsides_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-    ''')
+    '''
+                                    if '&' in text:
+                                        text = text.replace('&', '')
+                                    
+                                    sendMenssageTelegram(text)
                                     # remove do dicionario
                                     id_jogos_mensagem[key].remove(jogos)
             
@@ -421,9 +442,9 @@ while True:
 
             if minute >= 1 and minute < 45:
                 try:
+
                     Xht = preprocessor.transform(Xht)
                     Xht_h2o = h2o.H2OFrame(Xht)
-
 
                 except Exception as e:
                     print(e)
@@ -483,7 +504,8 @@ while True:
                 # state, valorEsperado = makeBet(id_evento)
                 state, valorEsperado = 'SUCCESS', 10
 
-                text = f'''{len(id_over05HTAutoml)} 👑 Modelo Automl 
+                text = f'''
+    👑 Modelo Automl 
     
     🚨 Jogo: {homeTeam} x {awayTeam}
     💭 Previsão: {value_pred_automl}
