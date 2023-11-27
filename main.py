@@ -61,6 +61,7 @@ model_Automl = loaded_model = h2o.load_model("./models/model_automl")
 
 preprocessor = pickle.load(
                         open('models/preprocessor.pickle', 'rb'))
+preprocessor_league = pickle.load(open('models/preprocessor_league.pickle','rb'))
 
 
 id_over05HTmodel = []
@@ -217,6 +218,8 @@ while True:
 
             # Total de faltas por jogo
             Xht['total_fouls'] = Xht['fouls_home'] + Xht['fouls_away']
+
+            Xht_league = Xht.drop(columns=['league'])
 
             # try:
             #     id_evento = game['betfairId']
@@ -452,6 +455,7 @@ while True:
 
                     Xht = preprocessor.transform(Xht)
                     Xht_h2o = h2o.H2OFrame(Xht)
+                    Xht_transform = preprocessor_league.transform(Xht_league)
 
                 except Exception as e:
                     print(e)
@@ -459,7 +463,8 @@ while True:
 
                 if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
                     model = keras.models.load_model(f'models/model_redeht_{league}.h5')
-                    value_pred_rede = model.predict(Xht)[0][0]
+                    # value_pred_rede = model.predict(Xht)[0][0]
+                    value_pred_rede = model.predict(Xht_transform)[0][0]                      
                     value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
                      
                     print(
