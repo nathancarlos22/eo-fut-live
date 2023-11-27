@@ -232,7 +232,8 @@ while True:
                 if key == 'id_over05HTmodel':
                     for jogos in value:
                         if jogos['id'] == iD:
-                            editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTmodel)} 👑 Modelo Rede Neural
+                            text = f'''
+    👑 Modelo Rede Neural
                                                 
     🚨 Jogo: {homeTeam} x {awayTeam}
     💭 Previsão: {value_pred_rede}
@@ -250,11 +251,14 @@ while True:
     🔴 Faltas: {fouls_home} - {fouls_away}
     🚩 Impedimentos: {offsides_home} - {offsides_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-        ''')
+        '''
+                            if '&' in text:
+                                text = text.replace('&', '')
+                            editMessageTelegram(jogos['message_id'], text)
                 if key == 'id_over05HTAutoml':
                     for jogos in value:
                         if jogos['id'] == iD:
-                            editMessageTelegram(jogos['message_id'], f'''
+                            text = f'''
     👑 Modelo Automl
                                             
     🚨 Jogo: {homeTeam} x {awayTeam}
@@ -273,7 +277,10 @@ while True:
     🔴 Faltas: {fouls_home} - {fouls_away}
     🚩 Impedimentos: {offsides_home} - {offsides_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-        ''')
+        '''
+                            if '&' in text:
+                                text = text.replace('&', '')
+                            editMessageTelegram(jogos['message_id'], text)
                                             
                 
 
@@ -451,6 +458,7 @@ while True:
                     continue
 
                 if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
+                    model = keras.models.load_model(f'models/model_redeht{league}.h5')
                     value_pred_rede = model.predict(Xht)[0][0]
                     value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
                      
