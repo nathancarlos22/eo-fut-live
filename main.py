@@ -458,7 +458,7 @@ while True:
                     continue
 
                 if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
-                    model = keras.models.load_model(f'models/model_redeht{league}.h5')
+                    model = keras.models.load_model(f'models/model_redeht_{league}.h5')
                     value_pred_rede = model.predict(Xht)[0][0]
                     value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
                      
