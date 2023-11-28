@@ -584,7 +584,8 @@ while True:
                 # state, valorEsperado = makeBet(id_evento)
                 state, valorEsperado = 'SUCCESS', 10
 
-                text = f'''{len(id_over05HTmodel)} 👑 Modelo Rede Neural 
+                text = f'''
+    👑 Modelo Rede Neural 
 
     🚨 Jogo: {homeTeam} x {awayTeam}
     💭 Previsão: {value_pred_rede}
