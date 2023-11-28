@@ -287,7 +287,7 @@ while True:
             pressure_over_time_away = Xht['pressure_over_time_away'].values[0]
 
             attack_intensity_away = Xht['attack_intensity_away'].values[0]
-            attack_intensity_home = Xht['attack_intensity_home'].values[0]
+            # attack_intensity_home = Xht['attack_intensity_home'].values[0]
 
             # Xht_league = Xht.drop(columns=['league'])
 
@@ -328,7 +328,7 @@ while True:
     📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
     📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    🎯 Intensidade de ataque: X - {attack_intensity_away}
 
         '''
                             if '&' in text:
@@ -360,7 +360,7 @@ while True:
     📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
     📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    🎯 Intensidade de ataque: X - {attack_intensity_away}
         '''
                             if '&' in text:
                                 text = text.replace('&', '')
@@ -406,7 +406,7 @@ while True:
     📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
     📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    🎯 Intensidade de ataque: X - {attack_intensity_away}
     '''
                                     if '&' in text:
                                         text = text.replace('&', '')
@@ -447,7 +447,7 @@ while True:
     📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
     📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    🎯 Intensidade de ataque: X - {attack_intensity_away}
     '''
                                     if '&' in text:
                                         text = text.replace('&', '')
@@ -494,7 +494,7 @@ while True:
     📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
     📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    🎯 Intensidade de ataque: X - {attack_intensity_away}
     '''
                                     if '&' in text:
                                         text = text.replace('&', '')
@@ -533,7 +533,7 @@ while True:
     📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
     📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    🎯 Intensidade de ataque: X - {attack_intensity_away}
     '''
                                     if '&' in text:
                                         text = text.replace('&', '')
@@ -608,7 +608,7 @@ while True:
     📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
     📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    🎯 Intensidade de ataque: X - {attack_intensity_away}
 '''
 
                 if '&' in text:
@@ -645,7 +645,7 @@ while True:
     📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
     📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    🎯 Intensidade de ataque: X - {attack_intensity_away}
 '''
                 if '&' in text:
                     text = text.replace('&', '')
