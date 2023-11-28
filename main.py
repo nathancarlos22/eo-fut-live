@@ -205,49 +205,49 @@ while True:
             Xht['total_cards'] = Xht['yellowcards_home'] + Xht['yellowcards_away'] + Xht['redcards_home'] + Xht['redcards_away']
             
             # Eficiência defensiva: razão entre desarmes e chutes ao gol do adversário
-            Xht['defensive_efficiency_home'] = (Xht['tackles_home'] / (Xht['shotsOngoal_away'] + 1)).round(2)  # +1 para evitar divisão por zero
-            Xht['defensive_efficiency_away'] = (Xht['tackles_away'] / (Xht['shotsOngoal_home'] + 1)).round(2)  # +1 para evitar divisão por zero
+            Xht['defensive_efficiency_home'] = (Xht['tackles_home'] / (Xht['shotsOngoal_away'] + 1))  # +1 para evitar divisão por zero
+            Xht['defensive_efficiency_away'] = (Xht['tackles_away'] / (Xht['shotsOngoal_home'] + 1))  # +1 para evitar divisão por zero
 
             # Agressividade ao longo do tempo: combinando faltas e cartões amarelos com minutos
-            Xht['aggressiveness_over_time_home'] = (Xht['fouls_home'] + Xht['yellowcards_home']) * Xht['minute'].round(2)
-            Xht['aggressiveness_over_time_away'] = (Xht['fouls_away'] + Xht['yellowcards_away']) * Xht['minute'].round(2)
+            Xht['aggressiveness_over_time_home'] = (Xht['fouls_home'] + Xht['yellowcards_home']) * Xht['minute']
+            Xht['aggressiveness_over_time_away'] = (Xht['fouls_away'] + Xht['yellowcards_away']) * Xht['minute']
 
             # Eficiência de posse de bola: razão entre tempo de posse e chutes ao gol
-            Xht['possession_efficiency_home'] = Xht['possessiontime_home'] / (Xht['shotsOngoal_home'] + 1).round(2)
-            Xht['possession_efficiency_away'] = Xht['possessiontime_away'] / (Xht['shotsOngoal_away'] + 1).round(2)
+            Xht['possession_efficiency_home'] = Xht['possessiontime_home'] / (Xht['shotsOngoal_home'] + 1)
+            Xht['possession_efficiency_away'] = Xht['possessiontime_away'] / (Xht['shotsOngoal_away'] + 1)
 
             # Eficiência ofensiva: razão entre chutes ao gol e tempo de posse
-            Xht['offensive_efficiency_home'] = ((Xht['shotsOngoal_home'] + 1) / Xht['possessiontime_home']).round(2)
-            Xht['offensive_efficiency_away'] = ((Xht['shotsOngoal_away'] + 1) / Xht['possessiontime_away']).round(2)
+            Xht['offensive_efficiency_home'] = ((Xht['shotsOngoal_home'] + 1) / Xht['possessiontime_home'])
+            Xht['offensive_efficiency_away'] = ((Xht['shotsOngoal_away'] + 1) / Xht['possessiontime_away'])
 
             # Estabilidade defensiva: combinação entre desarmes e menor número de faltas
-            Xht['defensive_stability_home'] = (Xht['tackles_home'] / (Xht['fouls_home'] + 1)).round(2)
-            Xht['defensive_stability_away'] = (Xht['tackles_away'] / (Xht['fouls_away'] + 1)).round(2)
+            Xht['defensive_stability_home'] = (Xht['tackles_home'] / (Xht['fouls_home'] + 1))
+            Xht['defensive_stability_away'] = (Xht['tackles_away'] / (Xht['fouls_away'] + 1))
 
             # caracteristicas relacionadas ao tempo
             # Pressão ao longo do tempo: incorporando chutes ao gol e posse de bola ao longo dos minutos
-            Xht['pressure_over_time_home'] = ((Xht['shotsOngoal_home'] + Xht['possessiontime_home']) * Xht['minute']).round(2)
-            Xht['pressure_over_time_away'] = ((Xht['shotsOngoal_away'] + Xht['possessiontime_away']) * Xht['minute']).round(2)
+            Xht['pressure_over_time_home'] = ((Xht['shotsOngoal_home'] + Xht['possessiontime_home']) * Xht['minute'])
+            Xht['pressure_over_time_away'] = ((Xht['shotsOngoal_away'] + Xht['possessiontime_away']) * Xht['minute'])
 
             # Intensidade de ataque: razão entre chutes ao gol e minutos    
-            Xht['attack_intensity_home'] = (Xht['shotsOngoal_home'] / Xht['minute']).round(2)
-            Xht['attack_intensity_away'] = (Xht['shotsOngoal_away'] / Xht['minute']).round(2)
+            Xht['attack_intensity_home'] = (Xht['shotsOngoal_home'] / Xht['minute'])
+            Xht['attack_intensity_away'] = (Xht['shotsOngoal_away'] / Xht['minute'])
 
             # Progresso da posse de bola: incorporando tempo de posse e minutos
-            Xht['possession_progress_home'] = (Xht['possessiontime_home'] * Xht['minute']).round(2)
-            Xht['possession_progress_away'] = (Xht['possessiontime_away'] * Xht['minute']).round(2)
+            Xht['possession_progress_home'] = (Xht['possessiontime_home'] * Xht['minute'])
+            Xht['possession_progress_away'] = (Xht['possessiontime_away'] * Xht['minute'])
 
             # Performace defensiva: razão entre desarmes e minutos
-            Xht['defensive_performance_home'] = (Xht['tackles_home'] / Xht['minute']).round(2)
-            Xht['defensive_performance_away'] = (Xht['tackles_away'] / Xht['minute']).round(2)
+            Xht['defensive_performance_home'] = (Xht['tackles_home'] / Xht['minute'])
+            Xht['defensive_performance_away'] = (Xht['tackles_away'] / Xht['minute'])
 
             # Eficiência de progresso do jogo: incorporando eficiência de posse de bola e minutos
-            Xht['game_progress_efficiency_home'] = (Xht['possession_efficiency_home'] * Xht['minute']).round(2)
-            Xht['game_progress_efficiency_away'] = (Xht['possession_efficiency_away'] * Xht['minute']).round(2)
+            Xht['game_progress_efficiency_home'] = (Xht['possession_efficiency_home'] * Xht['minute'])
+            Xht['game_progress_efficiency_away'] = (Xht['possession_efficiency_away'] * Xht['minute'])
 
             # Momentum do jogo: incorporando chutes ao gol, posse de bola e minutos
-            Xht['game_momentum_home'] = ((Xht['shotsOngoal_home'] + Xht['possessiontime_home']) / (90 - Xht['minute'] + 1)).round(2)
-            Xht['game_momentum_away'] = ((Xht['shotsOngoal_away'] + Xht['possessiontime_away']) / (90 - Xht['minute'] + 1)).round(2)
+            Xht['game_momentum_home'] = ((Xht['shotsOngoal_home'] + Xht['possessiontime_home']) / (90 - Xht['minute'] + 1))
+            Xht['game_momentum_away'] = ((Xht['shotsOngoal_away'] + Xht['possessiontime_away']) / (90 - Xht['minute'] + 1))
 
 
             # Total de cartões por jogo
