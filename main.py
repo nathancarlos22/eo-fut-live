@@ -56,8 +56,8 @@ model = keras.models.load_model('models/model_redeht.h5')
 
 # Inicializar o cluster H2O
 h2o.init()
-# model_Automl = loaded_model = h2o.load_model("./models/model_automl")
-model_Automl = loaded_model = h2o.load_model("C:/Users/Pichau/Desktop/eo-fut-live/models/model_automl")
+model_Automl = loaded_model = h2o.load_model("./models/model_automl")
+# model_Automl = loaded_model = h2o.load_model("C:/Users/Pichau/Desktop/eo-fut-live/models/model_automl")
 
 preprocessor = pickle.load(
                         open('models/preprocessor.pickle', 'rb'))
