@@ -61,7 +61,7 @@ model_Automl = loaded_model = h2o.load_model("./models/model_automl")
 
 preprocessor = pickle.load(
                         open('models/preprocessor.pickle', 'rb'))
-preprocessor_league = pickle.load(open('models/preprocessor_league.pickle','rb'))
+# preprocessor_league = pickle.load(open('models/preprocessor_league.pickle','rb'))
 
 
 id_over05HTmodel = []
