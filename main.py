@@ -589,7 +589,6 @@ while True:
     🚨 Jogo: {homeTeam} x {awayTeam}
     💭 Previsão: {value_pred_rede}
     📈 Estado da aposta: {state}
-    💰 Valor esperado da aposta: {valorEsperado:.2f}
     ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
     🏆 Liga: {league}
     ⏱️ Minuto: {minute}
@@ -626,7 +625,6 @@ while True:
     🚨 Jogo: {homeTeam} x {awayTeam}
     💭 Previsão: {value_pred_automl}
     📈 Estado da aposta: {state}
-    💰 Valor esperado da aposta: {valorEsperado:.2f}
     ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
     🏆 Liga: {league}
     ⏱️ Minuto: {minute}
