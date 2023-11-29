@@ -208,7 +208,7 @@ while True:
             Xht['total_cards'] = Xht['yellowcards_home'] + Xht['yellowcards_away'] + Xht['redcards_home'] + Xht['redcards_away']
             
             # Eficiência defensiva: razão entre desarmes e chutes ao gol do adversário
-            # Xht['defensive_efficiency_home'] = (Xht['tackles_home'] / (Xht['shotsOngoal_away'] + 1))  # +1 para evitar divisão por zero
+            Xht['defensive_efficiency_home'] = (Xht['tackles_home'] / (Xht['shotsOngoal_away'] + 1))  # +1 para evitar divisão por zero
             Xht['defensive_efficiency_away'] = (Xht['tackles_away'] / (Xht['shotsOngoal_home'] + 1))  # +1 para evitar divisão por zero
 
             # Agressividade ao longo do tempo: combinando faltas e cartões amarelos com minutos
@@ -220,8 +220,8 @@ while True:
             Xht['possession_efficiency_away'] = Xht['possessiontime_away'] / (Xht['shotsOngoal_away'] + 1)
 
             # Eficiência ofensiva: razão entre chutes ao gol e tempo de posse
-            # Xht['offensive_efficiency_home'] = ((Xht['shotsOngoal_home'] + 1) / Xht['possessiontime_home'])
-            # Xht['offensive_efficiency_away'] = ((Xht['shotsOngoal_away'] + 1) / Xht['possessiontime_away'])
+            Xht['offensive_efficiency_home'] = ((Xht['shotsOngoal_home'] + 1) / Xht['possessiontime_home'])
+            Xht['offensive_efficiency_away'] = ((Xht['shotsOngoal_away'] + 1) / Xht['possessiontime_away'])
 
             # Estabilidade defensiva: combinação entre desarmes e menor número de faltas
             Xht['defensive_stability_home'] = (Xht['tackles_home'] / (Xht['fouls_home'] + 1))
