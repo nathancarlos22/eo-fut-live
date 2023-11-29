@@ -200,12 +200,15 @@ while True:
             if 'Asia - AFC Champions League' in league:
                 league = 'Asia - AFC Champions League'
                 Xht['league'] = league
+            if 'Europe - Champions League' in league:
+                league = 'Europe - Champions League'
+                Xht['league'] = league
 
             # Total de cartões por jogo
             Xht['total_cards'] = Xht['yellowcards_home'] + Xht['yellowcards_away'] + Xht['redcards_home'] + Xht['redcards_away']
             
             # Eficiência defensiva: razão entre desarmes e chutes ao gol do adversário
-            Xht['defensive_efficiency_home'] = (Xht['tackles_home'] / (Xht['shotsOngoal_away'] + 1))  # +1 para evitar divisão por zero
+            # Xht['defensive_efficiency_home'] = (Xht['tackles_home'] / (Xht['shotsOngoal_away'] + 1))  # +1 para evitar divisão por zero
             Xht['defensive_efficiency_away'] = (Xht['tackles_away'] / (Xht['shotsOngoal_home'] + 1))  # +1 para evitar divisão por zero
 
             # Agressividade ao longo do tempo: combinando faltas e cartões amarelos com minutos
@@ -217,8 +220,8 @@ while True:
             Xht['possession_efficiency_away'] = Xht['possessiontime_away'] / (Xht['shotsOngoal_away'] + 1)
 
             # Eficiência ofensiva: razão entre chutes ao gol e tempo de posse
-            Xht['offensive_efficiency_home'] = ((Xht['shotsOngoal_home'] + 1) / Xht['possessiontime_home'])
-            Xht['offensive_efficiency_away'] = ((Xht['shotsOngoal_away'] + 1) / Xht['possessiontime_away'])
+            # Xht['offensive_efficiency_home'] = ((Xht['shotsOngoal_home'] + 1) / Xht['possessiontime_home'])
+            # Xht['offensive_efficiency_away'] = ((Xht['shotsOngoal_away'] + 1) / Xht['possessiontime_away'])
 
             # Estabilidade defensiva: combinação entre desarmes e menor número de faltas
             Xht['defensive_stability_home'] = (Xht['tackles_home'] / (Xht['fouls_home'] + 1))
@@ -257,37 +260,48 @@ while True:
             Xht['total_fouls'] = Xht['fouls_home'] + Xht['fouls_away']
 
             # caracteristicas sem importancia para os modelos
-            Xht = Xht.drop(columns=['offsides_away', 'offsides_home', 'yellowcards_home', 'total_cards', 'total_yellowcards', 'shotsOngoal_home', 'shotsOngoal_away', 'yellowcards_away', 'minute'])
+            Xht = Xht.drop(columns=['attack_intensity_home', 'attack_intensity_away', 'offensive_efficiency_away', 'offsides_home',
+                                    'total_cards', 'yellowcards_home', 'offsides_away', 'shotsOngoal_away', 'offensive_efficiency_home', 
+                                    'yellowcards_away', 'shotsOngoal_home', 'shotsOffgoal_away', 'defensive_efficiency_home'])
 
-            defensive_efficiency_home = Xht['defensive_efficiency_home'].values[0]
-            defensive_efficiency_away = Xht['defensive_efficiency_away'].values[0]
+            aggressiveness_over_time_home = round(Xht['aggressiveness_over_time_home'].values[0],2)
+            aggressiveness_over_time_away = round(Xht['aggressiveness_over_time_away'].values[0],2)
 
-            defensive_stability_home = Xht['defensive_stability_home'].values[0]
-            defensive_stability_away = Xht['defensive_stability_away'].values[0]
+            # offensive_efficiency_home = round(Xht['offensive_efficiency_home'].values[0],2)
+            # offensive_efficiency_away = round(Xht['offensive_efficiency_away'].values[0],2)
 
-            defensive_performance_home = Xht['defensive_performance_home'].values[0]
-            defensive_performance_away = Xht['defensive_performance_away'].values[0]
 
-            possession_efficiency_home = Xht['possession_efficiency_home'].values[0]
-            possession_efficiency_away = Xht['possession_efficiency_away'].values[0]
+            defensive_stability_home = round(Xht['defensive_stability_home'].values[0], 2)
+            defensive_stability_away = round(Xht['defensive_stability_away'].values[0], 2)
 
-            possession_progress_home = Xht['possession_progress_home'].values[0]
-            possession_progress_away = Xht['possession_progress_away'].values[0]
+            # defensive_efficiency_home = Xht['defensive_efficiency_home'].values[0]
+            defensive_efficiency_away = round(Xht['defensive_efficiency_away'].values[0], 2)
+            
+            defensive_performance_home = round(Xht['defensive_performance_home'].values[0], 2)
+            defensive_performance_away = round(Xht['defensive_performance_away'].values[0],2)
 
-            game_progress_efficiency_home = Xht['game_progress_efficiency_home'].values[0]
-            game_progress_efficiency_away = Xht['game_progress_efficiency_away'].values[0]
+            possession_efficiency_home = round(Xht['possession_efficiency_home'].values[0],2)
+            possession_efficiency_away = round(Xht['possession_efficiency_away'].values[0],2)
 
-            game_momentum_home = Xht['game_momentum_home'].values[0]
-            game_momentum_away = Xht['game_momentum_away'].values[0]
+            possession_progress_home = round(Xht['possession_progress_home'].values[0],2)
+            possession_progress_away = round(Xht['possession_progress_away'].values[0],2)
 
-            pressure_over_time_home = Xht['pressure_over_time_home'].values[0]
-            pressure_over_time_away = Xht['pressure_over_time_away'].values[0]
+            game_progress_efficiency_home = round(Xht['game_progress_efficiency_home'].values[0],2)
+            game_progress_efficiency_away = round(Xht['game_progress_efficiency_away'].values[0],2)
 
-            pressure_over_time_home = Xht['pressure_over_time_home'].values[0]
-            pressure_over_time_away = Xht['pressure_over_time_away'].values[0]
+            game_momentum_home = round(Xht['game_momentum_home'].values[0],2)
+            game_momentum_away = round(Xht['game_momentum_away'].values[0],2)
 
-            attack_intensity_away = Xht['attack_intensity_away'].values[0]
-            attack_intensity_home = Xht['attack_intensity_home'].values[0]
+            pressure_over_time_home = round(Xht['pressure_over_time_home'].values[0],2)
+            pressure_over_time_away = round(Xht['pressure_over_time_away'].values[0],2)
+
+            pressure_over_time_home = round(Xht['pressure_over_time_home'].values[0],2)
+            pressure_over_time_away = round(Xht['pressure_over_time_away'].values[0],2)
+
+            # attack_intensity_away = Xht['attack_intensity_away'].values[0]
+            # attack_intensity_home = Xht['attack_intensity_home'].values[0]
+
+            total_fouls = Xht['total_fouls'].values[0]
 
             # Xht_league = Xht.drop(columns=['league'])
 
@@ -315,20 +329,21 @@ while True:
     ⏱️ Minuto: {minute}
 
     📋 Estatísticas
-    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     ⛳ Escanteios: {corners_home} - {corners_away}
-    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     🔴 Faltas: {fouls_home} - {fouls_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-    🛡️ Eficiência defensiva: {defensive_efficiency_home} - {defensive_efficiency_away}
-    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
-    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_performance_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    📊 Aggressividade ao longo do tempo: {aggressiveness_over_time_home} - {aggressiveness_over_time_away}
+    🛡️ Eficiência defensiva: {defensive_efficiency_away} - {defensive_performance_away}
     ⚽ Eficiência de posse: {possession_efficiency_home} - {possession_efficiency_away}
+    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
+    📈 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
     🔄 Progresso de posse: {possession_progress_home} - {possession_progress_away}
-    📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
-    📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    ⚖️ Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🏁 Total de faltas: {total_fouls}
 
         '''
                             if '&' in text:
@@ -347,20 +362,21 @@ while True:
     ⏱️ Minuto: {minute}
 
     📋 Estatísticas
-    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     ⛳ Escanteios: {corners_home} - {corners_away}
-    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     🔴 Faltas: {fouls_home} - {fouls_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-    🛡️ Eficiência defensiva: {defensive_efficiency_home} - {defensive_efficiency_away}
-    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
-    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_performance_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    📊 Aggressividade ao longo do tempo: {aggressiveness_over_time_home} - {aggressiveness_over_time_away}
+    🛡️ Eficiência defensiva: {defensive_efficiency_away} - {defensive_performance_away}
     ⚽ Eficiência de posse: {possession_efficiency_home} - {possession_efficiency_away}
+    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
+    📈 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
     🔄 Progresso de posse: {possession_progress_home} - {possession_progress_away}
-    📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
-    📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    ⚖️ Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🏁 Total de faltas: {total_fouls}
         '''
                             if '&' in text:
                                 text = text.replace('&', '')
@@ -393,20 +409,21 @@ while True:
     ⏱️ Minuto: {minute}
 
     📋 Estatísticas
-    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     ⛳ Escanteios: {corners_home} - {corners_away}
-    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     🔴 Faltas: {fouls_home} - {fouls_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-    🛡️ Eficiência defensiva: {defensive_efficiency_home} - {defensive_efficiency_away}
-    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
-    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_performance_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    📊 Aggressividade ao longo do tempo: {aggressiveness_over_time_home} - {aggressiveness_over_time_away}
+    🛡️ Eficiência defensiva: {defensive_efficiency_away} - {defensive_performance_away}
     ⚽ Eficiência de posse: {possession_efficiency_home} - {possession_efficiency_away}
+    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
+    📈 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
     🔄 Progresso de posse: {possession_progress_home} - {possession_progress_away}
-    📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
-    📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    ⚖️ Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🏁 Total de faltas: {total_fouls}
     '''
                                     if '&' in text:
                                         text = text.replace('&', '')
@@ -434,20 +451,21 @@ while True:
     ⏱️ Minuto: {minute}
 
     📋 Estatísticas
-    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     ⛳ Escanteios: {corners_home} - {corners_away}
-    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     🔴 Faltas: {fouls_home} - {fouls_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-    🛡️ Eficiência defensiva: {defensive_efficiency_home} - {defensive_efficiency_away}
-    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
-    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_performance_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    📊 Aggressividade ao longo do tempo: {aggressiveness_over_time_home} - {aggressiveness_over_time_away}
+    🛡️ Eficiência defensiva: {defensive_efficiency_away} - {defensive_performance_away}
     ⚽ Eficiência de posse: {possession_efficiency_home} - {possession_efficiency_away}
+    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
+    📈 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
     🔄 Progresso de posse: {possession_progress_home} - {possession_progress_away}
-    📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
-    📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    ⚖️ Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🏁 Total de faltas: {total_fouls}
     '''
                                     if '&' in text:
                                         text = text.replace('&', '')
@@ -481,20 +499,21 @@ while True:
     ⏱️ Minuto: {minute}
 
     📋 Estatísticas
-    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     ⛳ Escanteios: {corners_home} - {corners_away}
-    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     🔴 Faltas: {fouls_home} - {fouls_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-    🛡️ Eficiência defensiva: {defensive_efficiency_home} - {defensive_efficiency_away}
-    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
-    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_performance_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    📊 Aggressividade ao longo do tempo: {aggressiveness_over_time_home} - {aggressiveness_over_time_away}
+    🛡️ Eficiência defensiva: {defensive_efficiency_away} - {defensive_performance_away}
     ⚽ Eficiência de posse: {possession_efficiency_home} - {possession_efficiency_away}
+    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
+    📈 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
     🔄 Progresso de posse: {possession_progress_home} - {possession_progress_away}
-    📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
-    📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    ⚖️ Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🏁 Total de faltas: {total_fouls}
     '''
                                     if '&' in text:
                                         text = text.replace('&', '')
@@ -520,20 +539,21 @@ while True:
     ⏱️ Minuto: {minute}
 
     📋 Estatísticas
-    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     ⛳ Escanteios: {corners_home} - {corners_away}
-    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     🔴 Faltas: {fouls_home} - {fouls_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-    🛡️ Eficiência defensiva: {defensive_efficiency_home} - {defensive_efficiency_away}
-    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
-    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_performance_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    📊 Aggressividade ao longo do tempo: {aggressiveness_over_time_home} - {aggressiveness_over_time_away}
+    🛡️ Eficiência defensiva: {defensive_efficiency_away} - {defensive_performance_away}
     ⚽ Eficiência de posse: {possession_efficiency_home} - {possession_efficiency_away}
+    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
+    📈 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
     🔄 Progresso de posse: {possession_progress_home} - {possession_progress_away}
-    📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
-    📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    ⚖️ Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🏁 Total de faltas: {total_fouls}
     '''
                                     if '&' in text:
                                         text = text.replace('&', '')
@@ -595,20 +615,21 @@ while True:
     ⏱️ Minuto: {minute}
 
     📋 Estatísticas
-    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     ⛳ Escanteios: {corners_home} - {corners_away}
-    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     🔴 Faltas: {fouls_home} - {fouls_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-    🛡️ Eficiência defensiva: {defensive_efficiency_home} - {defensive_efficiency_away}
-    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
-    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_performance_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    📊 Aggressividade ao longo do tempo: {aggressiveness_over_time_home} - {aggressiveness_over_time_away}
+    🛡️ Eficiência defensiva: {defensive_efficiency_away} - {defensive_performance_away}
     ⚽ Eficiência de posse: {possession_efficiency_home} - {possession_efficiency_away}
+    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
+    📈 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
     🔄 Progresso de posse: {possession_progress_home} - {possession_progress_away}
-    📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
-    📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    ⚖️ Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🏁 Total de faltas: {total_fouls}
 '''
 
                 if '&' in text:
@@ -631,20 +652,21 @@ while True:
     ⏱️ Minuto: {minute}
 
     📋 Estatísticas
-    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     ⛳ Escanteios: {corners_home} - {corners_away}
-    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
     🔴 Faltas: {fouls_home} - {fouls_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
-    🛡️ Eficiência defensiva: {defensive_efficiency_home} - {defensive_efficiency_away}
-    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
-    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_performance_away}
+    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    📊 Aggressividade ao longo do tempo: {aggressiveness_over_time_home} - {aggressiveness_over_time_away}
+    🛡️ Eficiência defensiva: {defensive_efficiency_away} - {defensive_performance_away}
     ⚽ Eficiência de posse: {possession_efficiency_home} - {possession_efficiency_away}
+    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
+    📈 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
     🔄 Progresso de posse: {possession_progress_home} - {possession_progress_away}
-    📈 Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
-    📊 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🎯 Intensidade de ataque: {attack_intensity_home} - {attack_intensity_away}
+    ⚖️ Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    🏁 Total de faltas: {total_fouls}
 '''
                 if '&' in text:
                     text = text.replace('&', '')
