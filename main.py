@@ -89,58 +89,6 @@ value_pred_rede = 0
 value_pred_automl = 0
 value_pred_randomf = 0
 
-# model_predictions = {
-#     'id_over05HTmodel': value_pred_rede,
-#     'id_over05HTAutoml': value_pred_automl,
-#     'id_over05HTRandomf': value_pred_randomf
-# }
-
-# # Função para criar o texto
-# def create_text(model_name, prediction, print_jogos):
-#     text = f'''
-#     👑 Modelo {model_name}
-
-#     💭 Previsão: {prediction}
-#     {print_jogos}
-#     '''
-#     return text.replace('&', '')
-
-# # Dicionário para armazenar os contadores de vitórias e derrotas de cada modelo
-# model_counters = {
-#     'id_over05HTmodel': {'win': winht_model, 'lose': loseht_model},
-#     'id_over05HTAutoml': {'win': winht_Automl, 'lose': loseht_Automl},
-#     'id_over05HTRandomf': {'win': winht_Randomf, 'lose': loseht_Randomf}
-# }
-
-# # Função para atualizar os contadores e enviar mensagens
-# def update_and_send_message(model_key, iD, win, print_jogos):
-#     # Atualizar contadores
-#     counters = model_counters[model_key]
-#     if win:
-#         counters['win'] += 1
-#         # valor = valorEsperado - 5
-#     else:
-#         counters['lose'] += 1
-#         # valor = -5
-#     # lucro += valor
-
-#     # Construir e enviar a mensagem
-#     status_text = '✅ Win' if win else '🛑 Lose'
-#     text = f'''
-# 👑 Modelo {model_key.split('_')[2]}
-
-# {status_text} {counters['win']} - {counters['lose']}
-# {print_jogos}
-# '''
-#     text = text.replace('&', '')
-#     sendMenssageTelegram(text)
-
-#     # Remover o ID do dicionário correspondente
-#     for jogo in id_jogos_mensagem[model_key]:
-#         if jogo['id'] == iD:
-#             id_jogos_mensagem[model_key].remove(jogo)
-#             break
-
 while True:
     print('🤖 Procurando jogos...\n')
 
@@ -432,18 +380,10 @@ while True:
     💭 Previsão: {value_pred_randomf}
     {print_jogos}
     '''
+                            if '&' in text:
+                                text = text.replace('&', '')
+                            editMessageTelegram(jogos['message_id'], text)
 
-    # Dicionário para mapear as chaves para os respectivos valores de previsão
-    
-
-            # Loop principal otimizado
-            # for key, value in id_jogos_mensagem.items():
-            #     if key in model_predictions:
-            #         model_name = 'Rede Neural' if key == 'id_over05HTmodel' else 'Automl' if key == 'id_over05HTAutoml' else 'Random Forest'
-            #         for jogo in value:
-            #             if jogo['id'] == iD:
-            #                 text = create_text(model_name, model_predictions[key], print_jogos)
-            #                 editMessageTelegram(jogo['message_id'], text)
 
         #     # rede neural
             if iD in id_over05HTmodel:
@@ -580,23 +520,6 @@ while True:
                                     # remove do dicionario
                                     id_jogos_mensagem[key].remove(jogos)
 
-        
-
-            # Lógica principal otimizada
-            # model_ids = {'id_over05HTmodel': id_over05HTmodel, 'id_over05HTAutoml': id_over05HTAutoml, 'id_over05HTRandomf': id_over05HTRandomf}
-            # for model_key, model_id_list in model_ids.items():
-            #     if iD in model_id_list:
-            #         win_condition = (minute <= 45 and (awayTeamScore + homeTeamScore) > 0)
-            #         lose_condition = (status == 'HT' and (awayTeamScore + homeTeamScore) == 0)
-
-            #         if win_condition or lose_condition:
-            #             update_and_send_message(model_key, iD, win_condition, print_jogos)
-            #             model_id_list.remove(iD)
-
-
-
-            
-
 
             condicao_rede = 0
             condicao_Automl = 0
@@ -657,7 +580,7 @@ while True:
 
                 if '&' in text:
                     text = text.replace('&', '')
-                sendMenssageTelegram(text)
+                # sendMenssageTelegram(text)
                 id_jogos_mensagem["id_over05HTmodel"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
             if condicao_Automl == 1 and iD not in id_over05HTAutoml:
@@ -673,7 +596,7 @@ while True:
         '''
                 if '&' in text:
                     text = text.replace('&', '')
-                sendMenssageTelegram(text)
+                # sendMenssageTelegram(text)
                 id_jogos_mensagem["id_over05HTAutoml"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
             if condicao_Randomf == 1 and iD not in id_over05HTRandomf:
@@ -689,30 +612,8 @@ while True:
         '''
                 if '&' in text:
                     text = text.replace('&', '')
-                sendMenssageTelegram(text)
+                # sendMenssageTelegram(text)
                 id_jogos_mensagem["id_over05HTRandomf"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
-
-            # def process_condition(model_name, condition, iD, prediction_value, id_list, message_dict, print_jogos):
-            #     if condition == 1 and iD not in id_list:
-            #         id_list.append(iD)
-            #         # state, valorEsperado = makeBet(id_evento)
-            #         state, valorEsperado = 'SUCCESS', 10
-
-            #         text = f'''
-            # 👑 Modelo {model_name}
-
-            # 💭 Previsão: {prediction_value}
-            # {print_jogos}
-            # '''
-            #         text = text.replace('&', '')
-            #         # sendMenssageTelegram(text)
-            #         message_id = sendMenssageTelegram(text)
-            #         message_dict[f'id_over05HT{model_name}'].append({"id": iD, "message_id": message_id})
-
-            # # Executar a função para cada modelo
-            # process_condition("model", condicao_rede, iD, value_pred_rede, id_over05HTmodel, id_jogos_mensagem, print_jogos)
-            # process_condition("Automl", condicao_Automl, iD, value_pred_automl, id_over05HTAutoml, id_jogos_mensagem, print_jogos)
-            # process_condition("Randomf", condicao_Randomf, iD, value_pred_randomf, id_over05HTRandomf, id_jogos_mensagem, print_jogos)
 
             
         time.sleep(60)
