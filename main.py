@@ -705,7 +705,7 @@ while True:
             {print_jogos}
             '''
                     text = text.replace('&', '')
-                    sendMenssageTelegram(text)
+                    # sendMenssageTelegram(text)
                     message_id = sendMenssageTelegram(text)
                     message_dict[f'id_over05HT{model_name}'].append({"id": iD, "message_id": message_id})
 
