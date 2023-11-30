@@ -118,11 +118,11 @@ def update_and_send_message(model_key, iD, win, print_jogos):
     counters = model_counters[model_key]
     if win:
         counters['win'] += 1
-        valor = valorEsperado - 5
+        # valor = valorEsperado - 5
     else:
         counters['lose'] += 1
-        valor = -5
-    lucro += valor
+        # valor = -5
+    # lucro += valor
 
     # Construir e enviar a mensagem
     status_text = '✅ Win' if win else '🛑 Lose'
