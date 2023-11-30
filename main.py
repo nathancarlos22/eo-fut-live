@@ -624,14 +624,14 @@ while True:
                         print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
                         print(f"{homeTeam} x {awayTeam} Random Forest: {value_pred_randomf}")
                         
-                        if value_pred_rede >= 0.75:
+                        if value_pred_rede >= 0.55:
 
                             condicao_rede = 1
 
-                        if value_pred_automl >= 0.75:
+                        if value_pred_automl >= 0.55:
                             condicao_Automl = 1
                         
-                        if value_pred_randomf >= 0.75:
+                        if value_pred_randomf >= 0.55:
                             condicao_Randomf = 1
 
                 except Exception as e:
