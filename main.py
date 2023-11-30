@@ -710,9 +710,9 @@ while True:
                     message_dict[f'id_over05HT{model_name}'].append({"id": iD, "message_id": message_id})
 
             # Executar a função para cada modelo
-            process_condition("Rede Neural", condicao_rede, iD, value_pred_rede, id_over05HTmodel, id_jogos_mensagem, print_jogos)
+            process_condition("model", condicao_rede, iD, value_pred_rede, id_over05HTmodel, id_jogos_mensagem, print_jogos)
             process_condition("Automl", condicao_Automl, iD, value_pred_automl, id_over05HTAutoml, id_jogos_mensagem, print_jogos)
-            process_condition("Random Forest", condicao_Randomf, iD, value_pred_randomf, id_over05HTRandomf, id_jogos_mensagem, print_jogos)
+            process_condition("Randomf", condicao_Randomf, iD, value_pred_randomf, id_over05HTRandomf, id_jogos_mensagem, print_jogos)
 
             
         time.sleep(60)
