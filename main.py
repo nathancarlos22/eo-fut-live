@@ -133,8 +133,8 @@ while True:
             league = game['league']['name']
             minute = game['currentTime']['minute']
             second = game['currentTime']['second']
-            awayTeamScore = game['scores']['homeTeamScore']
-            homeTeamScore = game['scores']['awayTeamScore']
+            awayTeamScore = game['scores']['awayTeamScore']
+            homeTeamScore = game['scores']['homeTeamScore']
 
             status = game['status']
 
@@ -319,7 +319,7 @@ while True:
                 continue
 
             Xht_league = Xht.drop(columns=['league'])
-            print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {awayTeamScore} x {homeTeamScore} ({league})')
+            print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
 
             print_jogos = f'''
 
