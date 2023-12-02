@@ -90,6 +90,7 @@ def main_function_full(date_str):
         for links in dict_league_links[league]:
             try:
                 driver.get(links)
+                driver.minimize_window()
                 driver.maximize_window()
                 
 

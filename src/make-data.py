@@ -6,7 +6,7 @@ import pandas as pd
 
 def main():
     # date_strings = ['2023-11-20']
-    date_strings = ['2020-01-01']
+    date_strings = ['2020-09-20']
 
     date_objects = [datetime.datetime.strptime(date, '%Y-%m-%d') for date in date_strings]
     sorted_dates = sorted(date_objects)
