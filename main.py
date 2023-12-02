@@ -547,11 +547,11 @@ while True:
                         print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
                         print(f"{homeTeam} x {awayTeam} Random Forest: {value_pred_randomf}")
                         
-                        if value_pred_rede >= 0.9:
+                        if value_pred_rede >= 0.85:
 
                             condicao_rede = 1
 
-                        if value_pred_automl >= 0.9:
+                        if value_pred_automl >= 0.85:
                             condicao_Automl = 1
                         
                         if value_pred_randomf >= 0.55:
