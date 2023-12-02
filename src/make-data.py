@@ -1,11 +1,12 @@
 from make_data_imp import main_function
+from make_data_imp_full import main_function_full
 import datetime
 import concurrent.futures 
 import pandas as pd
 
 def main():
-    date_strings = ['2023-11-20']
-    # date_strings = ['2023-03-24']
+    # date_strings = ['2023-11-20']
+    date_strings = ['2020-01-01']
 
     date_objects = [datetime.datetime.strptime(date, '%Y-%m-%d') for date in date_strings]
     sorted_dates = sorted(date_objects)
@@ -22,7 +23,8 @@ def main():
     print(len(list_of_dates))
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=10) as executor:
-        executor.map(main_function, list_of_dates)
+        # executor.map(main_function, list_of_dates)
+        executor.map(main_function_full, list_of_dates)
 
 if __name__ == "__main__":
     main()
