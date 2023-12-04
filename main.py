@@ -167,8 +167,8 @@ while True:
             shotsOngoal_home = game['stats']['shotsOngoal']['home']
             shotsOngoal_away = game['stats']['shotsOngoal']['away']
 
-            shotsOutsidebox_home = game['stats']['shotsOutsidebox']['home']
-            shotsOutsidebox_away = game['stats']['shotsOutsidebox']['away']
+            shotsBlocked_home = game['stats']['shotsBlocked']['home']
+            shotsBlocked_away = game['stats']['shotsBlocked']['away']
 
             tackles_home = game['stats']['tackles']['home']
             tackles_away = game['stats']['tackles']['away']
@@ -197,6 +197,9 @@ while True:
                 'offsides_away': offsides_away,
                 'tackles_home': tackles_home,
                 'tackles_away': tackles_away,
+                'blockedShotsHome': shotsBlocked_home,
+                'blockedShotsAway': shotsBlocked_away,
+                
 
             }
 
@@ -209,6 +212,9 @@ while True:
             if 'Europe - Champions League' in league:
                 league = 'Europe - Champions League'
                 Xht['league'] = league
+
+            Xht['shotsHome'] = Xht['shotsOngoal_home'] + Xht['shotsOffgoal_home']
+            Xht['shotsAway'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
 
             # Total de cartões por jogo
             Xht['total_cards'] = Xht['yellowcards_home'] + Xht['yellowcards_away'] + Xht['redcards_home'] + Xht['redcards_away']
@@ -224,10 +230,6 @@ while True:
             # Eficiência de posse de bola: razão entre tempo de posse e chutes ao gol
             Xht['possession_efficiency_home'] = Xht['possessiontime_home'] / (Xht['shotsOngoal_home'] + 1)
             Xht['possession_efficiency_away'] = Xht['possessiontime_away'] / (Xht['shotsOngoal_away'] + 1)
-
-            # Eficiência ofensiva: razão entre chutes ao gol e tempo de posse
-            Xht['offensive_efficiency_home'] = ((Xht['shotsOngoal_home'] + 1) / Xht['possessiontime_home'])
-            Xht['offensive_efficiency_away'] = ((Xht['shotsOngoal_away'] + 1) / Xht['possessiontime_away'])
 
             # Estabilidade defensiva: combinação entre desarmes e menor número de faltas
             Xht['defensive_stability_home'] = (Xht['tackles_home'] / (Xht['fouls_home'] + 1))
@@ -255,9 +257,8 @@ while True:
             Xht['game_progress_efficiency_away'] = (Xht['possession_efficiency_away'] * Xht['minute'])
 
             # Momentum do jogo: incorporando chutes ao gol, posse de bola e minutos
-            Xht['game_momentum_home'] = ((Xht['shotsOngoal_home'] + Xht['possessiontime_home']) / (90 - Xht['minute'] + 1))
-            Xht['game_momentum_away'] = ((Xht['shotsOngoal_away'] + Xht['possessiontime_away']) / (90 - Xht['minute'] + 1))
-
+            Xht['game_momentum_home'] = ((Xht['shotsOngoal_home'] + Xht['possessiontime_home']) / (90 - Xht['minute'] ))
+            Xht['game_momentum_away'] = ((Xht['shotsOngoal_away'] + Xht['possessiontime_away']) / (90 - Xht['minute'] ))
 
             # Total de cartões por jogo
             Xht['total_yellowcards'] = Xht['yellowcards_home'] + Xht['yellowcards_away']
@@ -266,16 +267,15 @@ while True:
             Xht['total_fouls'] = Xht['fouls_home'] + Xht['fouls_away']
 
             # caracteristicas sem importancia para os modelos
-            Xht = Xht.drop(columns=['attack_intensity_home', 'attack_intensity_away', 'offensive_efficiency_away', 'offsides_home',
-                                    'total_cards', 'yellowcards_home', 'offsides_away', 'shotsOngoal_away', 'offensive_efficiency_home', 
-                                    'yellowcards_away', 'shotsOngoal_home', 'shotsOffgoal_away', 'defensive_efficiency_home'])
+            Xht = Xht.drop(columns=['yellowcards_home', 'yellowcards_away', 'offsides_away', 
+                                    'offsides_home', 'redcards_home', 'redcards_away','total_cards', 
+                                    'blockedShotsHome', 'blockedShotsAway', 'minute', 
+                                    'aggressiveness_over_time_home', 'pressure_over_time_away', 
+                                    'aggressiveness_over_time_away', 'pressure_over_time_home', 
+                                    'possession_progress_home', 'possession_progress_away'])
 
             aggressiveness_over_time_home = round(Xht['aggressiveness_over_time_home'].values[0],2)
             aggressiveness_over_time_away = round(Xht['aggressiveness_over_time_away'].values[0],2)
-
-            # offensive_efficiency_home = round(Xht['offensive_efficiency_home'].values[0],2)
-            # offensive_efficiency_away = round(Xht['offensive_efficiency_away'].values[0],2)
-
 
             defensive_stability_home = round(Xht['defensive_stability_home'].values[0], 2)
             defensive_stability_away = round(Xht['defensive_stability_away'].values[0], 2)
