@@ -331,17 +331,38 @@ while True:
     🔴 Faltas: {fouls_home} - {fouls_away}
     🛑 Desarmes: {tackles_home} - {tackles_away}
     ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
-    📊 Aggressividade ao longo do tempo: {aggressiveness_over_time_home} - {aggressiveness_over_time_away}
     🛡️ Eficiência defensiva: {defensive_efficiency_away} - {defensive_performance_away}
     ⚽ Eficiência de posse: {possession_efficiency_home} - {possession_efficiency_away}
     🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
-    📈 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
-    🔄 Progresso de posse: {possession_progress_home} - {possession_progress_away}
     🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_efficiency_away}
     🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
     ⚖️ Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
     🏁 Total de faltas: {total_fouls}
     '''
+            
+            
+    # 🚨 Jogo: {homeTeam} x {awayTeam}
+    # ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+    # 🏆 Liga: {league}
+    # ⏱️ Minuto: {minute}
+
+    # 📋 Estatísticas
+    # ⛳ Escanteios: {corners_home} - {corners_away}
+    # 🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
+    # 🔴 Faltas: {fouls_home} - {fouls_away}
+    # 🛑 Desarmes: {tackles_home} - {tackles_away}
+    # ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
+    # 📊 Aggressividade ao longo do tempo: {aggressiveness_over_time_home} - {aggressiveness_over_time_away}
+    # 🛡️ Eficiência defensiva: {defensive_efficiency_away} - {defensive_performance_away}
+    # ⚽ Eficiência de posse: {possession_efficiency_home} - {possession_efficiency_away}
+    # 🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
+    # 📈 Pressão ao longo do tempo: {pressure_over_time_home} - {pressure_over_time_away}
+    # 🔄 Progresso de posse: {possession_progress_home} - {possession_progress_away}
+    # 🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_efficiency_away}
+    # 🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
+    # ⚖️ Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    # 🏁 Total de faltas: {total_fouls}
+    # '''
 
             for key, value in id_jogos_mensagem.items():
                 if key == 'id_over05HTmodel':
