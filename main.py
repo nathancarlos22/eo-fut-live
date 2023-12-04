@@ -274,8 +274,8 @@ while True:
                                     'aggressiveness_over_time_away', 'pressure_over_time_home', 
                                     'possession_progress_home', 'possession_progress_away'])
 
-            aggressiveness_over_time_home = round(Xht['aggressiveness_over_time_home'].values[0],2)
-            aggressiveness_over_time_away = round(Xht['aggressiveness_over_time_away'].values[0],2)
+            # aggressiveness_over_time_home = round(Xht['aggressiveness_over_time_home'].values[0],2)
+            # aggressiveness_over_time_away = round(Xht['aggressiveness_over_time_away'].values[0],2)
 
             defensive_stability_home = round(Xht['defensive_stability_home'].values[0], 2)
             defensive_stability_away = round(Xht['defensive_stability_away'].values[0], 2)
@@ -289,8 +289,8 @@ while True:
             possession_efficiency_home = round(Xht['possession_efficiency_home'].values[0],2)
             possession_efficiency_away = round(Xht['possession_efficiency_away'].values[0],2)
 
-            possession_progress_home = round(Xht['possession_progress_home'].values[0],2)
-            possession_progress_away = round(Xht['possession_progress_away'].values[0],2)
+            # possession_progress_home = round(Xht['possession_progress_home'].values[0],2)
+            # possession_progress_away = round(Xht['possession_progress_away'].values[0],2)
 
             game_progress_efficiency_home = round(Xht['game_progress_efficiency_home'].values[0],2)
             game_progress_efficiency_away = round(Xht['game_progress_efficiency_away'].values[0],2)
@@ -298,11 +298,8 @@ while True:
             game_momentum_home = round(Xht['game_momentum_home'].values[0],2)
             game_momentum_away = round(Xht['game_momentum_away'].values[0],2)
 
-            pressure_over_time_home = round(Xht['pressure_over_time_home'].values[0],2)
-            pressure_over_time_away = round(Xht['pressure_over_time_away'].values[0],2)
-
-            pressure_over_time_home = round(Xht['pressure_over_time_home'].values[0],2)
-            pressure_over_time_away = round(Xht['pressure_over_time_away'].values[0],2)
+            # pressure_over_time_home = round(Xht['pressure_over_time_home'].values[0],2)
+            # pressure_over_time_away = round(Xht['pressure_over_time_away'].values[0],2)
 
             # attack_intensity_away = Xht['attack_intensity_away'].values[0]
             # attack_intensity_home = Xht['attack_intensity_home'].values[0]
