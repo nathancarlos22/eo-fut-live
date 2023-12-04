@@ -257,8 +257,8 @@ while True:
             Xht['game_progress_efficiency_away'] = (Xht['possession_efficiency_away'] * Xht['minute'])
 
             # Momentum do jogo: incorporando chutes ao gol, posse de bola e minutos
-            Xht['game_momentum_home'] = ((Xht['shotsOngoal_home'] + Xht['possessiontime_home']) / (90 - Xht['minute'] ))
-            Xht['game_momentum_away'] = ((Xht['shotsOngoal_away'] + Xht['possessiontime_away']) / (90 - Xht['minute'] ))
+            Xht['game_momentum_home'] = ((Xht['shotsOngoal_home'] + Xht['possessiontime_home']) / (90 - Xht['minute'] )+1)
+            Xht['game_momentum_away'] = ((Xht['shotsOngoal_away'] + Xht['possessiontime_away']) / (90 - Xht['minute'] )+1)
 
             # Total de cartões por jogo
             Xht['total_yellowcards'] = Xht['yellowcards_home'] + Xht['yellowcards_away']
