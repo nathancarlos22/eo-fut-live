@@ -335,6 +335,7 @@ while True:
             #     continue
 
             if Xht.isna().sum().sum() > 0:
+                print(Xht.isna().sum())
                 continue
 
             Xht_league = Xht.drop(columns=['league'])
@@ -614,7 +615,7 @@ while True:
             condicao_Automl = 0
             condicao_Randomf = 0
 
-            if minute >= 15 and minute < 45:
+            if minute >= 5 and minute < 45:
                 try:
 
                     # Xht_transform = preprocessor_league.transform(Xht_league)
