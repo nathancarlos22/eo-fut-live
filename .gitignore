@@ -13,6 +13,5 @@ chromedriver_locations
 .env
 venv
 credenciais.ini
-*.zip
 *.txt
 *.json
