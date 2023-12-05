@@ -216,96 +216,118 @@ while True:
             Xht['shotsHome'] = Xht['shotsOngoal_home'] + Xht['shotsOffgoal_home']
             Xht['shotsAway'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
 
-            # Total de cartões por jogo
             Xht['total_cards'] = Xht['yellowcards_home'] + Xht['yellowcards_away'] + Xht['redcards_home'] + Xht['redcards_away']
-            
-            # Eficiência defensiva: razão entre desarmes e chutes ao gol do adversário
-            Xht['defensive_efficiency_home'] = (Xht['tackles_home'] / (Xht['shotsOngoal_away'] + 1))  # +1 para evitar divisão por zero
-            Xht['defensive_efficiency_away'] = (Xht['tackles_away'] / (Xht['shotsOngoal_home'] + 1))  # +1 para evitar divisão por zero
+            Xht['total_cards_home'] = Xht['yellowcards_home'] + Xht['redcards_home']
+            Xht['total_cards_away'] = Xht['yellowcards_away'] + Xht['redcards_away']
 
             # Agressividade ao longo do tempo: combinando faltas e cartões amarelos com minutos
             Xht['aggressiveness_over_time_home'] = (Xht['fouls_home'] + Xht['yellowcards_home']) * Xht['minute']
             Xht['aggressiveness_over_time_away'] = (Xht['fouls_away'] + Xht['yellowcards_away']) * Xht['minute']
 
-            # Eficiência de posse de bola: razão entre tempo de posse e chutes ao gol
-            Xht['possession_efficiency_home'] = Xht['possessiontime_home'] / (Xht['shotsOngoal_home'] + 1)
-            Xht['possession_efficiency_away'] = Xht['possessiontime_away'] / (Xht['shotsOngoal_away'] + 1)
+            # chances de jogo
+            # chances criadas por cada equipe, calculadas pela soma de chutes, faltas, escanteios e arremessos laterais
+            Xht['chances_home'] = Xht['shotsOngoal_home'] + Xht['fouls_home'] + Xht['corners_home'] + Xht['offsides_home']
+            Xht['chances_away'] = Xht['shotsOngoal_away'] + Xht['fouls_away'] + Xht['corners_away'] + Xht['offsides_away']
 
-            # Estabilidade defensiva: combinação entre desarmes e menor número de faltas
-            Xht['defensive_stability_home'] = (Xht['tackles_home'] / (Xht['fouls_home'] + 1))
-            Xht['defensive_stability_away'] = (Xht['tackles_away'] / (Xht['fouls_away'] + 1))
+            # Defensive Pressure
+            # Reflete a soma dos desarmes e chutes bloqueados pela equipe em casa/fora. Indica a intensidade com que a equipe está defendendo e impedindo o adversário de finalizar com sucesso.
+            Xht['defensive_pressure_home'] = Xht['tackles_home'] + Xht['blockedShotsHome']
+            Xht['defensive_pressure_away'] = Xht['tackles_away'] + Xht['blockedShotsAway']
+            
+            # Attack Efficiency
+            # Mede a proporção de chutes ao gol em relação ao total de chutes feitos pela equipe em casa/fora. Valores mais altos indicam maior precisão nos ataques.
+            Xht['attack_efficiency_home'] = (Xht['shotsOngoal_home'] / (Xht['shotsHome'] + 1))  # +1 to avoid division by zero
+            Xht['attack_efficiency_away'] = (Xht['shotsOngoal_away'] / (Xht['shotsAway'] + 1))
+            Xht['attack_efficiency_home'] = round(Xht['attack_efficiency_home'].values[0], 2)
+            Xht['attack_efficiency_away'] = round(Xht['attack_efficiency_away'].values[0], 2)
 
-            # caracteristicas relacionadas ao tempo
-            # Pressão ao longo do tempo: incorporando chutes ao gol e posse de bola ao longo dos minutos
+            # Game Control
+            # É o produto do tempo de posse de bola pela soma dos chutes e faltas da equipe em casa/fora. Pode ser usado para avaliar como a equipe controla o jogo através da posse e criação de chances.
+            Xht['game_control_home'] = Xht['possessiontime_home'] * (Xht['shotsHome'] + Xht['fouls_home'])
+            Xht['game_control_away'] = Xht['possessiontime_away'] * (Xht['shotsAway'] + Xht['fouls_away'])
+
+            # Attack Risk
+            # Calcula a razão entre chutes que não vão ao gol e o total de chutes menos os chutes ao gol para a equipe em casa/fora. Mostra a tendência da equipe em arriscar chutes que não são precisos.
+            Xht['attack_risk_home'] = (Xht['shotsOffgoal_home'] / (Xht['shotsHome'] - Xht['shotsOngoal_home']+ 1))
+            Xht['attack_risk_away'] = (Xht['shotsOffgoal_away'] / (Xht['shotsAway'] - Xht['shotsOngoal_away']+ 1))
+            Xht['attack_risk_home'] = round(Xht['attack_risk_home'].values[0], 2)
+            Xht['attack_risk_away'] = round(Xht['attack_risk_away'].values[0], 2)
+
+            # Pressure Over Time
+            # Multiplica a soma dos chutes ao gol e o tempo de posse pela duração do jogo até o momento (minutos). Esta métrica pode indicar como a pressão de jogo da equipe se acumula ao longo da partida.
             Xht['pressure_over_time_home'] = ((Xht['shotsOngoal_home'] + Xht['possessiontime_home']) * Xht['minute'])
             Xht['pressure_over_time_away'] = ((Xht['shotsOngoal_away'] + Xht['possessiontime_away']) * Xht['minute'])
 
-            # Intensidade de ataque: razão entre chutes ao gol e minutos    
-            Xht['attack_intensity_home'] = (Xht['shotsOngoal_home'] / Xht['minute'])
-            Xht['attack_intensity_away'] = (Xht['shotsOngoal_away'] / Xht['minute'])
+            # Attack Intensity
+            # Relaciona o número de chutes ao gol com o tempo de jogo, indicando a intensidade do ataque da equipe em casa/fora ao longo dos minutos da partida.
+            Xht['attack_intensity_home'] = (Xht['shotsOngoal_home'] / (Xht['minute'] + 1))  # +1 to avoid division by zero
+            Xht['attack_intensity_away'] = (Xht['shotsOngoal_away'] / (Xht['minute'] + 1))  # +1 to avoid division by zero
+            Xht['attack_intensity_home'] = round(Xht['attack_intensity_home'].values[0], 2)
+            Xht['attack_intensity_away'] = round(Xht['attack_intensity_away'].values[0], 2)
+
+            # Defensive Performance
+            # A relação entre o número de desarmes e o tempo de jogo, indicando o desempenho defensivo da equipe em casa/fora ao longo do tempo.
+            Xht['defensive_performance_home'] = (Xht['tackles_home'] / (Xht['minute'] + 1))  # +1 to avoid division by zero
+            Xht['defensive_performance_away'] = (Xht['tackles_away'] / (Xht['minute'] + 1))  # +1 to avoid division by zero
+            Xht['defensive_performance_home'] = round(Xht['defensive_performance_home'].values[0], 2)
+            Xht['defensive_performance_away'] = round(Xht['defensive_performance_away'].values[0], 2)
+
+            # Game Momentum
+            # Considera a soma dos chutes ao gol e o tempo de posse dividido pelo tempo restante na partida. Mostra a capacidade da equipe de construir ímpeto à medida que o jogo avança.
+            Xht['game_momentum_home'] = ((Xht['shotsOngoal_home'] + Xht['possessiontime_home']) / (90 - Xht['minute'] + 1))
+            Xht['game_momentum_away'] = ((Xht['shotsOngoal_away'] + Xht['possessiontime_away']) / (90 - Xht['minute'] + 1))
+            Xht['game_momentum_home'] = round(Xht['game_momentum_home'].values[0], 2)
+            Xht['game_momentum_away'] = round(Xht['game_momentum_away'].values[0], 2)
 
             # Progresso da posse de bola: incorporando tempo de posse e minutos
             Xht['possession_progress_home'] = (Xht['possessiontime_home'] * Xht['minute'])
             Xht['possession_progress_away'] = (Xht['possessiontime_away'] * Xht['minute'])
 
-            # Performace defensiva: razão entre desarmes e minutos
-            Xht['defensive_performance_home'] = (Xht['tackles_home'] / Xht['minute'])
-            Xht['defensive_performance_away'] = (Xht['tackles_away'] / Xht['minute'])
-
-            # Eficiência de progresso do jogo: incorporando eficiência de posse de bola e minutos
-            Xht['game_progress_efficiency_home'] = (Xht['possession_efficiency_home'] * Xht['minute'])
-            Xht['game_progress_efficiency_away'] = (Xht['possession_efficiency_away'] * Xht['minute'])
-
-            # Momentum do jogo: incorporando chutes ao gol, posse de bola e minutos
-            Xht['game_momentum_home'] = ((Xht['shotsOngoal_home'] + Xht['possessiontime_home']) / (90 - Xht['minute'] +1 ))
-            Xht['game_momentum_away'] = ((Xht['shotsOngoal_away'] + Xht['possessiontime_away']) / (90 - Xht['minute'] +1 ))
-
-            # Total de cartões por jogo
-            Xht['total_yellowcards'] = Xht['yellowcards_home'] + Xht['yellowcards_away']
-
             # Total de faltas por jogo
             Xht['total_fouls'] = Xht['fouls_home'] + Xht['fouls_away']
 
             # caracteristicas sem importancia para os modelos
-            Xht = Xht.drop(columns=['yellowcards_home', 'yellowcards_away', 'offsides_away', 
-                                    'offsides_home', 'redcards_home', 'redcards_away','total_cards', 
-                                    'blockedShotsHome', 'blockedShotsAway', 'minute', 
-                                    'aggressiveness_over_time_home', 'pressure_over_time_away', 
-                                    'aggressiveness_over_time_away', 'pressure_over_time_home', 
-                                    'possession_progress_home', 'possession_progress_away'])
+            Xht = Xht.drop(columns=['yellowcards_home', 'blockedShotsAway', 
+                                    'yellowcards_away', 'blockedShotsHome', 
+                                    'offsides_home', 'offsides_away', 'redcards_away', 
+                                    'redcards_home','shotsOngoal_away', 'total_cards', 
+                                    'corners_home', 'shotsOffgoal_home', 'attack_risk_home', 
+                                    'shotsOffgoal_away', 'total_cards_home', 
+                                    'attack_risk_away', 'corners_away', 'total_cards_away', 
+                                    'minute', 'aggressiveness_over_time_home', 
+                                    'pressure_over_time_home', 'aggressiveness_over_time_away', 
+                                    'possession_progress_away', 'pressure_over_time_away', 
+                                    'chances_home', 'game_control_home', 'possession_progress_home', 
+                                    'defensive_pressure_away', 'game_momentum_away', 'chances_away'])
 
-            # aggressiveness_over_time_home = round(Xht['aggressiveness_over_time_home'].values[0],2)
-            # aggressiveness_over_time_away = round(Xht['aggressiveness_over_time_away'].values[0],2)
-
-            defensive_stability_home = round(Xht['defensive_stability_home'].values[0], 2)
-            defensive_stability_away = round(Xht['defensive_stability_away'].values[0], 2)
-
-            # defensive_efficiency_home = Xht['defensive_efficiency_home'].values[0]
-            defensive_efficiency_away = round(Xht['defensive_efficiency_away'].values[0], 2)
-            
-            defensive_performance_home = round(Xht['defensive_performance_home'].values[0], 2)
-            defensive_performance_away = round(Xht['defensive_performance_away'].values[0],2)
-
-            possession_efficiency_home = round(Xht['possession_efficiency_home'].values[0],2)
-            possession_efficiency_away = round(Xht['possession_efficiency_away'].values[0],2)
-
-            # possession_progress_home = round(Xht['possession_progress_home'].values[0],2)
-            # possession_progress_away = round(Xht['possession_progress_away'].values[0],2)
-
-            game_progress_efficiency_home = round(Xht['game_progress_efficiency_home'].values[0],2)
-            game_progress_efficiency_away = round(Xht['game_progress_efficiency_away'].values[0],2)
-
-            game_momentum_home = round(Xht['game_momentum_home'].values[0],2)
-            game_momentum_away = round(Xht['game_momentum_away'].values[0],2)
-
-            # pressure_over_time_home = round(Xht['pressure_over_time_home'].values[0],2)
-            # pressure_over_time_away = round(Xht['pressure_over_time_away'].values[0],2)
-
-            # attack_intensity_away = Xht['attack_intensity_away'].values[0]
-            # attack_intensity_home = Xht['attack_intensity_home'].values[0]
-
+            shotsHome = Xht['shotsHome'].values[0]
+            shotsAway = Xht['shotsAway'].values[0]
+            # total_cards = Xht['total_cards'].values[0]
+            # total_cards_home = Xht['total_cards_home'].values[0]
+            # total_cards_away = Xht['total_cards_away'].values[0]
+            # aggressiveness_over_time_home = Xht['aggressiveness_over_time_home'].values[0]
+            # aggressiveness_over_time_away = Xht['aggressiveness_over_time_away'].values[0]
+            # chances_home = Xht['chances_home'].values[0]
+            # chances_away = Xht['chances_away'].values[0]
+            defensive_pressure_home = Xht['defensive_pressure_home'].values[0]
+            # defensive_pressure_away = Xht['defensive_pressure_away'].values[0]
+            attack_efficiency_home = Xht['attack_efficiency_home'].values[0]
+            attack_efficiency_away = Xht['attack_efficiency_away'].values[0]
+            # game_control_home = Xht['game_control_home'].values[0]
+            game_control_away = Xht['game_control_away'].values[0]
+            # attack_risk_home = Xht['attack_risk_home'].values[0]
+            # attack_risk_away = Xht['attack_risk_away'].values[0]
+            # pressure_over_time_home = Xht['pressure_over_time_home'].values[0]
+            # pressure_over_time_away = Xht['pressure_over_time_away'].values[0]
+            attack_intensity_home = Xht['attack_intensity_home'].values[0]
+            attack_intensity_away = Xht['attack_intensity_away'].values[0]
+            defensive_performance_home = Xht['defensive_performance_home'].values[0]
+            defensive_performance_away = Xht['defensive_performance_away'].values[0]
+            game_momentum_home = Xht['game_momentum_home'].values[0]
+            # game_momentum_away = Xht['game_momentum_away'].values[0]
+            # possession_progress_home = Xht['possessiontime_home'].values[0]
+            # possession_progress_away = Xht['possessiontime_away'].values[0]
             total_fouls = Xht['total_fouls'].values[0]
-
 
             # try:
             #     id_evento = game['betfairId']
@@ -317,28 +339,77 @@ while True:
 
             Xht_league = Xht.drop(columns=['league'])
             print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
-
             print_jogos = f'''
-
-    🚨 Jogo: {homeTeam} x {awayTeam}
+            🚨 Jogo: {homeTeam} x {awayTeam}
     ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
     🏆 Liga: {league}
     ⏱️ Minuto: {minute}
 
     📋 Estatísticas
-    ⛳ Escanteios: {corners_home} - {corners_away}
-    🦵 Chutes fora: {shotsOffgoal_home} - {shotsOffgoal_away}
-    🔴 Faltas: {fouls_home} - {fouls_away}
-    🛑 Desarmes: {tackles_home} - {tackles_away}
-    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
-    🛡️ Eficiência defensiva: {defensive_efficiency_away} - {defensive_performance_away}
-    ⚽ Eficiência de posse: {possession_efficiency_home} - {possession_efficiency_away}
-    🏰 Estabilidade defensiva: {defensive_stability_home} - {defensive_stability_away}
-    🛠️ Desempenho defensivo: {defensive_performance_home} - {defensive_efficiency_away}
-    🌪️ Momentum do jogo: {game_momentum_home} - {game_momentum_away}
-    ⚖️ Eficiência de progresso no jogo: {game_progress_efficiency_home} - {game_progress_efficiency_away}
+    ⏰ Tempo de posse Casa: x
+    ⏰ Tempo de posse Fora: x
+    🎯 Chutes: {shotsHome} - {shotsAway}
+    🔴 Cartões totais: x
+    🟥 Cartões Casa: x
+    🟨 Cartões Fora: x
+    🌟 Chances criadas Casa: x
+    🌟 Chances criadas Fora: x
+    🛡️ Pressão defensiva Casa: x
+    🛡️ Pressão defensiva Fora: x
+    ⚡ Eficiência de ataque Casa: {attack_efficiency_home}
+    ⚡ Eficiência de ataque Fora: {attack_efficiency_away}
+    🎮 Controle do jogo Casa: x
+    🎮 Controle do jogo Fora: {game_control_away}
+    🔥 Risco de ataque Casa: x
+    🔥 Risco de ataque Fora: x
+    🕒 Pressão ao longo do tempo Casa: x
+    🕒 Pressão ao longo do tempo Fora: x
+    💥 Intensidade de ataque Casa: {attack_intensity_home}
+    💥 Intensidade de ataque Fora: {attack_intensity_away}
+    🛠️ Desempenho defensivo Casa: {defensive_performance_home}
+    🛠️ Desempenho defensivo Fora: {defensive_performance_away}
+    🌪️ Momentum do jogo Casa: {game_momentum_home}
+    🌪️ Momentum do jogo Fora: x
     🏁 Total de faltas: {total_fouls}
-    '''
+    🚀 Agressividade ao longo do tempo Casa: x
+    🚀 Agressividade ao longo do tempo Fora: x
+'''
+
+    #         print_jogos = f'''
+
+    # 🚨 Jogo: {homeTeam} x {awayTeam}
+    # ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+    # 🏆 Liga: {league}
+    # ⏱️ Minuto: {minute}
+
+    # 📋 Estatísticas
+    # 🎯 Chutes: {shotsHome} - {shotsAway}
+    # 🔴 Cartões totais: {total_cards}
+    # 🟥 Cartões Casa: {total_cards_home}
+    # 🟨 Cartões Fora: {total_cards_away}
+    # 🌟 Chances criadas Casa: {chances_home}
+    # 🌟 Chances criadas Fora: {chances_away}
+    # 🛡️ Pressão defensiva Casa: {defensive_pressure_home}
+    # 🛡️ Pressão defensiva Fora: {defensive_pressure_away}
+    # ⚡ Eficiência de ataque Casa: {attack_efficiency_home}
+    # ⚡ Eficiência de ataque Fora: {attack_efficiency_away}
+    # 🎮 Controle do jogo Casa: {game_control_home}
+    # 🎮 Controle do jogo Fora: {game_control_away}
+    # 🔥 Risco de ataque Casa: {attack_risk_home}
+    # 🔥 Risco de ataque Fora: {attack_risk_away}
+    # 🕒 Pressão ao longo do tempo Casa: {pressure_over_time_home}
+    # 🕒 Pressão ao longo do tempo Fora: {pressure_over_time_away}
+    # 💥 Intensidade de ataque Casa: {attack_intensity_home}
+    # 💥 Intensidade de ataque Fora: {attack_intensity_away}
+    # 🛠️ Desempenho defensivo Casa: {defensive_performance_home}
+    # 🛠️ Desempenho defensivo Fora: {defensive_performance_away}
+    # 🌪️ Momentum do jogo Casa: {game_momentum_home}
+    # 🌪️ Momentum do jogo Fora: {game_momentum_away}
+    # 🏁 Total de faltas: {total_fouls}
+    # 🚀 Agressividade ao longo do tempo Casa: {aggressiveness_over_time_home}
+    # 🚀 Agressividade ao longo do tempo Fora: {aggressiveness_over_time_away}
+
+    # '''
             
             
     # 🚨 Jogo: {homeTeam} x {awayTeam}
