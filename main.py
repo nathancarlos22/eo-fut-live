@@ -203,6 +203,9 @@ while True:
 
             }
 
+            if minute == 0:
+                continue
+
             Xht = pd.DataFrame(novo_dado, index=[0])
             
             # Tratando ligas com nomes diferentes, varios grupos, etc..
