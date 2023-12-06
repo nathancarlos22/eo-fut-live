@@ -177,7 +177,7 @@ while True:
             yellowcards_away = game['stats']['yellowcards']['away']
 
             novo_dado = {
-                'minute': minute,
+                'minute': int(minute),
                 'league': league,
                 'corners_home': corners_home,
                 'corners_away': corners_away,
@@ -620,5 +620,6 @@ while True:
     
     except Exception as e:
         traceback.print_exc()
+        time.sleep(60)
         print(e)
         continue
