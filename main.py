@@ -349,6 +349,46 @@ while True:
 
     # '''
 
+            condicao_rede = 0
+            condicao_Automl = 0
+            condicao_Randomf = 0
+
+            if minute >= 1 and minute < 35:
+                try:
+
+                    # Xht_transform = preprocessor_league.transform(Xht_league)
+
+
+                    if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
+                        Xht = preprocessor.transform(Xht)
+                        Xht_league_transform = preprocessor_league.transform(Xht_league)
+                        Xht_h2o = h2o.H2OFrame(Xht)
+                        # model = keras.models.load_model(f'models/model_redeht_{league}.h5')
+                        model_Randomf = pickle.load(open(f'models/model_randomf_{league}.sav', 'rb'))
+                        # value_pred_rede = model.predict(Xht_transform)[0][0]                      
+                        
+                        value_pred_rede = model.predict(Xht)[0][0]
+                        value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
+                        value_pred_randomf = model_Randomf.predict_proba(Xht_league_transform)[0][1]
+                        
+                        print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
+                        print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
+                        print(f"{homeTeam} x {awayTeam} Random Forest: {value_pred_randomf}")
+                        
+                        if value_pred_rede >= 0.52:
+
+                            condicao_rede = 1
+
+                        if value_pred_automl >= 0.52:
+                            condicao_Automl = 1
+                        
+                        if value_pred_randomf >= 0.55:
+                            condicao_Randomf = 1
+
+                except Exception as e:
+                    print(e)
+                    continue
+
             for key, value in id_jogos_mensagem.items():
                 if key == 'id_over05HTmodel':
                     for jogos in value:
@@ -524,45 +564,7 @@ while True:
                                     id_jogos_mensagem[key].remove(jogos)
 
 
-            condicao_rede = 0
-            condicao_Automl = 0
-            condicao_Randomf = 0
-
-            if minute >= 1 and minute < 35:
-                try:
-
-                    # Xht_transform = preprocessor_league.transform(Xht_league)
-
-
-                    if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
-                        Xht = preprocessor.transform(Xht)
-                        Xht_league_transform = preprocessor_league.transform(Xht_league)
-                        Xht_h2o = h2o.H2OFrame(Xht)
-                        # model = keras.models.load_model(f'models/model_redeht_{league}.h5')
-                        model_Randomf = pickle.load(open(f'models/model_randomf_{league}.sav', 'rb'))
-                        # value_pred_rede = model.predict(Xht_transform)[0][0]                      
-                        
-                        value_pred_rede = model.predict(Xht)[0][0]
-                        value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
-                        value_pred_randomf = model_Randomf.predict_proba(Xht_league_transform)[0][1]
-                        
-                        print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
-                        print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
-                        print(f"{homeTeam} x {awayTeam} Random Forest: {value_pred_randomf}")
-                        
-                        if value_pred_rede >= 0.52:
-
-                            condicao_rede = 1
-
-                        if value_pred_automl >= 0.52:
-                            condicao_Automl = 1
-                        
-                        if value_pred_randomf >= 0.55:
-                            condicao_Randomf = 1
-
-                except Exception as e:
-                    print(e)
-                    continue
+            
 
             
 
