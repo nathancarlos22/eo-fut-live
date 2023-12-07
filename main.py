@@ -240,10 +240,7 @@ while True:
             Xht['total_fouls'] = Xht['fouls_home'] + Xht['fouls_away']
 
             # caracteristicas sem importancia para os modelos
-            Xht = Xht.drop(columns=['yellowcards_home', 'blockedShotsAway', 
-                                    'yellowcards_away', 'blockedShotsHome', 
-                                    'offsides_home', 'offsides_away', 
-                                    'redcards_away', 'redcards_home', 'minute'])
+            Xht = Xht.drop(columns=['redcards_away', 'redcards_home', 'minute'])
 
             shotsHome = Xht['shotsHome'].values[0]
             shotsAway = Xht['shotsAway'].values[0]
@@ -302,11 +299,17 @@ while True:
     🎯 Chutes ao gol Fora: {shotsOngoal_away}
     🦵 Chutes fora Casa: {shotsOffgoal_home}
     🦵 Chutes fora Fora: {shotsOffgoal_away}
+    🚩 Impedimentos Casa: {offsides_home}
+    🚩 Impedimentos Fora: {offsides_away}
+    🚫 Chutes bloqueados Casa: {shotsBlocked_home}
+    🚫 Chutes bloqueados Fora: {shotsBlocked_away}
     🔴 Faltas Casa: {fouls_home}
     🔴 Faltas Fora: {fouls_away}
     🛑 Desarmes Casa: {tackles_home}
     🛑 Desarmes Fora: {tackles_away}
     🏁 Total de faltas: {total_fouls}
+    🟨 Cartões amarelos Casa: {yellowcards_home}
+    🟨 Cartões amarelos Fora: {yellowcards_away}
 '''
 
     #         print_jogos = f'''
