@@ -252,7 +252,7 @@ while True:
             Xht['total_fouls'] = Xht['fouls_home'] + Xht['fouls_away']
 
             # caracteristicas sem importancia para os modelos
-            Xht = Xht.drop(columns=['redcards_away', 'redcards_home'])
+            Xht = Xht.drop(columns=['redcards_away', 'redcards_home', 'minute'])
 
             shotsHome = Xht['shotsHome'].values[0]
             shotsAway = Xht['shotsAway'].values[0]
