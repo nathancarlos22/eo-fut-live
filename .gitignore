@@ -4,8 +4,6 @@ formatojson.txt
 notas2.txt
 mlruns
 *.csv
-*.pkl
-# *.pickle
 *.log
 .vscode
 __pycache__
