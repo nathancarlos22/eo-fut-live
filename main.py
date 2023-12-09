@@ -208,6 +208,10 @@ while True:
                 continue
 
             Xht = pd.DataFrame(novo_dado, index=[0])
+
+            if Xht.isna().sum().sum() > 0:
+                # print(Xht.isna().sum())
+                continue
             
             # Tratando ligas com nomes diferentes, varios grupos, etc..
             if 'Asia - AFC Champions League' in league:
@@ -270,9 +274,7 @@ while True:
             # except:
             #     continue
 
-            if Xht.isna().sum().sum() > 0:
-                # print(Xht.isna().sum())
-                continue
+            
 
             Xht_league = Xht.drop(columns=['league'])
             print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
