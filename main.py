@@ -58,7 +58,7 @@ minutoss = datetime.now().minute
 flag = 0
 
 model = keras.models.load_model('models/model_redeht.h5')
-model_Randomf = pickle.load(open('models/model_randomf_Brazil - Serie A.sav', 'rb')) # inicializado
+# model_Randomf = pickle.load(open('models/model_randomf_Brazil - Serie A.sav', 'rb')) # inicializado
 
 # Inicializar o cluster H2O
 # h2o.init()
@@ -88,7 +88,7 @@ state = ''
 
 value_pred_rede = 0
 value_pred_automl = 0
-value_pred_randomf = 0
+# value_pred_randomf = 0
 
 while True:
     print('🤖 Procurando jogos...\n')
@@ -217,7 +217,8 @@ while True:
             if Xht.isna().sum().sum() > 0:
                 # print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
                 # print(Xht.isna().sum())
-                break
+                # time.sleep(60)
+                continue
             
             # Tratando ligas com nomes diferentes, varios grupos, etc..
             if 'Asia - AFC Champions League' in league:
@@ -363,9 +364,9 @@ while True:
 
             condicao_rede = 0
             condicao_Automl = 0
-            condicao_Randomf = 0
+            # condicao_Randomf = 0
 
-            if minute >= 15 and minute < 35:
+            if minute > 1 and minute < 45:
                 try:
 
                     # Xht_transform = preprocessor_league.transform(Xht_league)
@@ -373,20 +374,20 @@ while True:
 
                     if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
                         Xht = preprocessor.transform(Xht)
-                        Xht_league_transform = preprocessor_league.transform(Xht_league)
+                        # Xht_league_transform = preprocessor_league.transform(Xht_league)
                         # Xht_h2o = h2o.H2OFrame(Xht)
                         # model = keras.models.load_model(f'models/model_redeht_{league}.h5')
-                        model_Randomf = pickle.load(open(f'models/model_randomf_{league}.sav', 'rb'))
+                        # model_Randomf = pickle.load(open(f'models/model_randomf_{league}.sav', 'rb'))
                         # value_pred_rede = model.predict(Xht_transform)[0][0]                      
                         
                         value_pred_rede = model.predict(Xht)[0][0]
                         # value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
                         value_pred_automl = model_Automl.predict_proba(Xht)[:, 1][0]
-                        value_pred_randomf = model_Randomf.predict_proba(Xht_league_transform)[0][1]
+                        # value_pred_randomf = model_Randomf.predict_proba(Xht_league_transform)[0][1]
                         
                         print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
                         print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
-                        print(f"{homeTeam} x {awayTeam} Random Forest: {value_pred_randomf}")
+                        # print(f"{homeTeam} x {awayTeam} Random Forest: {value_pred_randomf}")
                         
                         if value_pred_rede >= 0.52:
 
@@ -395,8 +396,8 @@ while True:
                         if value_pred_automl >= 0.52:
                             condicao_Automl = 1
                         
-                        if value_pred_randomf >= 0.55:
-                            condicao_Randomf = 1
+                        # if value_pred_randomf >= 0.55:
+                        #     condicao_Randomf = 1
 
                 except Exception as e:
                     print(e)
@@ -424,21 +425,21 @@ while True:
     💭 Previsão: {value_pred_automl}
     {print_jogos}
     '''
-                            if '&' in text:
-                                text = text.replace('&', '')
-                            editMessageTelegram(jogos['message_id'], text)
-                if key == 'id_over05HTRandomf':
-                    for jogos in value:
-                        if jogos['id'] == iD:
-                            text = f'''
-    👑 Modelo Random Forest
+    #                         if '&' in text:
+    #                             text = text.replace('&', '')
+    #                         editMessageTelegram(jogos['message_id'], text)
+    #             if key == 'id_over05HTRandomf':
+    #                 for jogos in value:
+    #                     if jogos['id'] == iD:
+    #                         text = f'''
+    # 👑 Modelo Random Forest
 
-    💭 Previsão: {value_pred_randomf}
-    {print_jogos}
-    '''
-                            if '&' in text:
-                                text = text.replace('&', '')
-                            editMessageTelegram(jogos['message_id'], text)
+    # 💭 Previsão: {value_pred_randomf}
+    # {print_jogos}
+    # '''
+                            # if '&' in text:
+                            #     text = text.replace('&', '')
+                            # editMessageTelegram(jogos['message_id'], text)
 
 
         #     # rede neural
@@ -535,46 +536,46 @@ while True:
                                     id_jogos_mensagem[key].remove(jogos)
             
             # Random Forest
-            if iD in id_over05HTRandomf:
-                if minute <= 45 and (awayTeamScore + homeTeamScore) > 0:
-                    winht_Randomf += 1
-                    id_over05HTRandomf.remove(iD)
-                    valor = valorEsperado - 5
-                    lucro += valor
-                    for key, value in id_jogos_mensagem.items():
-                        if key == 'id_over05HTRandomf':
-                            for jogos in value:
-                                if jogos['id'] == iD:
-                                    text = f'''
-        👑 Modelo Random Forest
+        #     if iD in id_over05HTRandomf:
+        #         if minute <= 45 and (awayTeamScore + homeTeamScore) > 0:
+        #             winht_Randomf += 1
+        #             id_over05HTRandomf.remove(iD)
+        #             valor = valorEsperado - 5
+        #             lucro += valor
+        #             for key, value in id_jogos_mensagem.items():
+        #                 if key == 'id_over05HTRandomf':
+        #                     for jogos in value:
+        #                         if jogos['id'] == iD:
+        #                             text = f'''
+        # 👑 Modelo Random Forest
 
-        ✅ Win {winht_Randomf} - {loseht_Randomf}
-        {print_jogos}
-        '''
-                                    if '&' in text:
-                                        text = text.replace('&', '')
-                                    sendMenssageTelegram(text)
-                                    id_jogos_mensagem[key].remove(jogos)
+        # ✅ Win {winht_Randomf} - {loseht_Randomf}
+        # {print_jogos}
+        # '''
+        #                             if '&' in text:
+        #                                 text = text.replace('&', '')
+        #                             sendMenssageTelegram(text)
+        #                             id_jogos_mensagem[key].remove(jogos)
 
-                if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                    loseht_Randomf += 1
-                    id_over05HTRandomf.remove(iD)
-                    lucro -= 5
-                    for key, value in id_jogos_mensagem.items():
-                        if key == 'id_over05HTRandomf':
-                            for jogos in value:
-                                if jogos['id'] == iD:
-                                    text = f'''
-        👑 Modelo Random Forest
+        #         if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
+        #             loseht_Randomf += 1
+        #             id_over05HTRandomf.remove(iD)
+        #             lucro -= 5
+        #             for key, value in id_jogos_mensagem.items():
+        #                 if key == 'id_over05HTRandomf':
+        #                     for jogos in value:
+        #                         if jogos['id'] == iD:
+        #                             text = f'''
+        # 👑 Modelo Random Forest
 
-        🛑 Lose {winht_Randomf} - {loseht_Randomf}
-        {print_jogos}
-        '''
-                                    if '&' in text:
-                                        text = text.replace('&', '')
-                                    sendMenssageTelegram(text)
-                                    # remove do dicionario
-                                    id_jogos_mensagem[key].remove(jogos)
+        # 🛑 Lose {winht_Randomf} - {loseht_Randomf}
+        # {print_jogos}
+        # '''
+        #                             if '&' in text:
+        #                                 text = text.replace('&', '')
+        #                             sendMenssageTelegram(text)
+        #                             # remove do dicionario
+        #                             id_jogos_mensagem[key].remove(jogos)
 
 
             
@@ -617,21 +618,21 @@ while True:
                 # sendMenssageTelegram(text)
                 id_jogos_mensagem["id_over05HTAutoml"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
-            if condicao_Randomf == 1 and iD not in id_over05HTRandomf:
-                id_over05HTRandomf.append(iD)
-                # state, valorEsperado = makeBet(id_evento)
-                state, valorEsperado = 'SUCCESS', 10
+        #     if condicao_Randomf == 1 and iD not in id_over05HTRandomf:
+        #         id_over05HTRandomf.append(iD)
+        #         # state, valorEsperado = makeBet(id_evento)
+        #         state, valorEsperado = 'SUCCESS', 10
 
-                text = f'''
-        👑 Modelo Random Forest
+        #         text = f'''
+        # 👑 Modelo Random Forest
 
-        💭 Previsão: {value_pred_randomf}
-        {print_jogos}
-        '''
-                if '&' in text:
-                    text = text.replace('&', '')
-                # sendMenssageTelegram(text)
-                id_jogos_mensagem["id_over05HTRandomf"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
+        # 💭 Previsão: {value_pred_randomf}
+        # {print_jogos}
+        # '''
+        #         if '&' in text:
+        #             text = text.replace('&', '')
+        #         # sendMenssageTelegram(text)
+        #         id_jogos_mensagem["id_over05HTRandomf"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
             
         time.sleep(60)
