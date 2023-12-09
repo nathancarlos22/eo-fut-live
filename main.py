@@ -9,7 +9,7 @@ import warnings
 import keras
 
 import pandas as pd
-import h2o
+# import h2o
 from dotenv import load_dotenv
 import os
 from datetime import datetime
@@ -61,9 +61,10 @@ model = keras.models.load_model('models/model_redeht.h5')
 model_Randomf = pickle.load(open('models/model_randomf_Brazil - Serie A.sav', 'rb')) # inicializado
 
 # Inicializar o cluster H2O
-h2o.init()
-model_Automl = loaded_model = h2o.load_model("./models/model_automl")
+# h2o.init()
+# model_Automl = loaded_model = h2o.load_model("./models/model_automl")
 # model_Automl = loaded_model = h2o.load_model("C:/Users/Pichau/Desktop/eo-fut-live/models/model_automl")
+model_Automl = pickle.load(open('./models/tpot_model.pkl', 'rb'))
 
 preprocessor = pickle.load(open('models/preprocessor.pickle', 'rb'))
 preprocessor_league = pickle.load(open('models/preprocessor_league.pickle','rb'))
@@ -240,7 +241,7 @@ while True:
             Xht['total_fouls'] = Xht['fouls_home'] + Xht['fouls_away']
 
             # caracteristicas sem importancia para os modelos
-            Xht = Xht.drop(columns=['redcards_away', 'redcards_home', 'minute'])
+            Xht = Xht.drop(columns=['redcards_away', 'redcards_home'])
 
             shotsHome = Xht['shotsHome'].values[0]
             shotsAway = Xht['shotsAway'].values[0]
@@ -365,13 +366,14 @@ while True:
                     if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
                         Xht = preprocessor.transform(Xht)
                         Xht_league_transform = preprocessor_league.transform(Xht_league)
-                        Xht_h2o = h2o.H2OFrame(Xht)
+                        # Xht_h2o = h2o.H2OFrame(Xht)
                         # model = keras.models.load_model(f'models/model_redeht_{league}.h5')
                         model_Randomf = pickle.load(open(f'models/model_randomf_{league}.sav', 'rb'))
                         # value_pred_rede = model.predict(Xht_transform)[0][0]                      
                         
                         value_pred_rede = model.predict(Xht)[0][0]
-                        value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
+                        # value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
+                        value_pred_automl = model_Automl.predict_proba(Xht)[:, 1][0]
                         value_pred_randomf = model_Randomf.predict_proba(Xht_league_transform)[0][1]
                         
                         print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
