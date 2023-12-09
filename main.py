@@ -126,6 +126,11 @@ while True:
         numero_jogos = len(dic_response['data'])
         print(f'🤖 {numero_jogos} jogos ao vivo\n')
 
+        # import json
+
+        # with open('data.json', 'w') as outfile:
+        #     json.dump(dic_response, outfile)
+
         for game in dic_response['data']:
             date = game['date']
 
@@ -210,8 +215,9 @@ while True:
             Xht = pd.DataFrame(novo_dado, index=[0])
 
             if Xht.isna().sum().sum() > 0:
+                # print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
                 # print(Xht.isna().sum())
-                continue
+                break
             
             # Tratando ligas com nomes diferentes, varios grupos, etc..
             if 'Asia - AFC Champions League' in league:
@@ -359,7 +365,7 @@ while True:
             condicao_Automl = 0
             condicao_Randomf = 0
 
-            if minute >= 1 and minute < 35:
+            if minute >= 15 and minute < 35:
                 try:
 
                     # Xht_transform = preprocessor_league.transform(Xht_league)
