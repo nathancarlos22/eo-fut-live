@@ -215,7 +215,6 @@ while True:
             Xht = pd.DataFrame(novo_dado, index=[0])
 
             # caracteristicas sem importancia para os modelos
-            Xht = Xht.drop(columns=['redcards_away', 'redcards_home', 'offsides_home', 'yellowcards_away', 'offsides_away', 'yellowcards_home', 'blockedShotsAway', 'blockedShotsHome'])
 
             if Xht.isna().sum().sum() > 0:
                 # print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
@@ -254,6 +253,8 @@ while True:
             # Total de faltas por jogo
             Xht['total_fouls'] = Xht['fouls_home'] + Xht['fouls_away']
 
+            Xht = Xht.drop(columns=['redcards_away', 'redcards_home', 'offsides_home', 'yellowcards_away', 'offsides_away', 'yellowcards_home', 'blockedShotsAway', 'blockedShotsHome'])
+            
             shotsHome = Xht['shotsHome'].values[0]
             shotsAway = Xht['shotsAway'].values[0]
             shotsOnGoalEfficiency = Xht['shotsOnGoalEfficiency'].values[0]
