@@ -367,7 +367,7 @@ while True:
             condicao_Automl = 0
             # condicao_Randomf = 0
 
-            if minute > 10 and minute < 45:
+            if minute > 15 and minute < 35:
                 try:
 
                     # Xht_transform = preprocessor_league.transform(Xht_league)
@@ -383,7 +383,7 @@ while True:
                         
                         value_pred_rede = model.predict(Xht)[0][0]
                         # value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
-                        value_pred_automl = model_Automl.predict_proba(Xht)[:, 1][0]
+                        value_pred_automl = model_Automl.predict(Xht)[0]
                         # value_pred_randomf = model_Randomf.predict_proba(Xht_league_transform)[0][1]
                         
                         print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
