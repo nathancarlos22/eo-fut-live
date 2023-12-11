@@ -253,7 +253,7 @@ while True:
             # Total de faltas por jogo
             Xht['total_fouls'] = Xht['fouls_home'] + Xht['fouls_away']
 
-            Xht = Xht.drop(columns=['redcards_away', 'redcards_home', 'offsides_home', 'yellowcards_away', 'offsides_away', 'yellowcards_home', 'blockedShotsAway', 'blockedShotsHome'])
+            Xht = Xht.drop(columns=['redcards_away', 'redcards_home'])
             
             shotsHome = Xht['shotsHome'].values[0]
             shotsAway = Xht['shotsAway'].values[0]
