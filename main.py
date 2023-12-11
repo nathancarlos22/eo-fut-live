@@ -67,7 +67,7 @@ model = keras.models.load_model('models/model_redeht.h5')
 model_Automl = pickle.load(open('./models/tpot_model.pkl', 'rb'))
 
 preprocessor = pickle.load(open('models/preprocessor.pickle', 'rb'))
-preprocessor_league = pickle.load(open('models/preprocessor_league.pickle','rb'))
+# preprocessor_league = pickle.load(open('models/preprocessor_league.pickle','rb'))
 
 
 id_over05HTmodel = []
