@@ -445,7 +445,7 @@ while True:
 
         #     # rede neural
             if iD in id_over05HTmodel:
-                if minute <= 45 and (awayTeamScore + homeTeamScore) > 0:
+                if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
                     winht_model += 1
                     id_over05HTmodel.remove(iD)
                     
@@ -495,7 +495,7 @@ while True:
 
             # Automl
             if iD in id_over05HTAutoml:
-                if minute <= 45 and (awayTeamScore + homeTeamScore) > 0:
+                if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
                     winht_Automl += 1
                     id_over05HTAutoml.remove(iD)
                     valor = valorEsperado - 5
@@ -538,7 +538,7 @@ while True:
             
             # Random Forest
         #     if iD in id_over05HTRandomf:
-        #         if minute <= 45 and (awayTeamScore + homeTeamScore) > 0:
+        #         if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
         #             winht_Randomf += 1
         #             id_over05HTRandomf.remove(iD)
         #             valor = valorEsperado - 5
