@@ -367,7 +367,7 @@ while True:
             condicao_Automl = 0
             # condicao_Randomf = 0
 
-            if minute > 10 and minute < 35:
+            if minute > 10 and minute < 90:
                 try:
 
                     # Xht_transform = preprocessor_league.transform(Xht_league)
