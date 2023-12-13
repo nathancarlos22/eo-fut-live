@@ -469,7 +469,8 @@ while True:
                                     # remove do dicionario
                                     id_jogos_mensagem[key].remove(jogos)
 
-                if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
+                # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
+                if minute == 90 and (awayTeamScore + homeTeamScore) == 0:
                     loseht_model += 1
                     id_over05HTmodel.remove(iD)
                     lucro -= 5
@@ -515,7 +516,8 @@ while True:
                                     sendMenssageTelegram(text)
                                     id_jogos_mensagem[key].remove(jogos)
                 
-                if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
+                # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
+                if minute == 90 and (awayTeamScore + homeTeamScore) == 0:
                     loseht_Automl += 1
                     id_over05HTAutoml.remove(iD)
                     lucro -= 5
@@ -558,7 +560,8 @@ while True:
         #                             sendMenssageTelegram(text)
         #                             id_jogos_mensagem[key].remove(jogos)
 
-        #         if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
+                # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
+                    # if minute == 90 and (awayTeamScore + homeTeamScore) == 0:
         #             loseht_Randomf += 1
         #             id_over05HTRandomf.remove(iD)
         #             lucro -= 5
