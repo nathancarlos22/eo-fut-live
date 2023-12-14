@@ -59,8 +59,8 @@ flag = 0
 
 # model = keras.models.load_model('models/model_redeht.h5')
 # Carregar o modelo do arquivo
-with open('models/modelo_mlp.pkl', 'rb') as file:
-    model = pickle.load(file)
+
+model = pickle.load(open('models/modelo_mlp.pkl', 'rb'))
 
 # model_Randomf = pickle.load(open('models/model_randomf_Brazil - Serie A.sav', 'rb')) # inicializado
 
