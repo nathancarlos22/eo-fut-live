@@ -57,7 +57,11 @@ resultados = {}
 minutoss = datetime.now().minute
 flag = 0
 
-model = keras.models.load_model('models/model_redeht.h5')
+# model = keras.models.load_model('models/model_redeht.h5')
+# Carregar o modelo do arquivo
+with open('../models/modelo_mlp.pkl', 'rb') as file:
+    model = pickle.load(file)
+
 # model_Randomf = pickle.load(open('models/model_randomf_Brazil - Serie A.sav', 'rb')) # inicializado
 
 # Inicializar o cluster H2O
