@@ -7,9 +7,8 @@ import pandas as pd
 import pickle
 import warnings
 import keras
-
+import joblib
 import pandas as pd
-# import h2o
 from dotenv import load_dotenv
 import os
 from datetime import datetime
@@ -60,7 +59,8 @@ flag = 0
 # model = keras.models.load_model('models/model_redeht.h5')
 # Carregar o modelo do arquivo
 
-model = pickle.load(open('models/modelo_mlp.pkl', 'rb'))
+
+model = joblib.load('models/modelo_mlp.pkl')
 
 # model_Randomf = pickle.load(open('models/model_randomf_Brazil - Serie A.sav', 'rb')) # inicializado
 
