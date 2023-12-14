@@ -229,6 +229,10 @@ while True:
             if 'Europe - Champions League' in league:
                 league = 'Europe - Champions League'
                 Xht['league'] = league
+            
+            if 'urope - Europa League' in league:
+                league = 'Europe - Europa League'
+                Xht['league'] = league
 
             Xht['shotsHome'] = Xht['shotsOngoal_home'] + Xht['shotsOffgoal_home']
             Xht['shotsAway'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
@@ -470,7 +474,7 @@ while True:
                                     id_jogos_mensagem[key].remove(jogos)
 
                 # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                if minute == 90 and (awayTeamScore + homeTeamScore) == 0:
+                if status == 'HT' or minute == 90 and (awayTeamScore + homeTeamScore) == 0:
                     loseht_model += 1
                     id_over05HTmodel.remove(iD)
                     lucro -= 5
@@ -517,7 +521,7 @@ while True:
                                     id_jogos_mensagem[key].remove(jogos)
                 
                 # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                if minute == 90 and (awayTeamScore + homeTeamScore) == 0:
+                if status == 'HT' or minute == 90 and (awayTeamScore + homeTeamScore) == 0:
                     loseht_Automl += 1
                     id_over05HTAutoml.remove(iD)
                     lucro -= 5
