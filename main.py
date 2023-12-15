@@ -242,8 +242,8 @@ while True:
             Xht['shotsAway'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
 
             # Desempenho Relacionado ao Ataque
-            Xht['shotsOnGoalEfficiency'] = (Xht['shotsOngoal_home'] + Xht['shotsOngoal_away']) / (Xht['shotsHome'].values[0] + Xht['shotsAway'].values[0] + 1) # A eficiência do ataque em termos de chutes que realmente vão em direção ao gol.
-            Xht['attackPressure'] = (Xht['shotsHome'] + Xht['shotsAway'] + Xht['corners_home'] + Xht['corners_away']) / Xht['minute'] # Uma medida de quão ofensivas as equipes estão ao longo do jogo.
+            Xht['shotsOnGoalEfficiency'] = round((Xht['shotsOngoal_home'] + Xht['shotsOngoal_away']) / (Xht['shotsHome'].values[0] + Xht['shotsAway'].values[0] + 1), 2) # A eficiência do ataque em termos de chutes que realmente vão em direção ao gol.
+            Xht['attackPressure'] = round((Xht['shotsHome'] + Xht['shotsAway'] + Xht['corners_home'] + Xht['corners_away']) / Xht['minute'], 2) # Uma medida de quão ofensivas as equipes estão ao longo do jogo.
             Xht['shotAccuracy_home'] = round(Xht['shotsOngoal_home'].values[0] / (Xht['shotsHome'].values[0] + 1), 2) # Proporção de chutes no gol em relação ao total de chutes.
             Xht['shotAccuracy_away'] = round(Xht['shotsOngoal_away'].values[0] / (Xht['shotsAway'].values[0] + 1), 2)
 
@@ -252,11 +252,11 @@ while True:
             Xht['passRisk'] = (Xht['offsides_home'] + Xht['offsides_away']) / (Xht['possessiontime_home'] + Xht['possessiontime_away']) # Indicativo de quão arriscados são os passes, resultando em impedimentos.
 
             # Desempenho Relacionado com Defesa
-            Xht['defensiveDiscipline'] = (1 - (Xht['redcards_home'] + Xht['yellowcards_home'] + Xht['fouls_home'] + 
-                                            Xht['redcards_away'] + Xht['yellowcards_away'] + Xht['fouls_away']) / Xht['minute']) # Uma medida de quão disciplinadas as equipes estão em termos de cartões e faltas.
+            Xht['defensiveDiscipline'] = round((1 - (Xht['redcards_home'] + Xht['yellowcards_home'] + Xht['fouls_home'] + 
+                                            Xht['redcards_away'] + Xht['yellowcards_away'] + Xht['fouls_away']) / Xht['minute']), 2) # Uma medida de quão disciplinadas as equipes estão em termos de cartões e faltas.
 
-            Xht['defensiveEfficacy'] = (Xht['blockedShotsHome'] + Xht['blockedShotsAway']) / round((Xht['shotsOnGoalEfficiency'].values[0] + 1), 2) # Avalia a habilidade da defesa de bloquear chutes eficientes.
-            Xht['defensiveAggression'] = (Xht['tackles_home'] + Xht['tackles_away']) / Xht['minute']
+            Xht['defensiveEfficacy'] = round( (Xht['blockedShotsHome'] + Xht['blockedShotsAway']) / round((Xht['shotsOnGoalEfficiency'].values[0] + 1), 2), 2) # Avalia a habilidade da defesa de bloquear chutes eficientes.
+            Xht['defensiveAggression'] = round((Xht['tackles_home'] + Xht['tackles_away']) / Xht['minute'], 2)
 
             # Total de faltas por jogo
             Xht['total_fouls'] = Xht['fouls_home'] + Xht['fouls_away']
@@ -375,7 +375,7 @@ while True:
             condicao_Automl = 0
             # condicao_Randomf = 0
 
-            if minute > 10 and minute < 90 and status != 'HT':
+            if minute > 1 and minute < 90 and status != 'HT':
                 try:
 
                     # Xht_transform = preprocessor_league.transform(Xht_league)
@@ -389,7 +389,7 @@ while True:
                         # model_Randomf = pickle.load(open(f'models/model_randomf_{league}.sav', 'rb'))
                         # value_pred_rede = model.predict(Xht_transform)[0][0]                      
                         
-                        value_pred_rede = model.predict(Xht)[0][0]
+                        value_pred_rede = model.predict(Xht)
                         # value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
                         value_pred_automl = model_Automl.predict(Xht)[0]
                         # value_pred_randomf = model_Randomf.predict_proba(Xht_league_transform)[0][1]
