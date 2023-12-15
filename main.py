@@ -56,11 +56,11 @@ resultados = {}
 minutoss = datetime.now().minute
 flag = 0
 
-# model = keras.models.load_model('models/model_redeht.h5')
 # Carregar o modelo do arquivo
+model = keras.models.load_model('models/model_redeht.h5')
 
 
-model = joblib.load('models/modelo_mlp.pkl')
+# model = joblib.load('models/modelo_mlp.pkl')
 
 # model_Randomf = pickle.load(open('models/model_randomf_Brazil - Serie A.sav', 'rb')) # inicializado
 
@@ -187,6 +187,8 @@ while True:
             yellowcards_away = game['stats']['yellowcards']['away']
 
             novo_dado = {
+                'goalHome': goals_home,
+                'goalAway': goals_away,
                 'minute': int(minute),
                 'league': league,
                 'corners_home': corners_home,
@@ -261,7 +263,7 @@ while True:
             # Total de faltas por jogo
             Xht['total_fouls'] = Xht['fouls_home'] + Xht['fouls_away']
 
-            Xht = Xht.drop(columns=['redcards_away', 'redcards_home'])
+            Xht = Xht.drop(columns=['redcards_away', 'redcards_home', 'minute'])
             
             shotsHome = Xht['shotsHome'].values[0]
             shotsAway = Xht['shotsAway'].values[0]
@@ -389,7 +391,7 @@ while True:
                         # model_Randomf = pickle.load(open(f'models/model_randomf_{league}.sav', 'rb'))
                         # value_pred_rede = model.predict(Xht_transform)[0][0]                      
                         
-                        value_pred_rede = model.predict(Xht)
+                        value_pred_rede = model.predict(Xht)[0][0]
                         # value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
                         value_pred_automl = model_Automl.predict(Xht)[0]
                         # value_pred_randomf = model_Randomf.predict_proba(Xht_league_transform)[0][1]
