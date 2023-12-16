@@ -57,7 +57,50 @@ minutoss = datetime.now().minute
 flag = 0
 
 # Carregar o modelo do arquivo
-model = keras.models.load_model('models/model_redeht.h5')
+# model = keras.models.load_model('models/model_redeht.h5')
+# carregar modelo torch
+import torch
+from torch import nn
+import torch.nn.functional as F
+from torch.utils.data import TensorDataset, DataLoader
+
+# Definindo o modelo
+class NeuralNetwork(nn.Module):
+    def __init__(self):
+        super(NeuralNetwork, self).__init__()
+        self.layer1 = nn.Sequential(
+            nn.Linear(60, 1280),
+            nn.ReLU(),
+            nn.BatchNorm1d(1280),
+            nn.Dropout(0.5)
+        )
+        self.layer2 = nn.Sequential(
+            nn.Linear(1280, 640),
+            nn.ReLU(),
+            nn.BatchNorm1d(640),
+            nn.Dropout(0.5)
+        )
+        self.layer3 = nn.Sequential(
+            nn.Linear(640, 320),
+            nn.ReLU(),
+            nn.BatchNorm1d(320),
+            nn.Dropout(0.5)
+        )
+        self.output = nn.Linear(320, 1)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.output(x)
+        x = self.sigmoid(x)
+        return x
+    
+# 2. Carregar o modelo treinado
+model = NeuralNetwork()
+model.load_state_dict(torch.load('models/model_redeht.pth'))
+model.eval()  # Coloca o modelo em modo de avaliação
 
 
 # model = joblib.load('models/modelo_mlp.pkl')
@@ -390,8 +433,11 @@ while True:
                         # model = keras.models.load_model(f'models/model_redeht_{league}.h5')
                         # model_Randomf = pickle.load(open(f'models/model_randomf_{league}.sav', 'rb'))
                         # value_pred_rede = model.predict(Xht_transform)[0][0]                      
-                        
-                        value_pred_rede = model.predict(Xht)[0][0]
+                        novo_dado = torch.tensor(Xht, dtype=torch.float32)
+
+                        with torch.no_grad():
+                            value_pred_rede = model(novo_dado)[0]
+                        # value_pred_rede = model.predict(Xht)[0][0]
                         # value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
                         value_pred_automl = model_Automl.predict(Xht)[0]
                         # value_pred_randomf = model_Randomf.predict_proba(Xht_league_transform)[0][1]
