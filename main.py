@@ -66,39 +66,60 @@ from torch.utils.data import TensorDataset, DataLoader
 
 # Definindo o modelo
 class NeuralNetwork(nn.Module):
-    def __init__(self):
+    def __init__(self, input_size, neurons, dropout_rate, activation_type, normalization_type):
         super(NeuralNetwork, self).__init__()
-        self.layer1 = nn.Sequential(
-            nn.Linear(60, 1280),
-            nn.ReLU(),
-            nn.BatchNorm1d(1280),
-            nn.Dropout(0.5)
-        )
-        self.layer2 = nn.Sequential(
-            nn.Linear(1280, 640),
-            nn.ReLU(),
-            nn.BatchNorm1d(640),
-            nn.Dropout(0.5)
-        )
-        self.layer3 = nn.Sequential(
-            nn.Linear(640, 320),
-            nn.ReLU(),
-            nn.BatchNorm1d(320),
-            nn.Dropout(0.5)
-        )
-        self.output = nn.Linear(320, 1)
+        layers = []
+
+        # Primeira camada
+        layers.append(nn.Linear(input_size, neurons[0]))
+        if normalization_type == 'batch':
+            layers.append(nn.BatchNorm1d(neurons[0]))
+        layers.append(self._get_activation(activation_type))
+        layers.append(nn.Dropout(dropout_rate))
+
+        # Camadas ocultas
+        for i in range(1, len(neurons)):
+            layers.append(nn.Linear(neurons[i-1], neurons[i]))
+            if normalization_type == 'batch':
+                layers.append(nn.BatchNorm1d(neurons[i]))
+            layers.append(self._get_activation(activation_type))
+            layers.append(nn.Dropout(dropout_rate))
+
+        # Camada de saída
+        self.layers = nn.Sequential(*layers)
+        self.output = nn.Linear(neurons[-1], 1)
         self.sigmoid = nn.Sigmoid()
 
+    def _get_activation(self, activation_type):
+        if activation_type == 'relu':
+            return nn.ReLU()
+        elif activation_type == 'tanh':
+            return nn.Tanh()
+        elif activation_type == 'leaky_relu':
+            return nn.LeakyReLU()
+        elif activation_type == 'elu':
+            return nn.ELU()
+        # Adicione outras funções de ativação conforme necessário
+        else:
+            raise ValueError(f"Tipo de ativação desconhecido: {activation_type}")
+
     def forward(self, x):
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
+        x = self.layers(x)
         x = self.output(x)
         x = self.sigmoid(x)
         return x
+
     
-# 2. Carregar o modelo treinado
-model = NeuralNetwork()
+lr = 0.0001
+batch_size = 32
+num_layers = 3
+neurons = (686, 533, 294)
+dropout_rate = 0.1
+activation_type = 'relu'
+normalization_type = 'none'
+
+# Definindo o modelo
+model = NeuralNetwork(60, neurons, dropout_rate, activation_type=activation_type, normalization_type=normalization_type)
 model.load_state_dict(torch.load('models/model_redeht.pth'))
 model.eval()  # Coloca o modelo em modo de avaliação
 
