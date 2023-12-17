@@ -112,17 +112,20 @@ class NeuralNetwork(nn.Module):
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Usando dispositivo: {device}")
 
-lr = 0.0001
-batch_size = 256
-num_layers = 3
-neurons = (686, 533, 294)
-dropout_rate = 0.5
-activation_type = 'relu'
-normalization_type = 'batch'
+# Definição da arquitetura do modelo com a mesma configuração usada para treinar e salvar o estado do modelo
+input_size = 60  # Certifique-se de que 'X_train' está definido e é acessível neste ponto do seu código
+neurons = (686, 533, 294)  # A arquitetura da rede deve ser a mesma do checkpoint
+dropout_rate = 0.5  # O mesmo dropout usado durante o treinamento
+activation_type = 'relu'  # A mesma função de ativação
+normalization_type = 'batch'  # O mesmo tipo de normalização
 
-# Definindo o modelo
-model = NeuralNetwork(60, neurons, dropout_rate, activation_type=activation_type, normalization_type=normalization_type).to(device)
-model.load_state_dict(torch.load('models/model_redeht.pth',map_location=torch.device('cpu')))
+model = NeuralNetwork(input_size, neurons, dropout_rate, activation_type, normalization_type)
+
+checkpoint = torch.load('models/model_redeht.pth',map_location=torch.device('cpu'))
+model.load_state_dict(checkpoint)
+model = model.to(device)
+
+# model.load_state_dict(torch.load('models/model_redeht.pth',map_location=torch.device('cpu')))
 model.eval()  # Coloca o modelo em modo de avaliação
 
 
