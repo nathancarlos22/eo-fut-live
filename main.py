@@ -113,12 +113,12 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Usando dispositivo: {device}")
 
 lr = 0.0001
-batch_size = 32
+batch_size = 256
 num_layers = 3
 neurons = (686, 533, 294)
-dropout_rate = 0.1
+dropout_rate = 0.5
 activation_type = 'relu'
-normalization_type = 'none'
+normalization_type = 'batch'
 
 # Definindo o modelo
 model = NeuralNetwork(60, neurons, dropout_rate, activation_type=activation_type, normalization_type=normalization_type).to(device)
