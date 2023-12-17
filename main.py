@@ -109,7 +109,9 @@ class NeuralNetwork(nn.Module):
         x = self.sigmoid(x)
         return x
 
-    
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Usando dispositivo: {device}")
+
 lr = 0.0001
 batch_size = 32
 num_layers = 3
@@ -119,8 +121,8 @@ activation_type = 'relu'
 normalization_type = 'none'
 
 # Definindo o modelo
-model = NeuralNetwork(60, neurons, dropout_rate, activation_type=activation_type, normalization_type=normalization_type)
-model.load_state_dict(torch.load('models/model_redeht.pth'))
+model = NeuralNetwork(60, neurons, dropout_rate, activation_type=activation_type, normalization_type=normalization_type).to(device)
+model.load_state_dict(torch.load('models/model_redeht.pth',map_location=torch.device('cpu')))
 model.eval()  # Coloca o modelo em modo de avaliação
 
 
