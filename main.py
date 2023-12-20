@@ -114,10 +114,10 @@ print(f"Usando dispositivo: {device}")
 
 # Definição da arquitetura do modelo com a mesma configuração usada para treinar e salvar o estado do modelo
 input_size = 60  # Certifique-se de que 'X_train' está definido e é acessível neste ponto do seu código
-neurons = (686, 533, 294)  # A arquitetura da rede deve ser a mesma do checkpoint
-dropout_rate = 0.5  # O mesmo dropout usado durante o treinamento
-activation_type = 'relu'  # A mesma função de ativação
-normalization_type = 'batch'  # O mesmo tipo de normalização
+neurons =  (998, 844, 611, 360) # A arquitetura da rede deve ser a mesma do checkpoint
+dropout_rate = 0.1  # O mesmo dropout usado durante o treinamento
+activation_type = 'leaky_relu '  # A mesma função de ativação
+normalization_type = 'none'  # O mesmo tipo de normalização
 
 model = NeuralNetwork(input_size, neurons, dropout_rate, activation_type, normalization_type)
 
