@@ -113,7 +113,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Usando dispositivo: {device}")
 
 # Definição da arquitetura do modelo com a mesma configuração usada para treinar e salvar o estado do modelo
-input_size = 60  # Certifique-se de que 'X_train' está definido e é acessível neste ponto do seu código
+input_size = 54  # Certifique-se de que 'X_train' está definido e é acessível neste ponto do seu código
 neurons =  (998, 844, 611, 360) # A arquitetura da rede deve ser a mesma do checkpoint
 dropout_rate = 0.1  # O mesmo dropout usado durante o treinamento
 activation_type = 'leaky_relu'  # A mesma função de ativação
