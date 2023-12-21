@@ -389,34 +389,34 @@ while True:
                 Xht['shotsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['shotsAway'].transform('sum')
                 
                 if Xht['shotsHome'].values[0] == 0:
-                    Xht['timeSinceLastEventShots_Home'] = Xht['minute']
+                    Xht['timeSinceLastEventShots_Home'] = Xht['minute'] - 1
                 
                 if Xht['shotsAway'].values[0] == 0:
-                    Xht['timeSinceLastEventShots_Away'] = Xht['minute']
+                    Xht['timeSinceLastEventShots_Away'] = Xht['minute'] - 1
                 
                 if Xht['possessiontime_home'].values[0] == 0:
-                    Xht['timeSinceLastEventPasses_Home'] = Xht['minute']
+                    Xht['timeSinceLastEventPasses_Home'] = Xht['minute'] - 1
                 
                 if Xht['possessiontime_away'].values[0] == 0:
-                    Xht['timeSinceLastEventPasses_Away'] = Xht['minute']
+                    Xht['timeSinceLastEventPasses_Away'] = Xht['minute'] - 1
                 
                 if Xht['fouls_home'].values[0] == 0:
-                    Xht['timeSinceLastEventFouls_Home'] = Xht['minute']
+                    Xht['timeSinceLastEventFouls_Home'] = Xht['minute'] - 1
                 
                 if Xht['fouls_away'].values[0] == 0:
-                    Xht['timeSinceLastEventFouls_Away'] = Xht['minute']
+                    Xht['timeSinceLastEventFouls_Away'] = Xht['minute'] - 1
                 
                 if Xht['TotalCards_home'].values[0] == 0:
-                    Xht['timeSinceLastEventTotalCards_Home'] = Xht['minute']
+                    Xht['timeSinceLastEventTotalCards_Home'] = Xht['minute'] - 1
                 
                 if Xht['TotalCards_away'].values[0] == 0:
-                    Xht['timeSinceLastEventTotalCards_Away'] = Xht['minute']
+                    Xht['timeSinceLastEventTotalCards_Away'] = Xht['minute'] - 1
                 
                 if Xht['goalHome'].values[0] == 0:
-                    Xht['timeSinceLastEvent_Home'] = Xht['minute']
+                    Xht['timeSinceLastEvent_Home'] = Xht['minute'] - 1
                 
                 if Xht['goalAway'].values[0] == 0:
-                    Xht['timeSinceLastEvent_Away'] = Xht['minute']
+                    Xht['timeSinceLastEvent_Away'] = Xht['minute'] - 1
                 
 
 
