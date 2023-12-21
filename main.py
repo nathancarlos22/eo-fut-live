@@ -651,7 +651,7 @@ while True:
                                         id_jogos_mensagem[key].remove(jogos)
 
                     # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                    if status == 'HT' or status == 'FT' and (awayTeamScore + homeTeamScore) == 0:
+                    if status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0:
                         loseht_model += 1
                         id_over05HTmodel.remove(iD)
                         df_jogos.remove(iD)
@@ -698,7 +698,7 @@ while True:
                                         sendMenssageTelegram(text)
                                         id_jogos_mensagem[key].remove(jogos)
                     
-                    if status == 'HT' or status == 'FT' and (awayTeamScore + homeTeamScore) == 0:
+                    if status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0:
                         loseht_Automl += 1
                         id_over05HTAutoml.remove(iD)
                         df_jogos.remove(iD)
