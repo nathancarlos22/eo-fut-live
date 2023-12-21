@@ -388,23 +388,7 @@ while True:
                 Xht['shotsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['shotsHome'].transform('sum')
                 Xht['shotsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['shotsAway'].transform('sum')
 
-                Xht.drop(columns=['goalMinute_Home', 'goalMinute_Away', 'shotsMinute_Home', 'shotsMinute_Away', 'passesMinute_Home', 'passesMinute_Away', 'foulsMinute_Home', 'foulsMinute_Away', 'TotalCardsMinute_Home', 'TotalCardsMinute_Away'], inplace=True)
-
-                Xht = Xht.drop(columns=['redcards_away', 'redcards_home',
-                                        'TotalCards_away',
-                                        'yellowcards_away',
-                                        'TotalCards_home',
-                                        'yellowcards_home',
-                                        'shotsHome_10min',
-                                        'foulsHome_10min',
-                                        'foulsAway_10min',
-                                        'shotsAway_10min',
-                                        'blockedShotsAway_10min',
-                                        'TotalCardsHome_10min',
-                                        'passesHome_10min',
-                                        'passesAway_10min',
-                                        'blockedShotsHome_10min',
-                                        'TotalCardsAway_10min'])
+                
                 if iD not in df_jogos:
                     df_jogos[iD] = []
                     df_jogos[iD].append(Xht)
@@ -461,6 +445,24 @@ while True:
                     df['shotsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['shotsHome'].transform('sum')
                     df['shotsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['shotsAway'].transform('sum')
                     Xht = df.tail(1)
+                
+                Xht.drop(columns=['goalMinute_Home', 'goalMinute_Away', 'shotsMinute_Home', 'shotsMinute_Away', 'passesMinute_Home', 'passesMinute_Away', 'foulsMinute_Home', 'foulsMinute_Away', 'TotalCardsMinute_Home', 'TotalCardsMinute_Away'], inplace=True)
+
+                Xht = Xht.drop(columns=['redcards_away', 'redcards_home',
+                                        'TotalCards_away',
+                                        'yellowcards_away',
+                                        'TotalCards_home',
+                                        'yellowcards_home',
+                                        'shotsHome_10min',
+                                        'foulsHome_10min',
+                                        'foulsAway_10min',
+                                        'shotsAway_10min',
+                                        'blockedShotsAway_10min',
+                                        'TotalCardsHome_10min',
+                                        'passesHome_10min',
+                                        'passesAway_10min',
+                                        'blockedShotsHome_10min',
+                                        'TotalCardsAway_10min'])
                                                 
                 shotsHome = Xht['shotsHome'].values[0]
                 shotsAway = Xht['shotsAway'].values[0]
@@ -503,61 +505,61 @@ while True:
 
 
 
-            # try:
-            #     id_evento = game['betfairId']
-            # except:
-            #     continue
+                # try:
+                #     id_evento = game['betfairId']
+                # except:
+                #     continue
 
             
 
                 print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
                 print_jogos = f'''
                 🚨 Jogo: {homeTeam} x {awayTeam}
-            ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-            🏆 Liga: {league}
-            ⏱️ Minuto: {minute}
+                ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+                🏆 Liga: {league}
+                ⏱️ Minuto: {minute}
 
-            📋 Estatísticas
-            🎯 Chutes Casa: {shotsHome}
-            🎯 Chutes Fora: {shotsAway}
-            🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency}
-            ⚡ Pressão de Ataque: {attackPressure}
-            🎯 Precisão de Chutes Casa: {shotAccuracy_home}
-            🎯 Precisão de Chutes Fora: {shotAccuracy_away}
-            🎮 Controle de Posse: {possessionControl}
-            🛡️ Disciplina Defensiva: {defensiveDiscipline}
-            🛡️ Eficácia Defensiva: {defensiveEfficacy}
-            🛡️ Agressão Defensiva: {defensiveAggression}
-            🎯 Chutes ao gol Casa: {shotsOngoal_home}
-            🎯 Chutes ao gol Fora: {shotsOngoal_away}
-            🦵 Chutes fora Casa: {shotsOffgoal_home}
-            🦵 Chutes fora Fora: {shotsOffgoal_away}
-            🔴 Faltas Casa: {fouls_home}
-            🔴 Faltas Fora: {fouls_away}
-            🛑 Desarmes Casa: {tackles_home}
-            🛑 Desarmes Fora: {tackles_away}
-            ⛳ Escanteios Casa: {corners_home}
-            ⛳ Escanteios Fora: {corners_away}
-            ⏰ Tempo de posse Casa: {possessiontime_home}
-            ⏰ Tempo de posse Fora: {possessiontime_away}
-            🚩 Impedimentos Casa: {offsides_home}
-            🚩 Impedimentos Fora: {offsides_away}
-            🚫 Chutes bloqueados Casa: {shotsBlocked_home}
-            🚫 Chutes bloqueados Fora: {shotsBlocked_away}
-            🎲 Risco de Passe Casa: {passRiskHome}
-            🎲 Risco de Passe Fora: {passRiskAway}
-            ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home}
-            ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away}
-            ⏱️ Tempo desde o último chute Casa: {timeSinceLastEventShots_Home}
-            ⏱️ Tempo desde o último chute Fora: {timeSinceLastEventShots_Away}
-            ⏱️ Tempo desde o último passe Casa: {timeSinceLastEventPasses_Home}
-            ⏱️ Tempo desde o último passe Fora: {timeSinceLastEventPasses_Away}
-            ⏱️ Tempo desde a última falta Casa: {timeSinceLastEventFouls_Home}
-            ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away}
-            ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home}
-            ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away}
+                📋 Estatísticas
+                🎯 Chutes Casa: {shotsHome}
+                🎯 Chutes Fora: {shotsAway}
+                🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency}
+                ⚡ Pressão de Ataque: {attackPressure}
+                🎯 Precisão de Chutes Casa: {shotAccuracy_home}
+                🎯 Precisão de Chutes Fora: {shotAccuracy_away}
+                🎮 Controle de Posse: {possessionControl}
+                🛡️ Disciplina Defensiva: {defensiveDiscipline}
+                🛡️ Eficácia Defensiva: {defensiveEfficacy}
+                🛡️ Agressão Defensiva: {defensiveAggression}
+                🎯 Chutes ao gol Casa: {shotsOngoal_home}
+                🎯 Chutes ao gol Fora: {shotsOngoal_away}
+                🦵 Chutes fora Casa: {shotsOffgoal_home}
+                🦵 Chutes fora Fora: {shotsOffgoal_away}
+                🔴 Faltas Casa: {fouls_home}
+                🔴 Faltas Fora: {fouls_away}
+                🛑 Desarmes Casa: {tackles_home}
+                🛑 Desarmes Fora: {tackles_away}
+                ⛳ Escanteios Casa: {corners_home}
+                ⛳ Escanteios Fora: {corners_away}
+                ⏰ Tempo de posse Casa: {possessiontime_home}
+                ⏰ Tempo de posse Fora: {possessiontime_away}
+                🚩 Impedimentos Casa: {offsides_home}
+                🚩 Impedimentos Fora: {offsides_away}
+                🚫 Chutes bloqueados Casa: {shotsBlocked_home}
+                🚫 Chutes bloqueados Fora: {shotsBlocked_away}
+                🎲 Risco de Passe Casa: {passRiskHome}
+                🎲 Risco de Passe Fora: {passRiskAway}
+                ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home}
+                ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away}
+                ⏱️ Tempo desde o último chute Casa: {timeSinceLastEventShots_Home}
+                ⏱️ Tempo desde o último chute Fora: {timeSinceLastEventShots_Away}
+                ⏱️ Tempo desde o último passe Casa: {timeSinceLastEventPasses_Home}
+                ⏱️ Tempo desde o último passe Fora: {timeSinceLastEventPasses_Away}
+                ⏱️ Tempo desde a última falta Casa: {timeSinceLastEventFouls_Home}
+                ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away}
+                ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home}
+                ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away}
 
-            '''
+                '''
 
                 condicao_rede = 0
                 condicao_Automl = 0
