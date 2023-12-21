@@ -661,7 +661,7 @@ while True:
                     if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
                         winht_model += 1
                         id_over05HTmodel.remove(iD)
-                        df_jogos.remove(iD)
+                        df_jogos.pop(iD)
                         
                         valor = valorEsperado - 5
                         lucro += valor
@@ -687,7 +687,7 @@ while True:
                     if status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0:
                         loseht_model += 1
                         id_over05HTmodel.remove(iD)
-                        df_jogos.remove(iD)
+                        df_jogos.pop(iD)
                         lucro -= 5
                         for key, value in id_jogos_mensagem.items():
                             if key == 'id_over05HTmodel':
@@ -713,7 +713,7 @@ while True:
                     if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
                         winht_Automl += 1
                         id_over05HTAutoml.remove(iD)
-                        df_jogos.remove(iD)
+                        df_jogos.pop(iD)
                         valor = valorEsperado - 5
                         lucro += valor
                         for key, value in id_jogos_mensagem.items():
@@ -734,7 +734,7 @@ while True:
                     if status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0:
                         loseht_Automl += 1
                         id_over05HTAutoml.remove(iD)
-                        df_jogos.remove(iD)
+                        df_jogos.pop(iD)
                         lucro -= 5
                         for key, value in id_jogos_mensagem.items():
                             if key == 'id_over05HTAutoml':
