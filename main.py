@@ -169,7 +169,8 @@ state = ''
 
 value_pred_rede = 0
 value_pred_automl = 0
-# value_pred_randomf = 0
+
+df_jogos = {}
 
 while True:
     print('🤖 Procurando jogos...\n')
@@ -300,9 +301,6 @@ while True:
             # caracteristicas sem importancia para os modelos
 
             if Xht.isna().sum().sum() > 0:
-                # print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
-                # print(Xht.isna().sum())
-                # time.sleep(60)
                 continue
             
             # Tratando ligas com nomes diferentes, varios grupos, etc..
@@ -317,127 +315,184 @@ while True:
                 league = 'Europe - Europa League'
                 Xht['league'] = league
 
-            Xht['shotsHome'] = Xht['shotsOngoal_home'] + Xht['shotsOffgoal_home']
-            Xht['shotsAway'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
+            if minute > 1 and (status != 'HT' or status != 'FT'):
+                Xht['shotsHome'] = Xht['shotsOngoal_home'] + Xht['shotsOffgoal_home']
+                Xht['shotsAway'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
 
-            Xht['shotsOnGoalEfficiency'] = round((Xht['shotsOngoal_home'] + Xht['shotsOngoal_away']) / (Xht['shotsHome'] + Xht['shotsAway'] + 1), 2) # A eficiência do ataque em termos de chutes que realmente vão em direção ao gol.
-            Xht['attackPressure'] = round((Xht['shotsHome'] + Xht['shotsAway'] + Xht['corners_home'] + Xht['corners_away']) / Xht['minute'], 2) # Uma medida de quão ofensivas as equipes estão ao longo do jogo.
-            Xht['shotAccuracy_home'] = round(Xht['shotsOngoal_home'] / (Xht['shotsHome'] + 1), 2) # Proporção de chutes no gol em relação ao total de chutes.
-            Xht['shotAccuracy_away'] = round(Xht['shotsOngoal_away'] / (Xht['shotsAway'] + 1), 2)
-            # 1. Mudança na Frequência de Chutes a cada 10 minutos
-            Xht['shotsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['shotsHome'].transform('sum')
-            Xht['shotsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['shotsAway'].transform('sum')
-            # Desempenho Relacionado com Gols
-            Xht['goalMinute_Home'] = Xht['minute'].where(Xht['goalHome'].diff().fillna(0) > 0)
-            Xht['goalMinute_Away'] = Xht['minute'].where(Xht['goalAway'].diff().fillna(0) > 0)
-            Xht['timeSinceLastEvent_Home'] = Xht['minute'] - Xht.groupby(Xht['goalMinute_Home'].notnull().cumsum())['minute'].transform('first')
-            Xht['timeSinceLastEvent_Away'] = Xht['minute'] - Xht.groupby(Xht['goalMinute_Away'].notnull().cumsum())['minute'].transform('first')
+                Xht['shotsOnGoalEfficiency'] = round((Xht['shotsOngoal_home'] + Xht['shotsOngoal_away']) / (Xht['shotsHome'] + Xht['shotsAway'] + 1), 2) # A eficiência do ataque em termos de chutes que realmente vão em direção ao gol.
+                Xht['attackPressure'] = round((Xht['shotsHome'] + Xht['shotsAway'] + Xht['corners_home'] + Xht['corners_away']) / Xht['minute'], 2) # Uma medida de quão ofensivas as equipes estão ao longo do jogo.
+                Xht['shotAccuracy_home'] = round(Xht['shotsOngoal_home'] / (Xht['shotsHome'] + 1), 2) # Proporção de chutes no gol em relação ao total de chutes.
+                Xht['shotAccuracy_away'] = round(Xht['shotsOngoal_away'] / (Xht['shotsAway'] + 1), 2)
+                
 
-            # Desempenho relacionado com chutes 
-            Xht['shotsMinute_Home'] = Xht['minute'].where(Xht['shotsHome'].diff().fillna(0) > 0)
-            Xht['shotsMinute_Away'] = Xht['minute'].where(Xht['shotsAway'].diff().fillna(0) > 0)
-            Xht['timeSinceLastEventShots_Home'] = Xht['minute'] - Xht.groupby(Xht['shotsMinute_Home'].notnull().cumsum())['minute'].transform('first')
-            Xht['timeSinceLastEventShots_Away'] = Xht['minute'] - Xht.groupby(Xht['shotsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+                # Desempenho Relacionado com Passes
+                Xht['possessionControl'] = abs(Xht['possessiontime_home'] - Xht['possessiontime_away']) # Diferença absoluta do tempo de posse entre as equipes, indicando qual equipe dominou a posse de bola.
+                Xht['passRiskHome'] = Xht['offsides_home'] / (Xht['possessiontime_home']+ 0.01)
+                Xht['passRiskAway'] = Xht['offsides_away'] / (Xht['possessiontime_away']+ 0.01)
+                
+                
 
-            # Desempenho Relacionado com Passes
-            Xht['possessionControl'] = abs(Xht['possessiontime_home'] - Xht['possessiontime_away']) # Diferença absoluta do tempo de posse entre as equipes, indicando qual equipe dominou a posse de bola.
-            Xht['passRiskHome'] = Xht['offsides_home'] / (Xht['possessiontime_home']+ 0.01)
-            Xht['passRiskAway'] = Xht['offsides_away'] / (Xht['possessiontime_away']+ 0.01)
-            # 1. Mudança na Frequência de Posse a cada 10 minutos
-            Xht['passesHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['possessiontime_home'].transform('sum')
-            Xht['passesAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['possessiontime_away'].transform('sum')
-            # Desempenho relacionado com passes
-            Xht['passesMinute_Home'] = Xht['minute'].where(Xht['possessiontime_home'].diff().fillna(0) > 0)
-            Xht['passesMinute_Away'] = Xht['minute'].where(Xht['possessiontime_away'].diff().fillna(0) > 0)
-            Xht['timeSinceLastEventPasses_Home'] = Xht['minute'] - Xht.groupby(Xht['passesMinute_Home'].notnull().cumsum())['minute'].transform('first')
-            Xht['timeSinceLastEventPasses_Away'] = Xht['minute'] - Xht.groupby(Xht['passesMinute_Away'].notnull().cumsum())['minute'].transform('first')
+                Xht['defensiveDiscipline'] = round((1 - (Xht['redcards_home'] + Xht['yellowcards_home'] + Xht['fouls_home'] + 
+                                                Xht['redcards_away'] + Xht['yellowcards_away'] + Xht['fouls_away']) / Xht['minute']), 2) # Uma medida de quão disciplinadas as equipes estão em termos de cartões e faltas.
 
-            # Desempenho Relacionado com Defesa
-            Xht['TotalCards_home'] = Xht['redcards_home'] + Xht['yellowcards_home']
-            Xht['TotalCards_away'] = Xht['redcards_away'] + Xht['yellowcards_away']
+                Xht['defensiveEfficacy'] = round((Xht['blockedShotsHome'] + Xht['blockedShotsAway']) / round((Xht['shotsOnGoalEfficiency'] + 1), 2), 2) # Avalia a habilidade da defesa de bloquear chutes eficientes.
+                Xht['defensiveAggression'] = round((Xht['tackles_home'] + Xht['tackles_away']) / Xht['minute'], 2) # Indicativo de quão agressiva a equipe é na defesa ao longo do jogo.
+                
 
-            Xht['defensiveDiscipline'] = round((1 - (Xht['redcards_home'] + Xht['yellowcards_home'] + Xht['fouls_home'] + 
-                                            Xht['redcards_away'] + Xht['yellowcards_away'] + Xht['fouls_away']) / Xht['minute']), 2) # Uma medida de quão disciplinadas as equipes estão em termos de cartões e faltas.
+                # Desempenho relacionado com passes
+                Xht['passesMinute_Home'] = Xht['minute'].where(Xht['possessiontime_home'].diff().fillna(0) > 0)
+                Xht['passesMinute_Away'] = Xht['minute'].where(Xht['possessiontime_away'].diff().fillna(0) > 0)
+                Xht['timeSinceLastEventPasses_Home'] = Xht['minute'] - Xht.groupby(Xht['passesMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                Xht['timeSinceLastEventPasses_Away'] = Xht['minute'] - Xht.groupby(Xht['passesMinute_Away'].notnull().cumsum())['minute'].transform('first')
 
-            Xht['defensiveEfficacy'] = round((Xht['blockedShotsHome'] + Xht['blockedShotsAway']) / round((Xht['shotsOnGoalEfficiency'] + 1), 2), 2) # Avalia a habilidade da defesa de bloquear chutes eficientes.
-            Xht['defensiveAggression'] = round((Xht['tackles_home'] + Xht['tackles_away']) / Xht['minute'], 2) # Indicativo de quão agressiva a equipe é na defesa ao longo do jogo.
-            # 1. Mudança na Frequência de Chutes Bloqueados a cada 10 minutos
-            Xht['blockedShotsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['blockedShotsHome'].transform('sum')
-            Xht['blockedShotsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['blockedShotsAway'].transform('sum')
-            # 2. Mudança na Frequência de Faltas a cada 10 minutos
-            Xht['foulsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['fouls_home'].transform('sum')
-            Xht['foulsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['fouls_away'].transform('sum')
-            # 3. Mudança na Frequência de Cartões a cada 10 minutos
-            Xht['TotalCardsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['TotalCards_home'].transform('sum')
-            Xht['TotalCardsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['TotalCards_away'].transform('sum')
-            # Desempenho relacionado com faltas
-            Xht['foulsMinute_Home'] = Xht['minute'].where(Xht['fouls_home'].diff().fillna(0) > 0)
-            Xht['foulsMinute_Away'] = Xht['minute'].where(Xht['fouls_away'].diff().fillna(0) > 0)
-            Xht['timeSinceLastEventFouls_Home'] = Xht['minute'] - Xht.groupby(Xht['foulsMinute_Home'].notnull().cumsum())['minute'].transform('first')
-            Xht['timeSinceLastEventFouls_Away'] = Xht['minute'] - Xht.groupby(Xht['foulsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+                # Desempenho Relacionado com Defesa
+                Xht['TotalCards_home'] = Xht['redcards_home'] + Xht['yellowcards_home']
+                Xht['TotalCards_away'] = Xht['redcards_away'] + Xht['yellowcards_away']
+                
+                # Desempenho Relacionado com Gols
+                Xht['goalMinute_Home'] = Xht['minute'].where(Xht['goalHome'].diff().fillna(0) > 0)
+                Xht['goalMinute_Away'] = Xht['minute'].where(Xht['goalAway'].diff().fillna(0) > 0)
+                Xht['timeSinceLastEvent_Home'] = Xht['minute'] - Xht.groupby(Xht['goalMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                Xht['timeSinceLastEvent_Away'] = Xht['minute'] - Xht.groupby(Xht['goalMinute_Away'].notnull().cumsum())['minute'].transform('first')
 
-            # Desempenho relacionado com cartões
-            Xht['TotalCardsMinute_Home'] = Xht['minute'].where(Xht['TotalCards_home'].diff().fillna(0) > 0)
-            Xht['TotalCardsMinute_Away'] = Xht['minute'].where(Xht['TotalCards_away'].diff().fillna(0) > 0)
-            Xht['timeSinceLastEventTotalCards_Home'] = Xht['minute'] - Xht.groupby(Xht['TotalCardsMinute_Home'].notnull().cumsum())['minute'].transform('first')
-            Xht['timeSinceLastEventTotalCards_Away'] = Xht['minute'] - Xht.groupby(Xht['TotalCardsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+                # Desempenho relacionado com chutes 
+                Xht['shotsMinute_Home'] = Xht['minute'].where(Xht['shotsHome'].diff().fillna(0) > 0)
+                Xht['shotsMinute_Away'] = Xht['minute'].where(Xht['shotsAway'].diff().fillna(0) > 0)
+                Xht['timeSinceLastEventShots_Home'] = Xht['minute'] - Xht.groupby(Xht['shotsMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                Xht['timeSinceLastEventShots_Away'] = Xht['minute'] - Xht.groupby(Xht['shotsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+                # Desempenho relacionado com faltas
+                Xht['foulsMinute_Home'] = Xht['minute'].where(Xht['fouls_home'].diff().fillna(0) > 0)
+                Xht['foulsMinute_Away'] = Xht['minute'].where(Xht['fouls_away'].diff().fillna(0) > 0)
+                Xht['timeSinceLastEventFouls_Home'] = Xht['minute'] - Xht.groupby(Xht['foulsMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                Xht['timeSinceLastEventFouls_Away'] = Xht['minute'] - Xht.groupby(Xht['foulsMinute_Away'].notnull().cumsum())['minute'].transform('first')
 
-            Xht.drop(columns=['goalMinute_Home', 'goalMinute_Away', 'shotsMinute_Home', 'shotsMinute_Away', 'passesMinute_Home', 'passesMinute_Away', 'foulsMinute_Home', 'foulsMinute_Away', 'TotalCardsMinute_Home', 'TotalCardsMinute_Away'], inplace=True)
+                # Desempenho relacionado com cartões
+                Xht['TotalCardsMinute_Home'] = Xht['minute'].where(Xht['TotalCards_home'].diff().fillna(0) > 0)
+                Xht['TotalCardsMinute_Away'] = Xht['minute'].where(Xht['TotalCards_away'].diff().fillna(0) > 0)
+                Xht['timeSinceLastEventTotalCards_Home'] = Xht['minute'] - Xht.groupby(Xht['TotalCardsMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                Xht['timeSinceLastEventTotalCards_Away'] = Xht['minute'] - Xht.groupby(Xht['TotalCardsMinute_Away'].notnull().cumsum())['minute'].transform('first')
 
-            Xht = Xht.drop(columns=['redcards_away', 'redcards_home',
-                                    'TotalCards_away',
-                                    'yellowcards_away',
-                                    'TotalCards_home',
-                                    'yellowcards_home',
-                                    'shotsHome_10min',
-                                    'foulsHome_10min',
-                                    'foulsAway_10min',
-                                    'shotsAway_10min',
-                                    'blockedShotsAway_10min',
-                                    'TotalCardsHome_10min',
-                                    'passesHome_10min',
-                                    'passesAway_10min',
-                                    'blockedShotsHome_10min',
-                                    'TotalCardsAway_10min'])
+                # 1. Mudança na Frequência de Chutes Bloqueados a cada 10 minutos
+                Xht['blockedShotsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['blockedShotsHome'].transform('sum')
+                Xht['blockedShotsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['blockedShotsAway'].transform('sum')
+                # 2. Mudança na Frequência de Faltas a cada 10 minutos
+                Xht['foulsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['fouls_home'].transform('sum')
+                Xht['foulsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['fouls_away'].transform('sum')
+                # 3. Mudança na Frequência de Cartões a cada 10 minutos
+                Xht['TotalCardsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['TotalCards_home'].transform('sum')
+                Xht['TotalCardsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['TotalCards_away'].transform('sum')
+                # 1. Mudança na Frequência de Posse a cada 10 minutos
+                Xht['passesHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['possessiontime_home'].transform('sum')
+                Xht['passesAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['possessiontime_away'].transform('sum')
+                # 1. Mudança na Frequência de Chutes a cada 10 minutos
+                Xht['shotsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['shotsHome'].transform('sum')
+                Xht['shotsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['shotsAway'].transform('sum')
+
+                Xht.drop(columns=['goalMinute_Home', 'goalMinute_Away', 'shotsMinute_Home', 'shotsMinute_Away', 'passesMinute_Home', 'passesMinute_Away', 'foulsMinute_Home', 'foulsMinute_Away', 'TotalCardsMinute_Home', 'TotalCardsMinute_Away'], inplace=True)
+
+                Xht = Xht.drop(columns=['redcards_away', 'redcards_home',
+                                        'TotalCards_away',
+                                        'yellowcards_away',
+                                        'TotalCards_home',
+                                        'yellowcards_home',
+                                        'shotsHome_10min',
+                                        'foulsHome_10min',
+                                        'foulsAway_10min',
+                                        'shotsAway_10min',
+                                        'blockedShotsAway_10min',
+                                        'TotalCardsHome_10min',
+                                        'passesHome_10min',
+                                        'passesAway_10min',
+                                        'blockedShotsHome_10min',
+                                        'TotalCardsAway_10min'])
+                if iD not in df_jogos:
+                    df_jogos[iD] = []
+                    df_jogos[iD].append(Xht)
+                else:
+                    df = pd.concat(df_jogos[iD], axis=0)
+                    # Desempenho relacionado com passes
+                    Xht['passesMinute_Home'] = df['minute'].where(df['possessiontime_home'].diff().fillna(0) > 0)
+                    Xht['passesMinute_Away'] = df['minute'].where(df['possessiontime_away'].diff().fillna(0) > 0)
+                    Xht['timeSinceLastEventPasses_Home'] = df['minute'] - df.groupby(df['passesMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                    Xht['timeSinceLastEventPasses_Away'] = df['minute'] - df.groupby(df['passesMinute_Away'].notnull().cumsum())['minute'].transform('first')
+                    
+                    # Desempenho Relacionado com Gols
+                    Xht['goalMinute_Home'] = df['minute'].where(df['goalHome'].diff().fillna(0) > 0)
+                    Xht['goalMinute_Away'] = df['minute'].where(Xht['goalAway'].diff().fillna(0) > 0)
+                    Xht['timeSinceLastEvent_Home'] = df['minute'] - df.groupby(df['goalMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                    Xht['timeSinceLastEvent_Away'] = df['minute'] - df.groupby(df['goalMinute_Away'].notnull().cumsum())['minute'].transform('first')
+
+                    # Desempenho relacionado com chutes 
+                    Xht['shotsMinute_Home'] = df['minute'].where(df['shotsHome'].diff().fillna(0) > 0)
+                    Xht['shotsMinute_Away'] = df['minute'].where(df['shotsAway'].diff().fillna(0) > 0)
+                    Xht['timeSinceLastEventShots_Home'] = df['minute'] - df.groupby(df['shotsMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                    Xht['timeSinceLastEventShots_Away'] = df['minute'] - df.groupby(df['shotsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+                    # Desempenho relacionado com faltas
+                    Xht['foulsMinute_Home'] = df['minute'].where(df['fouls_home'].diff().fillna(0) > 0)
+                    Xht['foulsMinute_Away'] = df['minute'].where(df['fouls_away'].diff().fillna(0) > 0)
+                    Xht['timeSinceLastEventFouls_Home'] = df['minute'] - Xht.groupby(df['foulsMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                    Xht['timeSinceLastEventFouls_Away'] = df['minute'] - Xht.groupby(df['foulsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+
+                    # Desempenho relacionado com cartões
+                    Xht['TotalCardsMinute_Home'] = df['minute'].where(df['TotalCards_home'].diff().fillna(0) > 0)
+                    Xht['TotalCardsMinute_Away'] = df['minute'].where(df['TotalCards_away'].diff().fillna(0) > 0)
+                    Xht['timeSinceLastEventTotalCards_Home'] = df['minute'] - df.groupby(df['TotalCardsMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                    Xht['timeSinceLastEventTotalCards_Away'] = df['minute'] - df.groupby(df['TotalCardsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+
+                    # 1. Mudança na Frequência de Chutes Bloqueados a cada 10 minutos
+                    Xht['blockedShotsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['blockedShotsHome'].transform('sum')
+                    Xht['blockedShotsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['blockedShotsAway'].transform('sum')
+                    # 2. Mudança na Frequência de Faltas a cada 10 minutos
+                    Xht['foulsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['fouls_home'].transform('sum')
+                    Xht['foulsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['fouls_away'].transform('sum')
+                    # 3. Mudança na Frequência de Cartões a cada 10 minutos
+                    Xht['TotalCardsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['TotalCards_home'].transform('sum')
+                    Xht['TotalCardsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['TotalCards_away'].transform('sum')
+                    # 1. Mudança na Frequência de Posse a cada 10 minutos
+                    Xht['passesHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['possessiontime_home'].transform('sum')
+                    Xht['passesAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['possessiontime_away'].transform('sum')
+                    # 1. Mudança na Frequência de Chutes a cada 10 minutos
+                    Xht['shotsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['shotsHome'].transform('sum')
+                    Xht['shotsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['shotsAway'].transform('sum')
                                                 
-            shotsHome = Xht['shotsHome'].values[0]
-            shotsAway = Xht['shotsAway'].values[0]
-            shotsOnGoalEfficiency = Xht['shotsOnGoalEfficiency'].values[0]
-            attackPressure = Xht['attackPressure'].values[0]
-            shotAccuracy_home = Xht['shotAccuracy_home'].values[0]
-            shotAccuracy_away = Xht['shotAccuracy_away'].values[0]
-            possessionControl = Xht['possessionControl'].values[0]
-            defensiveDiscipline = Xht['defensiveDiscipline'].values[0]
-            defensiveEfficacy = Xht['defensiveEfficacy'].values[0]
-            defensiveAggression = Xht['defensiveAggression'].values[0]
-            shotsOngoal_home = Xht['shotsOngoal_home'].values[0]
-            shotsOngoal_away = Xht['shotsOngoal_away'].values[0]
-            shotsOffgoal_away = Xht['shotsOffgoal_away'].values[0]
-            shotsOffgoal_home = Xht['shotsOffgoal_home'].values[0]
-            fouls_home = Xht['fouls_home'].values[0]
-            fouls_away = Xht['fouls_away'].values[0]
-            tackles_away = Xht['tackles_away'].values[0]
-            tackles_home = Xht['tackles_home'].values[0]
-            corners_home = Xht['corners_home'].values[0]
-            corners_away = Xht['corners_away'].values[0]
-            possessiontime_home = Xht['possessiontime_home'].values[0]
-            possessiontime_away = Xht['possessiontime_away'].values[0]
-            offsides_home = Xht['offsides_home'].values[0]
-            offsides_away = Xht['offsides_away'].values[0]
-            shotsBlocked_home = Xht['blockedShotsHome'].values[0]
-            shotsBlocked_away = Xht['blockedShotsAway'].values[0]
-            passRiskHome = Xht['passRiskHome'].values[0]
-            passRiskAway = Xht['passRiskAway'].values[0]
-            timeSinceLastEvent_Home = Xht['timeSinceLastEvent_Home'].values[0]
-            timeSinceLastEvent_Away = Xht['timeSinceLastEvent_Away'].values[0]
-            timeSinceLastEventShots_Home = Xht['timeSinceLastEventShots_Home'].values[0]
-            timeSinceLastEventShots_Away = Xht['timeSinceLastEventShots_Away'].values[0]
-            timeSinceLastEventPasses_Home = Xht['timeSinceLastEventPasses_Home'].values[0]
-            timeSinceLastEventPasses_Away = Xht['timeSinceLastEventPasses_Away'].values[0]
-            timeSinceLastEventFouls_Home = Xht['timeSinceLastEventFouls_Home'].values[0]
-            timeSinceLastEventFouls_Away = Xht['timeSinceLastEventFouls_Away'].values[0]
-            timeSinceLastEventTotalCards_Home = Xht['timeSinceLastEventTotalCards_Home'].values[0]
-            timeSinceLastEventTotalCards_Away = Xht['timeSinceLastEventTotalCards_Away'].values[0]
+                shotsHome = Xht['shotsHome'].values[0]
+                shotsAway = Xht['shotsAway'].values[0]
+                shotsOnGoalEfficiency = Xht['shotsOnGoalEfficiency'].values[0]
+                attackPressure = Xht['attackPressure'].values[0]
+                shotAccuracy_home = Xht['shotAccuracy_home'].values[0]
+                shotAccuracy_away = Xht['shotAccuracy_away'].values[0]
+                possessionControl = Xht['possessionControl'].values[0]
+                defensiveDiscipline = Xht['defensiveDiscipline'].values[0]
+                defensiveEfficacy = Xht['defensiveEfficacy'].values[0]
+                defensiveAggression = Xht['defensiveAggression'].values[0]
+                shotsOngoal_home = Xht['shotsOngoal_home'].values[0]
+                shotsOngoal_away = Xht['shotsOngoal_away'].values[0]
+                shotsOffgoal_away = Xht['shotsOffgoal_away'].values[0]
+                shotsOffgoal_home = Xht['shotsOffgoal_home'].values[0]
+                fouls_home = Xht['fouls_home'].values[0]
+                fouls_away = Xht['fouls_away'].values[0]
+                tackles_away = Xht['tackles_away'].values[0]
+                tackles_home = Xht['tackles_home'].values[0]
+                corners_home = Xht['corners_home'].values[0]
+                corners_away = Xht['corners_away'].values[0]
+                possessiontime_home = Xht['possessiontime_home'].values[0]
+                possessiontime_away = Xht['possessiontime_away'].values[0]
+                offsides_home = Xht['offsides_home'].values[0]
+                offsides_away = Xht['offsides_away'].values[0]
+                shotsBlocked_home = Xht['blockedShotsHome'].values[0]
+                shotsBlocked_away = Xht['blockedShotsAway'].values[0]
+                passRiskHome = Xht['passRiskHome'].values[0]
+                passRiskAway = Xht['passRiskAway'].values[0]
+                timeSinceLastEvent_Home = Xht['timeSinceLastEvent_Home'].values[0]
+                timeSinceLastEvent_Away = Xht['timeSinceLastEvent_Away'].values[0]
+                timeSinceLastEventShots_Home = Xht['timeSinceLastEventShots_Home'].values[0]
+                timeSinceLastEventShots_Away = Xht['timeSinceLastEventShots_Away'].values[0]
+                timeSinceLastEventPasses_Home = Xht['timeSinceLastEventPasses_Home'].values[0]
+                timeSinceLastEventPasses_Away = Xht['timeSinceLastEventPasses_Away'].values[0]
+                timeSinceLastEventFouls_Home = Xht['timeSinceLastEventFouls_Home'].values[0]
+                timeSinceLastEventFouls_Away = Xht['timeSinceLastEventFouls_Away'].values[0]
+                timeSinceLastEventTotalCards_Home = Xht['timeSinceLastEventTotalCards_Home'].values[0]
+                timeSinceLastEventTotalCards_Away = Xht['timeSinceLastEventTotalCards_Away'].values[0]
 
 
 
@@ -448,85 +503,77 @@ while True:
 
             
 
-            Xht_league = Xht.drop(columns=['league'])
-            print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
-            print_jogos = f'''
-            🚨 Jogo: {homeTeam} x {awayTeam}
-    ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-    🏆 Liga: {league}
-    ⏱️ Minuto: {minute}
+                print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
+                print_jogos = f'''
+                🚨 Jogo: {homeTeam} x {awayTeam}
+            ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+            🏆 Liga: {league}
+            ⏱️ Minuto: {minute}
 
-    📋 Estatísticas
-    🎯 Chutes Casa: {shotsHome}
-    🎯 Chutes Fora: {shotsAway}
-    🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency}
-    ⚡ Pressão de Ataque: {attackPressure}
-    🎯 Precisão de Chutes Casa: {shotAccuracy_home}
-    🎯 Precisão de Chutes Fora: {shotAccuracy_away}
-    🎮 Controle de Posse: {possessionControl}
-    🛡️ Disciplina Defensiva: {defensiveDiscipline}
-    🛡️ Eficácia Defensiva: {defensiveEfficacy}
-    🛡️ Agressão Defensiva: {defensiveAggression}
-    🎯 Chutes ao gol Casa: {shotsOngoal_home}
-    🎯 Chutes ao gol Fora: {shotsOngoal_away}
-    🦵 Chutes fora Casa: {shotsOffgoal_home}
-    🦵 Chutes fora Fora: {shotsOffgoal_away}
-    🔴 Faltas Casa: {fouls_home}
-    🔴 Faltas Fora: {fouls_away}
-    🛑 Desarmes Casa: {tackles_home}
-    🛑 Desarmes Fora: {tackles_away}
-    ⛳ Escanteios Casa: {corners_home}
-    ⛳ Escanteios Fora: {corners_away}
-    ⏰ Tempo de posse Casa: {possessiontime_home}
-    ⏰ Tempo de posse Fora: {possessiontime_away}
-    🚩 Impedimentos Casa: {offsides_home}
-    🚩 Impedimentos Fora: {offsides_away}
-    🚫 Chutes bloqueados Casa: {shotsBlocked_home}
-    🚫 Chutes bloqueados Fora: {shotsBlocked_away}
-    🎲 Risco de Passe Casa: {passRiskHome}
-    🎲 Risco de Passe Fora: {passRiskAway}
-    ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home}
-    ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away}
-    ⏱️ Tempo desde o último chute Casa: {timeSinceLastEventShots_Home}
-    ⏱️ Tempo desde o último chute Fora: {timeSinceLastEventShots_Away}
-    ⏱️ Tempo desde o último passe Casa: {timeSinceLastEventPasses_Home}
-    ⏱️ Tempo desde o último passe Fora: {timeSinceLastEventPasses_Away}
-    ⏱️ Tempo desde a última falta Casa: {timeSinceLastEventFouls_Home}
-    ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away}
-    ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home}
-    ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away}
+            📋 Estatísticas
+            🎯 Chutes Casa: {shotsHome}
+            🎯 Chutes Fora: {shotsAway}
+            🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency}
+            ⚡ Pressão de Ataque: {attackPressure}
+            🎯 Precisão de Chutes Casa: {shotAccuracy_home}
+            🎯 Precisão de Chutes Fora: {shotAccuracy_away}
+            🎮 Controle de Posse: {possessionControl}
+            🛡️ Disciplina Defensiva: {defensiveDiscipline}
+            🛡️ Eficácia Defensiva: {defensiveEfficacy}
+            🛡️ Agressão Defensiva: {defensiveAggression}
+            🎯 Chutes ao gol Casa: {shotsOngoal_home}
+            🎯 Chutes ao gol Fora: {shotsOngoal_away}
+            🦵 Chutes fora Casa: {shotsOffgoal_home}
+            🦵 Chutes fora Fora: {shotsOffgoal_away}
+            🔴 Faltas Casa: {fouls_home}
+            🔴 Faltas Fora: {fouls_away}
+            🛑 Desarmes Casa: {tackles_home}
+            🛑 Desarmes Fora: {tackles_away}
+            ⛳ Escanteios Casa: {corners_home}
+            ⛳ Escanteios Fora: {corners_away}
+            ⏰ Tempo de posse Casa: {possessiontime_home}
+            ⏰ Tempo de posse Fora: {possessiontime_away}
+            🚩 Impedimentos Casa: {offsides_home}
+            🚩 Impedimentos Fora: {offsides_away}
+            🚫 Chutes bloqueados Casa: {shotsBlocked_home}
+            🚫 Chutes bloqueados Fora: {shotsBlocked_away}
+            🎲 Risco de Passe Casa: {passRiskHome}
+            🎲 Risco de Passe Fora: {passRiskAway}
+            ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home}
+            ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away}
+            ⏱️ Tempo desde o último chute Casa: {timeSinceLastEventShots_Home}
+            ⏱️ Tempo desde o último chute Fora: {timeSinceLastEventShots_Away}
+            ⏱️ Tempo desde o último passe Casa: {timeSinceLastEventPasses_Home}
+            ⏱️ Tempo desde o último passe Fora: {timeSinceLastEventPasses_Away}
+            ⏱️ Tempo desde a última falta Casa: {timeSinceLastEventFouls_Home}
+            ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away}
+            ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home}
+            ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away}
 
-'''
+            '''
 
-            condicao_rede = 0
-            condicao_Automl = 0
-            # condicao_Randomf = 0
+                condicao_rede = 0
+                condicao_Automl = 0
 
-            if minute > 1 and minute < 90 and status != 'HT':
+                # if minute > 1 and minute < 90 and status != 'HT':
                 try:
 
-                    # Xht_transform = preprocessor_league.transform(Xht_league)
-
+                    if iD not in df_jogos:
+                        df_jogos[iD] = []
+                        df_jogos[iD].append(Xht)
+                    else:
+                        df_jogos[iD].append(Xht)
 
                     if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
                         Xht = preprocessor.transform(Xht)
-                        # Xht_league_transform = preprocessor_league.transform(Xht_league)
-                        # Xht_h2o = h2o.H2OFrame(Xht)
-                        # model = keras.models.load_model(f'models/model_redeht_{league}.h5')
-                        # model_Randomf = pickle.load(open(f'models/model_randomf_{league}.sav', 'rb'))
-                        # value_pred_rede = model.predict(Xht_transform)[0][0]                      
                         novo_dado = torch.tensor(Xht, dtype=torch.float32)
 
                         with torch.no_grad():
-                            value_pred_rede = model(novo_dado)[0]
-                        # value_pred_rede = model.predict(Xht)[0][0]
-                        # value_pred_automl = h2o.as_list(loaded_model.predict(Xht_h2o)).loc[0, 'p1']
+                            value_pred_rede = model(novo_dado)[0][0]
                         value_pred_automl = model_Automl.predict(Xht)[0]
-                        # value_pred_randomf = model_Randomf.predict_proba(Xht_league_transform)[0][1]
                         
                         print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
                         print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
-                        # print(f"{homeTeam} x {awayTeam} Random Forest: {value_pred_randomf}")
                         
                         if value_pred_rede >= 0.52:
 
@@ -534,249 +581,166 @@ while True:
 
                         if value_pred_automl >= 0.52:
                             condicao_Automl = 1
-                        
-                        # if value_pred_randomf >= 0.55:
-                        #     condicao_Randomf = 1
 
                 except Exception as e:
                     print(e)
                     continue
 
-            for key, value in id_jogos_mensagem.items():
-                if key == 'id_over05HTmodel':
-                    for jogos in value:
-                        if jogos['id'] == iD:
-                            text = f'''
-    👑 Modelo Rede Neural
-                                                
-    💭 Previsão: {value_pred_rede}
-    {print_jogos}
-    '''
-                            if '&' in text:
-                                text = text.replace('&', '')
-                            editMessageTelegram(jogos['message_id'], text)
-                if key == 'id_over05HTAutoml':
-                    for jogos in value:
-                        if jogos['id'] == iD:
-                            text = f'''
-    👑 Modelo Automl
-                                            
-    💭 Previsão: {value_pred_automl}
-    {print_jogos}
-    '''
-    #                         if '&' in text:
-    #                             text = text.replace('&', '')
-    #                         editMessageTelegram(jogos['message_id'], text)
-    #             if key == 'id_over05HTRandomf':
-    #                 for jogos in value:
-    #                     if jogos['id'] == iD:
-    #                         text = f'''
-    # 👑 Modelo Random Forest
-
-    # 💭 Previsão: {value_pred_randomf}
-    # {print_jogos}
-    # '''
-                            # if '&' in text:
-                            #     text = text.replace('&', '')
-                            # editMessageTelegram(jogos['message_id'], text)
+                for key, value in id_jogos_mensagem.items():
+                    if key == 'id_over05HTmodel':
+                        for jogos in value:
+                            if jogos['id'] == iD:
+                                text = f'''
+            👑 Modelo Rede Neural
+                                                        
+            💭 Previsão: {value_pred_rede}
+            {print_jogos}
+            '''
+                                if '&' in text:
+                                    text = text.replace('&', '')
+                                editMessageTelegram(jogos['message_id'], text)
+                    if key == 'id_over05HTAutoml':
+                        for jogos in value:
+                            if jogos['id'] == iD:
+                                text = f'''
+            👑 Modelo Automl
+                                                    
+            💭 Previsão: {value_pred_automl}
+            {print_jogos}
+            '''
+                                if '&' in text:
+                                    text = text.replace('&', '')
+                                editMessageTelegram(jogos['message_id'], text)
 
 
-        #     # rede neural
-            if iD in id_over05HTmodel:
-                if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
-                    winht_model += 1
-                    id_over05HTmodel.remove(iD)
-                    
-                    valor = valorEsperado - 5
-                    lucro += valor
+            #     # rede neural
+                if iD in id_over05HTmodel:
+                    if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
+                        winht_model += 1
+                        id_over05HTmodel.remove(iD)
+                        
+                        valor = valorEsperado - 5
+                        lucro += valor
 
-                    for key, value in id_jogos_mensagem.items():
-                        if key == 'id_over05HTmodel':
-                            for jogos in value:
-                                if jogos['id'] == iD:
-                                    text = f'''
-        👑 Modelo Rede Neural
+                        for key, value in id_jogos_mensagem.items():
+                            if key == 'id_over05HTmodel':
+                                for jogos in value:
+                                    if jogos['id'] == iD:
+                                        text = f'''
+            👑 Modelo Rede Neural
 
-        ✅ Win {winht_model} - {loseht_model}
-        {print_jogos}
-        '''
-                                    if '&' in text:
-                                        text = text.replace('&', '')
-                                    sendMenssageTelegram(text)
-                    
-                                    # remove do dicionario
-                                    id_jogos_mensagem[key].remove(jogos)
+            ✅ Win {winht_model} - {loseht_model}
+            {print_jogos}
+            '''
+                                        if '&' in text:
+                                            text = text.replace('&', '')
+                                        sendMenssageTelegram(text)
+                        
+                                        # remove do dicionario
+                                        id_jogos_mensagem[key].remove(jogos)
 
-                # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                if status == 'HT' or minute == 90 and (awayTeamScore + homeTeamScore) == 0:
-                    loseht_model += 1
-                    id_over05HTmodel.remove(iD)
-                    lucro -= 5
-                    for key, value in id_jogos_mensagem.items():
-                        if key == 'id_over05HTmodel':
-                            for jogos in value:
-                                if jogos['id'] == iD:
-                                    text = f'''
-        👑 Modelo Rede Neural
+                    # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
+                    if status == 'HT' or status == 'FT' and (awayTeamScore + homeTeamScore) == 0:
+                        loseht_model += 1
+                        id_over05HTmodel.remove(iD)
+                        lucro -= 5
+                        for key, value in id_jogos_mensagem.items():
+                            if key == 'id_over05HTmodel':
+                                for jogos in value:
+                                    if jogos['id'] == iD:
+                                        text = f'''
+            👑 Modelo Rede Neural
 
-        🛑 Lose {winht_model} - {loseht_model}
-        {print_jogos}
-        '''
-                                    if '&' in text:
-                                        text = text.replace('&', '')
-                                    sendMenssageTelegram(text)
-                                    # editMessageTelegram(jogos['message_id'], f'''{len(id_over05HTmodel)} 
-    
-                                    # remove do dicionario
-                                    id_jogos_mensagem[key].remove(jogos)
-            
-            
-
-            # Automl
-            if iD in id_over05HTAutoml:
-                if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
-                    winht_Automl += 1
-                    id_over05HTAutoml.remove(iD)
-                    valor = valorEsperado - 5
-                    lucro += valor
-                    for key, value in id_jogos_mensagem.items():
-                        if key == 'id_over05HTAutoml':
-                            for jogos in value:
-                                if jogos['id'] == iD:
-                                    text = f'''
-        👑 Modelo Automl
-
-        ✅ Win {winht_Automl} - {loseht_Automl}
-        {print_jogos}
-        '''
-                                    if '&' in text:
-                                        text = text.replace('&', '')
-                                    sendMenssageTelegram(text)
-                                    id_jogos_mensagem[key].remove(jogos)
+            🛑 Lose {winht_model} - {loseht_model}
+            {print_jogos}
+            '''
+                                        if '&' in text:
+                                            text = text.replace('&', '')
+                                        sendMenssageTelegram(text)
+        
+                                        # remove do dicionario
+                                        id_jogos_mensagem[key].remove(jogos)
                 
-                # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                if status == 'HT' or minute == 90 and (awayTeamScore + homeTeamScore) == 0:
-                    loseht_Automl += 1
-                    id_over05HTAutoml.remove(iD)
-                    lucro -= 5
-                    for key, value in id_jogos_mensagem.items():
-                        if key == 'id_over05HTAutoml':
-                            for jogos in value:
-                                if jogos['id'] == iD:
-                                    text = f'''
-        👑 Modelo Automl
-                                                            
-        🛑 Lose {winht_Automl} - {loseht_Automl}
-        {print_jogos}
-        '''
-                                    if '&' in text:
-                                        text = text.replace('&', '')
-                                    
-                                    sendMenssageTelegram(text)
-                                    # remove do dicionario
-                                    id_jogos_mensagem[key].remove(jogos)
+                
+
+                # Automl
+                if iD in id_over05HTAutoml:
+                    if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
+                        winht_Automl += 1
+                        id_over05HTAutoml.remove(iD)
+                        valor = valorEsperado - 5
+                        lucro += valor
+                        for key, value in id_jogos_mensagem.items():
+                            if key == 'id_over05HTAutoml':
+                                for jogos in value:
+                                    if jogos['id'] == iD:
+                                        text = f'''
+            👑 Modelo Automl
+
+            ✅ Win {winht_Automl} - {loseht_Automl}
+            {print_jogos}
+            '''
+                                        if '&' in text:
+                                            text = text.replace('&', '')
+                                        sendMenssageTelegram(text)
+                                        id_jogos_mensagem[key].remove(jogos)
+                    
+                    if status == 'HT' or status == 'FT' and (awayTeamScore + homeTeamScore) == 0:
+                        loseht_Automl += 1
+                        id_over05HTAutoml.remove(iD)
+                        lucro -= 5
+                        for key, value in id_jogos_mensagem.items():
+                            if key == 'id_over05HTAutoml':
+                                for jogos in value:
+                                    if jogos['id'] == iD:
+                                        text = f'''
+            👑 Modelo Automl
+                                                                
+            🛑 Lose {winht_Automl} - {loseht_Automl}
+            {print_jogos}
+            '''
+                                        if '&' in text:
+                                            text = text.replace('&', '')
+                                        
+                                        sendMenssageTelegram(text)
+                                        # remove do dicionario
+                                        id_jogos_mensagem[key].remove(jogos)
+
+                if condicao_rede == 1 and iD not in id_over05HTmodel:
+                    id_over05HTmodel.append(iD)
+                    # state, valorEsperado = makeBet(id_evento)
+                    state, valorEsperado = 'SUCCESS', 10
+
+                    text = f'''
+            👑 Modelo Rede Neural 
+
+            💭 Previsão: {value_pred_rede}
+            {print_jogos}
             
-            # Random Forest
-        #     if iD in id_over05HTRandomf:
-        #         if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
-        #             winht_Randomf += 1
-        #             id_over05HTRandomf.remove(iD)
-        #             valor = valorEsperado - 5
-        #             lucro += valor
-        #             for key, value in id_jogos_mensagem.items():
-        #                 if key == 'id_over05HTRandomf':
-        #                     for jogos in value:
-        #                         if jogos['id'] == iD:
-        #                             text = f'''
-        # 👑 Modelo Random Forest
+            '''
 
-        # ✅ Win {winht_Randomf} - {loseht_Randomf}
-        # {print_jogos}
-        # '''
-        #                             if '&' in text:
-        #                                 text = text.replace('&', '')
-        #                             sendMenssageTelegram(text)
-        #                             id_jogos_mensagem[key].remove(jogos)
+                    if '&' in text:
+                        text = text.replace('&', '')
+                    sendMenssageTelegram(text)
+                    id_jogos_mensagem["id_over05HTmodel"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
-                # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                    # if minute == 90 and (awayTeamScore + homeTeamScore) == 0:
-        #             loseht_Randomf += 1
-        #             id_over05HTRandomf.remove(iD)
-        #             lucro -= 5
-        #             for key, value in id_jogos_mensagem.items():
-        #                 if key == 'id_over05HTRandomf':
-        #                     for jogos in value:
-        #                         if jogos['id'] == iD:
-        #                             text = f'''
-        # 👑 Modelo Random Forest
+                if condicao_Automl == 1 and iD not in id_over05HTAutoml:
+                    id_over05HTAutoml.append(iD)
+                    # state, valorEsperado = makeBet(id_evento)
+                    state, valorEsperado = 'SUCCESS', 10
 
-        # 🛑 Lose {winht_Randomf} - {loseht_Randomf}
-        # {print_jogos}
-        # '''
-        #                             if '&' in text:
-        #                                 text = text.replace('&', '')
-        #                             sendMenssageTelegram(text)
-        #                             # remove do dicionario
-        #                             id_jogos_mensagem[key].remove(jogos)
-
-
+                    text = f'''
+            👑 Modelo Automl 
             
+            💭 Previsão: {value_pred_automl}
+            {print_jogos}
+            '''
+                    if '&' in text:
+                        text = text.replace('&', '')
+                    # sendMenssageTelegram(text)
+                    id_jogos_mensagem["id_over05HTAutoml"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
-            
-
-
-
-            if condicao_rede == 1 and iD not in id_over05HTmodel:
-                id_over05HTmodel.append(iD)
-                # state, valorEsperado = makeBet(id_evento)
-                state, valorEsperado = 'SUCCESS', 10
-
-                text = f'''
-        👑 Modelo Rede Neural 
-
-        💭 Previsão: {value_pred_rede}
-        {print_jogos}
-        
-        '''
-
-                if '&' in text:
-                    text = text.replace('&', '')
-                # sendMenssageTelegram(text)
-                id_jogos_mensagem["id_over05HTmodel"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
-
-            if condicao_Automl == 1 and iD not in id_over05HTAutoml:
-                id_over05HTAutoml.append(iD)
-                # state, valorEsperado = makeBet(id_evento)
-                state, valorEsperado = 'SUCCESS', 10
-
-                text = f'''
-        👑 Modelo Automl 
-        
-        💭 Previsão: {value_pred_automl}
-        {print_jogos}
-        '''
-                if '&' in text:
-                    text = text.replace('&', '')
-                # sendMenssageTelegram(text)
-                id_jogos_mensagem["id_over05HTAutoml"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
-
-        #     if condicao_Randomf == 1 and iD not in id_over05HTRandomf:
-        #         id_over05HTRandomf.append(iD)
-        #         # state, valorEsperado = makeBet(id_evento)
-        #         state, valorEsperado = 'SUCCESS', 10
-
-        #         text = f'''
-        # 👑 Modelo Random Forest
-
-        # 💭 Previsão: {value_pred_randomf}
-        # {print_jogos}
-        # '''
-        #         if '&' in text:
-        #             text = text.replace('&', '')
-        #         # sendMenssageTelegram(text)
-        #         id_jogos_mensagem["id_over05HTRandomf"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
-
-            
+                
         time.sleep(60)
     
     except Exception as e:
