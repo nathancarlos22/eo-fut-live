@@ -118,10 +118,14 @@ print(f"Usando dispositivo: {device}")
 
 # Definição da arquitetura do modelo com a mesma configuração usada para treinar e salvar o estado do modelo
 input_size = 72  # Certifique-se de que 'X_train' está definido e é acessível neste ponto do seu código
-neurons =  (921, 910, 762, 258) # A arquitetura da rede deve ser a mesma do checkpoint
-dropout_rate = 0  # O mesmo dropout usado durante o treinamento
-activation_type = 'leaky_relu'  # A mesma função de ativação
-normalization_type = 'none'  # O mesmo tipo de normalização
+lr = 1e-05  # Voltar para a taxa de aprendizado anterior para estabilidade
+batch_size = 64
+num_layers = 4  # Voltar para a quantidade de camadas anterior
+neurons = (921, 768, 615, 461)  # Ajustar número de neurônios, mantendo uma distribuição densa
+dropout_rate = 0.2  # Reduzir a taxa de dropout
+activation_type = 'relu'  # Manter ReLU
+normalization_type = 'batch'  # Manter normalização em lote
+
 
 model = NeuralNetwork(input_size, neurons, dropout_rate, activation_type, normalization_type)
 
@@ -337,7 +341,6 @@ while True:
 
             # Desempenho Relacionado com Passes
             Xht['possessionControl'] = abs(Xht['possessiontime_home'] - Xht['possessiontime_away']) # Diferença absoluta do tempo de posse entre as equipes, indicando qual equipe dominou a posse de bola.
-            # Xht['passRisk'] = (Xht['offsides_home'] + Xht['offsides_away']) / (Xht['possessiontime_home'] + Xht['possessiontime_away']) # Indicativo de quão arriscados são os passes, resultando em impedimentos.
             Xht['passRiskHome'] = Xht['offsides_home'] / (Xht['possessiontime_home']+ 0.01)
             Xht['passRiskAway'] = Xht['offsides_away'] / (Xht['possessiontime_away']+ 0.01)
             # 1. Mudança na Frequência de Posse a cada 10 minutos
@@ -404,7 +407,6 @@ while True:
             shotAccuracy_home = Xht['shotAccuracy_home'].values[0]
             shotAccuracy_away = Xht['shotAccuracy_away'].values[0]
             possessionControl = Xht['possessionControl'].values[0]
-            # passRisk = Xht['passRisk'].values[0]
             defensiveDiscipline = Xht['defensiveDiscipline'].values[0]
             defensiveEfficacy = Xht['defensiveEfficacy'].values[0]
             defensiveAggression = Xht['defensiveAggression'].values[0]
@@ -416,6 +418,27 @@ while True:
             fouls_away = Xht['fouls_away'].values[0]
             tackles_away = Xht['tackles_away'].values[0]
             tackles_home = Xht['tackles_home'].values[0]
+            corners_home = Xht['corners_home'].values[0]
+            corners_away = Xht['corners_away'].values[0]
+            possessiontime_home = Xht['possessiontime_home'].values[0]
+            possessiontime_away = Xht['possessiontime_away'].values[0]
+            offsides_home = Xht['offsides_home'].values[0]
+            offsides_away = Xht['offsides_away'].values[0]
+            shotsBlocked_home = Xht['blockedShotsHome'].values[0]
+            shotsBlocked_away = Xht['blockedShotsAway'].values[0]
+            passRiskHome = Xht['passRiskHome'].values[0]
+            passRiskAway = Xht['passRiskAway'].values[0]
+            timeSinceLastEvent_Home = Xht['timeSinceLastEvent_Home'].values[0]
+            timeSinceLastEvent_Away = Xht['timeSinceLastEvent_Away'].values[0]
+            timeSinceLastEventShots_Home = Xht['timeSinceLastEventShots_Home'].values[0]
+            timeSinceLastEventShots_Away = Xht['timeSinceLastEventShots_Away'].values[0]
+            timeSinceLastEventPasses_Home = Xht['timeSinceLastEventPasses_Home'].values[0]
+            timeSinceLastEventPasses_Away = Xht['timeSinceLastEventPasses_Away'].values[0]
+            timeSinceLastEventFouls_Home = Xht['timeSinceLastEventFouls_Home'].values[0]
+            timeSinceLastEventFouls_Away = Xht['timeSinceLastEventFouls_Away'].values[0]
+            timeSinceLastEventTotalCards_Home = Xht['timeSinceLastEventTotalCards_Home'].values[0]
+            timeSinceLastEventTotalCards_Away = Xht['timeSinceLastEventTotalCards_Away'].values[0]
+
 
 
             # try:
@@ -444,62 +467,36 @@ while True:
     🛡️ Disciplina Defensiva: {defensiveDiscipline}
     🛡️ Eficácia Defensiva: {defensiveEfficacy}
     🛡️ Agressão Defensiva: {defensiveAggression}
-    ⛳ Escanteios: {corners_home} - {corners_away}
-    ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
     🎯 Chutes ao gol Casa: {shotsOngoal_home}
     🎯 Chutes ao gol Fora: {shotsOngoal_away}
     🦵 Chutes fora Casa: {shotsOffgoal_home}
     🦵 Chutes fora Fora: {shotsOffgoal_away}
-    🚩 Impedimentos Casa: {offsides_home}
-    🚩 Impedimentos Fora: {offsides_away}
-    🚫 Chutes bloqueados Casa: {shotsBlocked_home}
-    🚫 Chutes bloqueados Fora: {shotsBlocked_away}
     🔴 Faltas Casa: {fouls_home}
     🔴 Faltas Fora: {fouls_away}
     🛑 Desarmes Casa: {tackles_home}
     🛑 Desarmes Fora: {tackles_away}
-    🟨 Cartões amarelos Casa: {yellowcards_home}
-    🟨 Cartões amarelos Fora: {yellowcards_away}
+    ⛳ Escanteios Casa: {corners_home}
+    ⛳ Escanteios Fora: {corners_away}
+    ⏰ Tempo de posse Casa: {possessiontime_home}
+    ⏰ Tempo de posse Fora: {possessiontime_away}
+    🚩 Impedimentos Casa: {offsides_home}
+    🚩 Impedimentos Fora: {offsides_away}
+    🚫 Chutes bloqueados Casa: {shotsBlocked_home}
+    🚫 Chutes bloqueados Fora: {shotsBlocked_away}
+    🎲 Risco de Passe Casa: {passRiskHome}
+    🎲 Risco de Passe Fora: {passRiskAway}
+    ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home}
+    ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away}
+    ⏱️ Tempo desde o último chute Casa: {timeSinceLastEventShots_Home}
+    ⏱️ Tempo desde o último chute Fora: {timeSinceLastEventShots_Away}
+    ⏱️ Tempo desde o último passe Casa: {timeSinceLastEventPasses_Home}
+    ⏱️ Tempo desde o último passe Fora: {timeSinceLastEventPasses_Away}
+    ⏱️ Tempo desde a última falta Casa: {timeSinceLastEventFouls_Home}
+    ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away}
+    ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home}
+    ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away}
+
 '''
-
-    #         print_jogos = f'''
-
-    # 🚨 Jogo: {homeTeam} x {awayTeam}
-    # ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
-    # 🏆 Liga: {league}
-    # ⏱️ Minuto: {minute}
-
-    # 🎯 Chutes Casa: {shotsHome}
-    # 🎯 Chutes Fora: {shotsAway}
-    # 🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency}
-    # ⚡ Pressão de Ataque: {attackPressure}
-    # 🎯 Precisão de Chutes Casa: {shotAccuracy_home}
-    # 🎯 Precisão de Chutes Fora: {shotAccuracy_away}
-    # 🎮 Controle de Posse: {possessionControl}
-    # 🎲 Risco de Passe: {passRisk}
-    # 🛡️ Disciplina Defensiva: {defensiveDiscipline}
-    # 🛡️ Eficácia Defensiva: {defensiveEfficacy}
-    # 🛡️ Agressão Defensiva: {defensiveAggression}
-    # ⛳ Escanteios: {corners_home} - {corners_away}
-    # ⏰ Tempo de posse: {possessiontime_home} - {possessiontime_away}
-    # 🔴 Cartões vermelhos Casa: {redcards_home}
-    # 🔴 Cartões vermelhos Fora: {redcards_away}
-    # 🎯 Chutes ao gol Casa: {shotsOngoal_home}
-    # 🎯 Chutes ao gol Fora: {shotsOngoal_away}
-    # 🦵 Chutes fora Casa: {shotsOffgoal_home}
-    # 🦵 Chutes fora Fora: {shotsOffgoal_away}
-    # 🟨 Cartões amarelos Casa: {yellowcards_home}
-    # 🟨 Cartões amarelos Fora: {yellowcards_away}
-    # 🔴 Faltas Casa: {fouls_home}
-    # 🔴 Faltas Fora: {fouls_away}
-    # 🚩 Impedimentos Casa: {offsides_home}
-    # 🚩 Impedimentos Fora: {offsides_away}
-    # 🛑 Desarmes Casa: {tackles_home}
-    # 🛑 Desarmes Fora: {tackles_away}
-    # 🚫 Chutes bloqueados Casa: {shotsBlocked_home}
-    # 🚫 Chutes bloqueados Fora: {shotsBlocked_away}
-
-    # '''
 
             condicao_rede = 0
             condicao_Automl = 0
