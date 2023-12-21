@@ -388,6 +388,69 @@ while True:
                 Xht['shotsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['shotsHome'].transform('sum')
                 Xht['shotsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['shotsAway'].transform('sum')
                 
+                
+                
+
+
+
+                
+                if iD not in df_jogos:
+                    df_jogos[iD] = []
+
+                df_jogos[iD].append(Xht)
+                df = pd.concat(df_jogos[iD], axis=0)
+                df.sort_values(by=['minute'], inplace=True)
+                df.reset_index(drop=True, inplace=True)
+                # Desempenho relacionado com passes
+                df['passesMinute_Home'] = df['minute'].where(df['possessiontime_home'].diff().fillna(0) > 0)
+                df['passesMinute_Away'] = df['minute'].where(df['possessiontime_away'].diff().fillna(0) > 0)
+                df['timeSinceLastEventPasses_Home'] = df['minute'] - df.groupby(df['passesMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                df['timeSinceLastEventPasses_Away'] = df['minute'] - df.groupby(df['passesMinute_Away'].notnull().cumsum())['minute'].transform('first')
+                
+                # Desempenho Relacionado com Gols
+                df['goalMinute_Home'] = df['minute'].where(df['goalHome'].diff().fillna(0) > 0)
+                df['goalMinute_Away'] = df['minute'].where(df['goalAway'].diff().fillna(0) > 0)
+                df['timeSinceLastEvent_Home'] = df['minute'] - df.groupby(df['goalMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                df['timeSinceLastEvent_Away'] = df['minute'] - df.groupby(df['goalMinute_Away'].notnull().cumsum())['minute'].transform('first')
+
+                # Desempenho relacionado com chutes 
+                df['shotsMinute_Home'] = df['minute'].where(df['shotsHome'].diff().fillna(0) > 0)
+                df['shotsMinute_Away'] = df['minute'].where(df['shotsAway'].diff().fillna(0) > 0)
+                df['timeSinceLastEventShots_Home'] = df['minute'] - df.groupby(df['shotsMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                df['timeSinceLastEventShots_Away'] = df['minute'] - df.groupby(df['shotsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+                # Desempenho relacionado com faltas
+                df['foulsMinute_Home'] = df['minute'].where(df['fouls_home'].diff().fillna(0) > 0)
+                df['foulsMinute_Away'] = df['minute'].where(df['fouls_away'].diff().fillna(0) > 0)
+                df['timeSinceLastEventFouls_Home'] = df['minute'] - df.groupby(df['foulsMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                df['timeSinceLastEventFouls_Away'] = df['minute'] - df.groupby(df['foulsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+
+                # Desempenho Relacionado com Defesa
+                df['TotalCards_home'] = df['redcards_home'] + df['yellowcards_home']
+                df['TotalCards_away'] = df['redcards_away'] + df['yellowcards_away']
+                
+                # Desempenho relacionado com cartões
+                df['TotalCardsMinute_Home'] = df['minute'].where(df['TotalCards_home'].diff().fillna(0) > 0)
+                df['TotalCardsMinute_Away'] = df['minute'].where(df['TotalCards_away'].diff().fillna(0) > 0)
+                df['timeSinceLastEventTotalCards_Home'] = df['minute'] - df.groupby(df['TotalCardsMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                df['timeSinceLastEventTotalCards_Away'] = df['minute'] - df.groupby(df['TotalCardsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+
+                # 1. Mudança na Frequência de Chutes Bloqueados a cada 10 minutos
+                df['blockedShotsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['blockedShotsHome'].transform('sum')
+                df['blockedShotsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['blockedShotsAway'].transform('sum')
+                # 2. Mudança na Frequência de Faltas a cada 10 minutos
+                df['foulsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['fouls_home'].transform('sum')
+                df['foulsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['fouls_away'].transform('sum')
+                # 3. Mudança na Frequência de Cartões a cada 10 minutos
+                df['TotalCardsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['TotalCards_home'].transform('sum')
+                df['TotalCardsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['TotalCards_away'].transform('sum')
+                # 1. Mudança na Frequência de Posse a cada 10 minutos
+                df['passesHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['possessiontime_home'].transform('sum')
+                df['passesAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['possessiontime_away'].transform('sum')
+                # 1. Mudança na Frequência de Chutes a cada 10 minutos
+                df['shotsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['shotsHome'].transform('sum')
+                df['shotsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['shotsAway'].transform('sum')
+                Xht = df.tail(1)
+                
                 if Xht['shotsHome'].values[0] == 0:
                     Xht['timeSinceLastEventShots_Home'] = Xht['minute'] - 1
                 
@@ -418,71 +481,9 @@ while True:
                 if Xht['goalAway'].values[0] == 0:
                     Xht['timeSinceLastEvent_Away'] = Xht['minute'] - 1
                 
-
-
-
-                
-                if iD not in df_jogos:
-                    df_jogos[iD] = []
-                    df_jogos[iD].append(Xht)
-                else:
-                    df_jogos[iD].append(Xht)
-                    df = pd.concat(df_jogos[iD], axis=0)
-                    df.sort_values(by=['minute'], inplace=True)
-                    df.reset_index(drop=True, inplace=True)
-                    # Desempenho relacionado com passes
-                    df['passesMinute_Home'] = df['minute'].where(df['possessiontime_home'].diff().fillna(0) > 0)
-                    df['passesMinute_Away'] = df['minute'].where(df['possessiontime_away'].diff().fillna(0) > 0)
-                    df['timeSinceLastEventPasses_Home'] = df['minute'] - df.groupby(df['passesMinute_Home'].notnull().cumsum())['minute'].transform('first')
-                    df['timeSinceLastEventPasses_Away'] = df['minute'] - df.groupby(df['passesMinute_Away'].notnull().cumsum())['minute'].transform('first')
-                    
-                    # Desempenho Relacionado com Gols
-                    df['goalMinute_Home'] = df['minute'].where(df['goalHome'].diff().fillna(0) > 0)
-                    df['goalMinute_Away'] = df['minute'].where(df['goalAway'].diff().fillna(0) > 0)
-                    df['timeSinceLastEvent_Home'] = df['minute'] - df.groupby(df['goalMinute_Home'].notnull().cumsum())['minute'].transform('first')
-                    df['timeSinceLastEvent_Away'] = df['minute'] - df.groupby(df['goalMinute_Away'].notnull().cumsum())['minute'].transform('first')
-
-                    # Desempenho relacionado com chutes 
-                    df['shotsMinute_Home'] = df['minute'].where(df['shotsHome'].diff().fillna(0) > 0)
-                    df['shotsMinute_Away'] = df['minute'].where(df['shotsAway'].diff().fillna(0) > 0)
-                    df['timeSinceLastEventShots_Home'] = df['minute'] - df.groupby(df['shotsMinute_Home'].notnull().cumsum())['minute'].transform('first')
-                    df['timeSinceLastEventShots_Away'] = df['minute'] - df.groupby(df['shotsMinute_Away'].notnull().cumsum())['minute'].transform('first')
-                    # Desempenho relacionado com faltas
-                    df['foulsMinute_Home'] = df['minute'].where(df['fouls_home'].diff().fillna(0) > 0)
-                    df['foulsMinute_Away'] = df['minute'].where(df['fouls_away'].diff().fillna(0) > 0)
-                    df['timeSinceLastEventFouls_Home'] = df['minute'] - df.groupby(df['foulsMinute_Home'].notnull().cumsum())['minute'].transform('first')
-                    df['timeSinceLastEventFouls_Away'] = df['minute'] - df.groupby(df['foulsMinute_Away'].notnull().cumsum())['minute'].transform('first')
-
-                    # Desempenho Relacionado com Defesa
-                    df['TotalCards_home'] = df['redcards_home'] + df['yellowcards_home']
-                    df['TotalCards_away'] = df['redcards_away'] + df['yellowcards_away']
-                    
-                    # Desempenho relacionado com cartões
-                    df['TotalCardsMinute_Home'] = df['minute'].where(df['TotalCards_home'].diff().fillna(0) > 0)
-                    df['TotalCardsMinute_Away'] = df['minute'].where(df['TotalCards_away'].diff().fillna(0) > 0)
-                    df['timeSinceLastEventTotalCards_Home'] = df['minute'] - df.groupby(df['TotalCardsMinute_Home'].notnull().cumsum())['minute'].transform('first')
-                    df['timeSinceLastEventTotalCards_Away'] = df['minute'] - df.groupby(df['TotalCardsMinute_Away'].notnull().cumsum())['minute'].transform('first')
-
-                    # 1. Mudança na Frequência de Chutes Bloqueados a cada 10 minutos
-                    df['blockedShotsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['blockedShotsHome'].transform('sum')
-                    df['blockedShotsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['blockedShotsAway'].transform('sum')
-                    # 2. Mudança na Frequência de Faltas a cada 10 minutos
-                    df['foulsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['fouls_home'].transform('sum')
-                    df['foulsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['fouls_away'].transform('sum')
-                    # 3. Mudança na Frequência de Cartões a cada 10 minutos
-                    df['TotalCardsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['TotalCards_home'].transform('sum')
-                    df['TotalCardsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['TotalCards_away'].transform('sum')
-                    # 1. Mudança na Frequência de Posse a cada 10 minutos
-                    df['passesHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['possessiontime_home'].transform('sum')
-                    df['passesAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['possessiontime_away'].transform('sum')
-                    # 1. Mudança na Frequência de Chutes a cada 10 minutos
-                    df['shotsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['shotsHome'].transform('sum')
-                    df['shotsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['shotsAway'].transform('sum')
-                    Xht = df.tail(1)
-                
                 Xht.drop(columns=['goalMinute_Home', 'goalMinute_Away', 'shotsMinute_Home', 'shotsMinute_Away', 'passesMinute_Home', 'passesMinute_Away', 'foulsMinute_Home', 'foulsMinute_Away', 'TotalCardsMinute_Home', 'TotalCardsMinute_Away'], inplace=True)
 
-                Xht = Xht.drop(columns=['redcards_away', 'redcards_home',
+                Xht.drop(columns=['redcards_away', 'redcards_home',
                                         'TotalCards_away',
                                         'yellowcards_away',
                                         'TotalCards_home',
@@ -496,7 +497,7 @@ while True:
                                         'passesHome_10min',
                                         'passesAway_10min',
                                         'blockedShotsHome_10min',
-                                        'TotalCardsAway_10min'])
+                                        'TotalCardsAway_10min'], inplace=True)
                                                 
                 shotsHome = Xht['shotsHome'].values[0]
                 shotsAway = Xht['shotsAway'].values[0]
