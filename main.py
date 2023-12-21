@@ -410,6 +410,7 @@ while True:
                     df_jogos[iD].append(Xht)
                 else:
                     df = pd.concat(df_jogos[iD], axis=0)
+                    df.reset_index(drop=True, inplace=True)
                     # Desempenho relacionado com passes
                     Xht['passesMinute_Home'] = df['minute'].where(df['possessiontime_home'].diff().fillna(0) > 0)
                     Xht['passesMinute_Away'] = df['minute'].where(df['possessiontime_away'].diff().fillna(0) > 0)
