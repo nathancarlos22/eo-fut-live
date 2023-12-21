@@ -315,7 +315,7 @@ while True:
                 league = 'Europe - Europa League'
                 Xht['league'] = league
 
-            if minute > 1 and (status != 'HT' or status != 'FT'):
+            if minute > 1 and status == 'LIVE':
                 Xht['shotsHome'] = Xht['shotsOngoal_home'] + Xht['shotsOffgoal_home']
                 Xht['shotsAway'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
 
