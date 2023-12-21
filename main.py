@@ -395,6 +395,7 @@ while True:
                 else:
                     df_jogos[iD].append(Xht)
                     df = pd.concat(df_jogos[iD], axis=0)
+                    df.sort_values(by=['minute'], inplace=True)
                     df.reset_index(drop=True, inplace=True)
                     # Desempenho relacionado com passes
                     df['passesMinute_Home'] = df['minute'].where(df['possessiontime_home'].diff().fillna(0) > 0)
@@ -600,11 +601,11 @@ while True:
                         for jogos in value:
                             if jogos['id'] == iD:
                                 text = f'''
-            👑 Modelo Rede Neural
-                                                        
-            💭 Previsão: {value_pred_rede}
-            {print_jogos}
-            '''
+                                👑 Modelo Rede Neural
+                                                                            
+                                💭 Previsão: {value_pred_rede}
+                                {print_jogos}
+                                '''
                                 if '&' in text:
                                     text = text.replace('&', '')
                                 editMessageTelegram(jogos['message_id'], text)
@@ -612,21 +613,22 @@ while True:
                         for jogos in value:
                             if jogos['id'] == iD:
                                 text = f'''
-            👑 Modelo Automl
-                                                    
-            💭 Previsão: {value_pred_automl}
-            {print_jogos}
-            '''
+                                👑 Modelo Automl
+                                                                        
+                                💭 Previsão: {value_pred_automl}
+                                {print_jogos}
+                                '''
                                 if '&' in text:
                                     text = text.replace('&', '')
                                 editMessageTelegram(jogos['message_id'], text)
 
 
-            #     # rede neural
+                # rede neural
                 if iD in id_over05HTmodel:
                     if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
                         winht_model += 1
                         id_over05HTmodel.remove(iD)
+                        df_jogos.remove(iD)
                         
                         valor = valorEsperado - 5
                         lucro += valor
@@ -636,11 +638,11 @@ while True:
                                 for jogos in value:
                                     if jogos['id'] == iD:
                                         text = f'''
-            👑 Modelo Rede Neural
+                                        👑 Modelo Rede Neural
 
-            ✅ Win {winht_model} - {loseht_model}
-            {print_jogos}
-            '''
+                                        ✅ Win {winht_model} - {loseht_model}
+                                        {print_jogos}
+                                        '''
                                         if '&' in text:
                                             text = text.replace('&', '')
                                         sendMenssageTelegram(text)
@@ -652,17 +654,18 @@ while True:
                     if status == 'HT' or status == 'FT' and (awayTeamScore + homeTeamScore) == 0:
                         loseht_model += 1
                         id_over05HTmodel.remove(iD)
+                        df_jogos.remove(iD)
                         lucro -= 5
                         for key, value in id_jogos_mensagem.items():
                             if key == 'id_over05HTmodel':
                                 for jogos in value:
                                     if jogos['id'] == iD:
                                         text = f'''
-            👑 Modelo Rede Neural
+                                        👑 Modelo Rede Neural
 
-            🛑 Lose {winht_model} - {loseht_model}
-            {print_jogos}
-            '''
+                                        🛑 Lose {winht_model} - {loseht_model}
+                                        {print_jogos}
+                                        '''
                                         if '&' in text:
                                             text = text.replace('&', '')
                                         sendMenssageTelegram(text)
@@ -677,6 +680,7 @@ while True:
                     if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
                         winht_Automl += 1
                         id_over05HTAutoml.remove(iD)
+                        df_jogos.remove(iD)
                         valor = valorEsperado - 5
                         lucro += valor
                         for key, value in id_jogos_mensagem.items():
@@ -684,11 +688,11 @@ while True:
                                 for jogos in value:
                                     if jogos['id'] == iD:
                                         text = f'''
-            👑 Modelo Automl
+                                        👑 Modelo Automl
 
-            ✅ Win {winht_Automl} - {loseht_Automl}
-            {print_jogos}
-            '''
+                                        ✅ Win {winht_Automl} - {loseht_Automl}
+                                        {print_jogos}
+                                        '''
                                         if '&' in text:
                                             text = text.replace('&', '')
                                         sendMenssageTelegram(text)
@@ -697,17 +701,18 @@ while True:
                     if status == 'HT' or status == 'FT' and (awayTeamScore + homeTeamScore) == 0:
                         loseht_Automl += 1
                         id_over05HTAutoml.remove(iD)
+                        df_jogos.remove(iD)
                         lucro -= 5
                         for key, value in id_jogos_mensagem.items():
                             if key == 'id_over05HTAutoml':
                                 for jogos in value:
                                     if jogos['id'] == iD:
                                         text = f'''
-            👑 Modelo Automl
-                                                                
-            🛑 Lose {winht_Automl} - {loseht_Automl}
-            {print_jogos}
-            '''
+                                        👑 Modelo Automl
+                                                                                            
+                                        🛑 Lose {winht_Automl} - {loseht_Automl}
+                                        {print_jogos}
+                                        '''
                                         if '&' in text:
                                             text = text.replace('&', '')
                                         
@@ -721,12 +726,12 @@ while True:
                     state, valorEsperado = 'SUCCESS', 10
 
                     text = f'''
-            👑 Modelo Rede Neural 
+                    👑 Modelo Rede Neural 
 
-            💭 Previsão: {value_pred_rede}
-            {print_jogos}
-            
-            '''
+                    💭 Previsão: {value_pred_rede}
+                    {print_jogos}
+                    
+                    '''
 
                     if '&' in text:
                         text = text.replace('&', '')
@@ -739,11 +744,11 @@ while True:
                     state, valorEsperado = 'SUCCESS', 10
 
                     text = f'''
-            👑 Modelo Automl 
-            
-            💭 Previsão: {value_pred_automl}
-            {print_jogos}
-            '''
+                    👑 Modelo Automl 
+                    
+                    💭 Previsão: {value_pred_automl}
+                    {print_jogos}
+                    '''
                     if '&' in text:
                         text = text.replace('&', '')
                     # sendMenssageTelegram(text)
