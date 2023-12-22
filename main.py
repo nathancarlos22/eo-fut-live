@@ -136,20 +136,9 @@ model = model.to(device)
 # model.load_state_dict(torch.load('models/model_redeht.pth',map_location=torch.device('cpu')))
 model.eval()  # Coloca o modelo em modo de avaliação
 
-
-# model = joblib.load('models/modelo_mlp.pkl')
-
-# model_Randomf = pickle.load(open('models/model_randomf_Brazil - Serie A.sav', 'rb')) # inicializado
-
-# Inicializar o cluster H2O
-# h2o.init()
-# model_Automl = loaded_model = h2o.load_model("./models/model_automl")
-# model_Automl = loaded_model = h2o.load_model("C:/Users/Pichau/Desktop/eo-fut-live/models/model_automl")
 model_Automl = pickle.load(open('./models/tpot_model.pkl', 'rb'))
 
 preprocessor = pickle.load(open('models/preprocessor.pickle', 'rb'))
-# preprocessor_league = pickle.load(open('models/preprocessor_league.pickle','rb'))
-
 
 id_over05HTmodel = []
 winht_model = 0
@@ -158,8 +147,6 @@ loseht_model = 0
 id_over05HTAutoml = []
 winht_Automl = 0
 loseht_Automl = 0
-
-
 
 id_evento = ''
 
@@ -213,6 +200,10 @@ while True:
         # with open('data.json', 'w') as outfile:
         #     json.dump(dic_response, outfile)
 
+        ids = []
+        for game in dic_response['data']:
+            ids.append(game['stats']['_id'])
+
         for game in dic_response['data']:
             date = game['date']
 
@@ -228,6 +219,10 @@ while True:
 
             if game['stats'] == None:
                 continue
+
+            if minute == 0:
+                continue
+            
 
             iD = game['stats']['_id']
 
@@ -293,16 +288,10 @@ while True:
 
             }
 
-            if minute == 0:
-                continue
-
             Xht = pd.DataFrame(novo_dado, index=[0])
-
-            # caracteristicas sem importancia para os modelos
-
             if Xht.isna().sum().sum() > 0:
                 continue
-            
+
             # Tratando ligas com nomes diferentes, varios grupos, etc..
             if 'Asia - AFC Champions League' in league:
                 league = 'Asia - AFC Champions League'
@@ -316,28 +305,42 @@ while True:
                 Xht['league'] = league
 
             if minute > 1 and status == 'LIVE':
-                Xht['shotsHome'] = Xht['shotsOngoal_home'] + Xht['shotsOffgoal_home']
-                Xht['shotsAway'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
+                Xht['shotsOnGoalEfficiency'] = (Xht['shotsOngoal_home'] + Xht['shotsOngoal_away']) / (Xht['shotsHome'] + Xht['shotsAway'] + 1) # A eficiência do ataque em termos de chutes que realmente vão em direção ao gol.
+                Xht['attackPressure'] = (Xht['shotsHome'] + Xht['shotsAway'] + Xht['corners_home'] + Xht['corners_away']) / Xht['minute'] # Uma medida de quão ofensivas as equipes estão ao longo do jogo.
+                Xht['shotAccuracy_home'] = Xht['shotsOngoal_home'] / (Xht['shotsHome'] + 1) # Proporção de chutes no gol em relação ao total de chutes.
+                Xht['shotAccuracy_away'] = Xht['shotsOngoal_away'] / (Xht['shotsAway'] + 1)
 
-                Xht['shotsOnGoalEfficiency'] = round((Xht['shotsOngoal_home'] + Xht['shotsOngoal_away']) / (Xht['shotsHome'] + Xht['shotsAway'] + 1), 2) # A eficiência do ataque em termos de chutes que realmente vão em direção ao gol.
-                Xht['attackPressure'] = round((Xht['shotsHome'] + Xht['shotsAway'] + Xht['corners_home'] + Xht['corners_away']) / Xht['minute'], 2) # Uma medida de quão ofensivas as equipes estão ao longo do jogo.
-                Xht['shotAccuracy_home'] = round(Xht['shotsOngoal_home'] / (Xht['shotsHome'] + 1), 2) # Proporção de chutes no gol em relação ao total de chutes.
-                Xht['shotAccuracy_away'] = round(Xht['shotsOngoal_away'] / (Xht['shotsAway'] + 1), 2)
-                
+                # Desempenho relacionado com chutes 
+                Xht['shotsMinute_Home'] = Xht['minute'].where(Xht['shotsHome'].diff().fillna(0) > 0)
+                Xht['shotsMinute_Away'] = Xht['minute'].where(Xht['shotsAway'].diff().fillna(0) > 0)
 
                 # Desempenho Relacionado com Passes
                 Xht['possessionControl'] = abs(Xht['possessiontime_home'] - Xht['possessiontime_away']) # Diferença absoluta do tempo de posse entre as equipes, indicando qual equipe dominou a posse de bola.
+                # Xht['passRisk'] = (Xht['offsides_home'] + Xht['offsides_away']) / (Xht['possessiontime_home'] + Xht['possessiontime_away']) # Indicativo de quão arriscados são os passes, resultando em impedimentos.
                 Xht['passRiskHome'] = Xht['offsides_home'] / (Xht['possessiontime_home']+ 0.01)
                 Xht['passRiskAway'] = Xht['offsides_away'] / (Xht['possessiontime_away']+ 0.01)
-                
-                
 
-                Xht['defensiveDiscipline'] = round((1 - (Xht['redcards_home'] + Xht['yellowcards_home'] + Xht['fouls_home'] + 
-                                                Xht['redcards_away'] + Xht['yellowcards_away'] + Xht['fouls_away']) / Xht['minute']), 2) # Uma medida de quão disciplinadas as equipes estão em termos de cartões e faltas.
+                # Desempenho Relacionado com Defesa
+                Xht['TotalCards_home'] = Xht['redcards_home'] + Xht['yellowcards_home']
+                Xht['TotalCards_away'] = Xht['redcards_away'] + Xht['yellowcards_away']
 
-                Xht['defensiveEfficacy'] = round((Xht['blockedShotsHome'] + Xht['blockedShotsAway']) / round((Xht['shotsOnGoalEfficiency'] + 1), 2), 2) # Avalia a habilidade da defesa de bloquear chutes eficientes.
-                Xht['defensiveAggression'] = round((Xht['tackles_home'] + Xht['tackles_away']) / Xht['minute'], 2) # Indicativo de quão agressiva a equipe é na defesa ao longo do jogo.
-                
+                Xht['defensiveDiscipline'] = (1 - (Xht['redcards_home'] + Xht['yellowcards_home'] + Xht['fouls_home'] + 
+                                                Xht['redcards_away'] + Xht['yellowcards_away'] + Xht['fouls_away']) / Xht['minute']) # Uma medida de quão disciplinadas as equipes estão em termos de cartões e faltas.
+
+                Xht['defensiveEfficacy'] = (Xht['blockedShotsHome'] + Xht['blockedShotsAway']) / (Xht['shotsOnGoalEfficiency'] + 1) # Avalia a habilidade da defesa de bloquear chutes eficientes.
+                Xht['defensiveAggression'] = (Xht['tackles_home'] + Xht['tackles_away']) / Xht['minute'] # Indicativo de quão agressiva a equipe é na defesa ao longo do jogo.
+
+                # Desempenho Relacionado a chutes
+                Xht['shotsMinute_Home'] = Xht['minute'].where(Xht['shotsHome'].diff().fillna(0) > 0)
+                Xht['shotsMinute_Away'] = Xht['minute'].where(Xht['shotsAway'].diff().fillna(0) > 0)
+                Xht['timeSinceLastEventShots_Home'] = Xht['minute'] - Xht.groupby(Xht['shotsMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                Xht['timeSinceLastEventShots_Away'] = Xht['minute'] - Xht.groupby(Xht['shotsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+
+                #  Desempenho relacionado com escanteios
+                Xht['cornersMinute_Home'] = Xht['minute'].where(Xht['corners_home'].diff().fillna(0) > 0)
+                Xht['cornersMinute_Away'] = Xht['minute'].where(Xht['corners_away'].diff().fillna(0) > 0)
+                Xht['timeSinceLastEventCorners_Home'] = Xht['minute'] - Xht.groupby(Xht['cornersMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                Xht['timeSinceLastEventCorners_Away'] = Xht['minute'] - Xht.groupby(Xht['cornersMinute_Away'].notnull().cumsum())['minute'].transform('first')
 
                 # Desempenho relacionado com passes
                 Xht['passesMinute_Home'] = Xht['minute'].where(Xht['possessiontime_home'].diff().fillna(0) > 0)
@@ -345,21 +348,12 @@ while True:
                 Xht['timeSinceLastEventPasses_Home'] = Xht['minute'] - Xht.groupby(Xht['passesMinute_Home'].notnull().cumsum())['minute'].transform('first')
                 Xht['timeSinceLastEventPasses_Away'] = Xht['minute'] - Xht.groupby(Xht['passesMinute_Away'].notnull().cumsum())['minute'].transform('first')
 
-                # Desempenho Relacionado com Defesa
-                Xht['TotalCards_home'] = Xht['redcards_home'] + Xht['yellowcards_home']
-                Xht['TotalCards_away'] = Xht['redcards_away'] + Xht['yellowcards_away']
-                
                 # Desempenho Relacionado com Gols
                 Xht['goalMinute_Home'] = Xht['minute'].where(Xht['goalHome'].diff().fillna(0) > 0)
                 Xht['goalMinute_Away'] = Xht['minute'].where(Xht['goalAway'].diff().fillna(0) > 0)
                 Xht['timeSinceLastEvent_Home'] = Xht['minute'] - Xht.groupby(Xht['goalMinute_Home'].notnull().cumsum())['minute'].transform('first')
                 Xht['timeSinceLastEvent_Away'] = Xht['minute'] - Xht.groupby(Xht['goalMinute_Away'].notnull().cumsum())['minute'].transform('first')
 
-                # Desempenho relacionado com chutes 
-                Xht['shotsMinute_Home'] = Xht['minute'].where(Xht['shotsHome'].diff().fillna(0) > 0)
-                Xht['shotsMinute_Away'] = Xht['minute'].where(Xht['shotsAway'].diff().fillna(0) > 0)
-                Xht['timeSinceLastEventShots_Home'] = Xht['minute'] - Xht.groupby(Xht['shotsMinute_Home'].notnull().cumsum())['minute'].transform('first')
-                Xht['timeSinceLastEventShots_Away'] = Xht['minute'] - Xht.groupby(Xht['shotsMinute_Away'].notnull().cumsum())['minute'].transform('first')
                 # Desempenho relacionado com faltas
                 Xht['foulsMinute_Home'] = Xht['minute'].where(Xht['fouls_home'].diff().fillna(0) > 0)
                 Xht['foulsMinute_Away'] = Xht['minute'].where(Xht['fouls_away'].diff().fillna(0) > 0)
@@ -372,27 +366,35 @@ while True:
                 Xht['timeSinceLastEventTotalCards_Home'] = Xht['minute'] - Xht.groupby(Xht['TotalCardsMinute_Home'].notnull().cumsum())['minute'].transform('first')
                 Xht['timeSinceLastEventTotalCards_Away'] = Xht['minute'] - Xht.groupby(Xht['TotalCardsMinute_Away'].notnull().cumsum())['minute'].transform('first')
 
-                # 1. Mudança na Frequência de Chutes Bloqueados a cada 10 minutos
-                Xht['blockedShotsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['blockedShotsHome'].transform('sum')
-                Xht['blockedShotsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['blockedShotsAway'].transform('sum')
-                # 2. Mudança na Frequência de Faltas a cada 10 minutos
-                Xht['foulsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['fouls_home'].transform('sum')
-                Xht['foulsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['fouls_away'].transform('sum')
-                # 3. Mudança na Frequência de Cartões a cada 10 minutos
-                Xht['TotalCardsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['TotalCards_home'].transform('sum')
-                Xht['TotalCardsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['TotalCards_away'].transform('sum')
-                # 1. Mudança na Frequência de Posse a cada 10 minutos
-                Xht['passesHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['possessiontime_home'].transform('sum')
-                Xht['passesAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['possessiontime_away'].transform('sum')
-                # 1. Mudança na Frequência de Chutes a cada 10 minutos
-                Xht['shotsHome_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['shotsHome'].transform('sum')
-                Xht['shotsAway_10min'] = Xht.groupby(pd.cut(Xht['minute'], range(0, 91, 10)))['shotsAway'].transform('sum')
-                
-                
-                
+                event_columns = ['shotsHome', 'shotsAway', 'possessiontime_home', 'possessiontime_away', 'blockedShotsHome', 'blockedShotsAway', 'corners_home', 'corners_away', 'redcards_home', 'redcards_away',
+                    'shotsOffgoal_home', 'shotsOffgoal_away', 'shotsOngoal_home',
+                    'shotsOngoal_away', 'yellowcards_home', 'yellowcards_away',
+                    'fouls_home', 'fouls_away', 'offsides_home', 'offsides_away',
+                    'tackles_home', 'tackles_away']
 
+                def calculate_event_change(data, event_column, lookback=10):
+                    """
+                    Calcula a mudança no evento especificado para cada linha, olhando para os 
+                    10 registros anteriores. A diferença entre os valores máximo e mínimo nesse
+                    intervalo é calculada.
+                    """
+                    # Nome da nova coluna
+                    new_column = f'total_change_{event_column}'
 
+                    # Calculando o valor máximo e mínimo em uma janela deslizante
+                    rolling_max = data[event_column].rolling(window=lookback, min_periods=1).max()
+                    rolling_min = data[event_column].rolling(window=lookback, min_periods=1).min()
 
+                    # Calculando a diferença e atribuindo à nova coluna
+                    data[new_column] = rolling_max - rolling_min
+
+                    return data
+
+                # Aplicando a função ao dataframe 'data_teste' para a coluna os eventos
+                # Criando uma cópia do data_copyframe original para trabalhar com as mudanças
+                data = Xht.copy()
+                for event_column in event_columns:
+                    Xht = calculate_event_change(data, event_column)
                 
                 if iD not in df_jogos:
                     df_jogos[iD] = []
@@ -401,54 +403,96 @@ while True:
                 df = pd.concat(df_jogos[iD], axis=0)
                 df.sort_values(by=['minute'], inplace=True)
                 df.reset_index(drop=True, inplace=True)
+                df['shotsOnGoalEfficiency'] = (df['shotsOngoal_home'] + df['shotsOngoal_away']) / (df['shotsHome'] + df['shotsAway'] + 1) # A eficiência do ataque em termos de chutes que realmente vão em direção ao gol.
+                df['attackPressure'] = (df['shotsHome'] + df['shotsAway'] + df['corners_home'] + df['corners_away']) / df['minute'] # Uma medida de quão ofensivas as equipes estão ao longo do jogo.
+                df['shotAccuracy_home'] = df['shotsOngoal_home'] / (df['shotsHome'] + 1) # Proporção de chutes no gol em relação ao total de chutes.
+                df['shotAccuracy_away'] = df['shotsOngoal_away'] / (df['shotsAway'] + 1)
+
+                # Desempenho relacionado com chutes 
+                df['shotsMinute_Home'] = df['minute'].where(df['shotsHome'].diff().fillna(0) > 0)
+                df['shotsMinute_Away'] = df['minute'].where(df['shotsAway'].diff().fillna(0) > 0)
+
+                # Desempenho Relacionado com Passes
+                df['possessionControl'] = abs(df['possessiontime_home'] - df['possessiontime_away']) # Diferença absoluta do tempo de posse entre as equipes, indicando qual equipe dominou a posse de bola.
+                # df['passRisk'] = (df['offsides_home'] + df['offsides_away']) / (df['possessiontime_home'] + df['possessiontime_away']) # Indicativo de quão arriscados são os passes, resultando em impedimentos.
+                df['passRiskHome'] = df['offsides_home'] / (df['possessiontime_home']+ 0.01)
+                df['passRiskAway'] = df['offsides_away'] / (df['possessiontime_away']+ 0.01)
+
+                # Desempenho Relacionado com Defesa
+                df['TotalCards_home'] = df['redcards_home'] + df['yellowcards_home']
+                df['TotalCards_away'] = df['redcards_away'] + df['yellowcards_away']
+
+                df['defensiveDiscipline'] = (1 - (df['redcards_home'] + df['yellowcards_home'] + df['fouls_home'] + 
+                                                df['redcards_away'] + df['yellowcards_away'] + df['fouls_away']) / df['minute']) # Uma medida de quão disciplinadas as equipes estão em termos de cartões e faltas.
+
+                df['defensiveEfficacy'] = (df['blockedShotsHome'] + df['blockedShotsAway']) / (df['shotsOnGoalEfficiency'] + 1) # Avalia a habilidade da defesa de bloquear chutes eficientes.
+                df['defensiveAggression'] = (df['tackles_home'] + df['tackles_away']) / df['minute'] # Indicativo de quão agressiva a equipe é na defesa ao longo do jogo.
+
+                # Desempenho Relacionado a chutes
+                df['shotsMinute_Home'] = df['minute'].where(df['shotsHome'].diff().fillna(0) > 0)
+                df['shotsMinute_Away'] = df['minute'].where(df['shotsAway'].diff().fillna(0) > 0)
+                df['timeSinceLastEventShots_Home'] = df['minute'] - df.groupby(df['shotsMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                df['timeSinceLastEventShots_Away'] = df['minute'] - df.groupby(df['shotsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+
+                #  Desempenho relacionado com escanteios
+                df['cornersMinute_Home'] = df['minute'].where(df['corners_home'].diff().fillna(0) > 0)
+                df['cornersMinute_Away'] = df['minute'].where(df['corners_away'].diff().fillna(0) > 0)
+                df['timeSinceLastEventCorners_Home'] = df['minute'] - df.groupby(df['cornersMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                df['timeSinceLastEventCorners_Away'] = df['minute'] - df.groupby(df['cornersMinute_Away'].notnull().cumsum())['minute'].transform('first')
+
                 # Desempenho relacionado com passes
                 df['passesMinute_Home'] = df['minute'].where(df['possessiontime_home'].diff().fillna(0) > 0)
                 df['passesMinute_Away'] = df['minute'].where(df['possessiontime_away'].diff().fillna(0) > 0)
                 df['timeSinceLastEventPasses_Home'] = df['minute'] - df.groupby(df['passesMinute_Home'].notnull().cumsum())['minute'].transform('first')
                 df['timeSinceLastEventPasses_Away'] = df['minute'] - df.groupby(df['passesMinute_Away'].notnull().cumsum())['minute'].transform('first')
-                
+
                 # Desempenho Relacionado com Gols
                 df['goalMinute_Home'] = df['minute'].where(df['goalHome'].diff().fillna(0) > 0)
                 df['goalMinute_Away'] = df['minute'].where(df['goalAway'].diff().fillna(0) > 0)
                 df['timeSinceLastEvent_Home'] = df['minute'] - df.groupby(df['goalMinute_Home'].notnull().cumsum())['minute'].transform('first')
                 df['timeSinceLastEvent_Away'] = df['minute'] - df.groupby(df['goalMinute_Away'].notnull().cumsum())['minute'].transform('first')
 
-                # Desempenho relacionado com chutes 
-                df['shotsMinute_Home'] = df['minute'].where(df['shotsHome'].diff().fillna(0) > 0)
-                df['shotsMinute_Away'] = df['minute'].where(df['shotsAway'].diff().fillna(0) > 0)
-                df['timeSinceLastEventShots_Home'] = df['minute'] - df.groupby(df['shotsMinute_Home'].notnull().cumsum())['minute'].transform('first')
-                df['timeSinceLastEventShots_Away'] = df['minute'] - df.groupby(df['shotsMinute_Away'].notnull().cumsum())['minute'].transform('first')
                 # Desempenho relacionado com faltas
                 df['foulsMinute_Home'] = df['minute'].where(df['fouls_home'].diff().fillna(0) > 0)
                 df['foulsMinute_Away'] = df['minute'].where(df['fouls_away'].diff().fillna(0) > 0)
                 df['timeSinceLastEventFouls_Home'] = df['minute'] - df.groupby(df['foulsMinute_Home'].notnull().cumsum())['minute'].transform('first')
                 df['timeSinceLastEventFouls_Away'] = df['minute'] - df.groupby(df['foulsMinute_Away'].notnull().cumsum())['minute'].transform('first')
 
-                # Desempenho Relacionado com Defesa
-                df['TotalCards_home'] = df['redcards_home'] + df['yellowcards_home']
-                df['TotalCards_away'] = df['redcards_away'] + df['yellowcards_away']
-                
                 # Desempenho relacionado com cartões
-                df['TotalCardsMinute_Home'] = df['minute'].where(df['TotalCards_home'].diff().fillna(0) > 0)
-                df['TotalCardsMinute_Away'] = df['minute'].where(df['TotalCards_away'].diff().fillna(0) > 0)
-                df['timeSinceLastEventTotalCards_Home'] = df['minute'] - df.groupby(df['TotalCardsMinute_Home'].notnull().cumsum())['minute'].transform('first')
-                df['timeSinceLastEventTotalCards_Away'] = df['minute'] - df.groupby(df['TotalCardsMinute_Away'].notnull().cumsum())['minute'].transform('first')
+                Xht['TotalCardsMinute_Home'] = Xht['minute'].where(Xht['TotalCards_home'].diff().fillna(0) > 0)
+                Xht['TotalCardsMinute_Away'] = Xht['minute'].where(Xht['TotalCards_away'].diff().fillna(0) > 0)
+                Xht['timeSinceLastEventTotalCards_Home'] = Xht['minute'] - Xht.groupby(Xht['TotalCardsMinute_Home'].notnull().cumsum())['minute'].transform('first')
+                Xht['timeSinceLastEventTotalCards_Away'] = Xht['minute'] - Xht.groupby(Xht['TotalCardsMinute_Away'].notnull().cumsum())['minute'].transform('first')
 
-                # 1. Mudança na Frequência de Chutes Bloqueados a cada 10 minutos
-                df['blockedShotsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['blockedShotsHome'].transform('sum')
-                df['blockedShotsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['blockedShotsAway'].transform('sum')
-                # 2. Mudança na Frequência de Faltas a cada 10 minutos
-                df['foulsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['fouls_home'].transform('sum')
-                df['foulsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['fouls_away'].transform('sum')
-                # 3. Mudança na Frequência de Cartões a cada 10 minutos
-                df['TotalCardsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['TotalCards_home'].transform('sum')
-                df['TotalCardsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['TotalCards_away'].transform('sum')
-                # 1. Mudança na Frequência de Posse a cada 10 minutos
-                df['passesHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['possessiontime_home'].transform('sum')
-                df['passesAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['possessiontime_away'].transform('sum')
-                # 1. Mudança na Frequência de Chutes a cada 10 minutos
-                df['shotsHome_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['shotsHome'].transform('sum')
-                df['shotsAway_10min'] = df.groupby(pd.cut(df['minute'], range(0, 91, 10)))['shotsAway'].transform('sum')
+                event_columns = ['shotsHome', 'shotsAway', 'possessiontime_home', 'possessiontime_away', 'blockedShotsHome', 'blockedShotsAway', 'corners_home', 'corners_away', 'redcards_home', 'redcards_away',
+                    'shotsOffgoal_home', 'shotsOffgoal_away', 'shotsOngoal_home',
+                    'shotsOngoal_away', 'yellowcards_home', 'yellowcards_away',
+                    'fouls_home', 'fouls_away', 'offsides_home', 'offsides_away',
+                    'tackles_home', 'tackles_away']
+
+                def calculate_event_change(data, event_column, lookback=10):
+                    """
+                    Calcula a mudança no evento especificado para cada linha, olhando para os 
+                    10 registros anteriores. A diferença entre os valores máximo e mínimo nesse
+                    intervalo é calculada.
+                    """
+                    # Nome da nova coluna
+                    new_column = f'total_change_{event_column}'
+
+                    # Calculando o valor máximo e mínimo em uma janela deslizante
+                    rolling_max = data[event_column].rolling(window=lookback, min_periods=1).max()
+                    rolling_min = data[event_column].rolling(window=lookback, min_periods=1).min()
+
+                    # Calculando a diferença e atribuindo à nova coluna
+                    data[new_column] = rolling_max - rolling_min
+
+                    return data
+
+                # Aplicando a função ao dataframe 'data_teste' para a coluna os eventos
+                # Criando uma cópia do data_copyframe original para trabalhar com as mudanças
+                data = df.copy()
+                for event_column in event_columns:
+                    df = calculate_event_change(data, event_column)
                 Xht = df.tail(1)
                 
                 if Xht['shotsHome'].values[0] == 0:
@@ -481,23 +525,33 @@ while True:
                 if Xht['goalAway'].values[0] == 0:
                     Xht['timeSinceLastEvent_Away'] = Xht['minute'] - 1
                 
-                Xht.drop(columns=['goalMinute_Home', 'goalMinute_Away', 'shotsMinute_Home', 'shotsMinute_Away', 'passesMinute_Home', 'passesMinute_Away', 'foulsMinute_Home', 'foulsMinute_Away', 'TotalCardsMinute_Home', 'TotalCardsMinute_Away'], inplace=True)
+                Xht.drop(columns=['goalMinute_Home', 
+                                  'goalMinute_Away', 
+                                  'shotsMinute_Home', 
+                                  'shotsMinute_Away', 
+                                  'passesMinute_Home', 
+                                  'passesMinute_Away', 
+                                  'foulsMinute_Home', 
+                                  'foulsMinute_Away', 
+                                  'TotalCardsMinute_Home', 
+                                  'TotalCardsMinute_Away'], inplace=True)
 
-                Xht.drop(columns=['redcards_away', 'redcards_home',
-                                        'TotalCards_away',
-                                        'yellowcards_away',
-                                        'TotalCards_home',
-                                        'yellowcards_home',
-                                        'shotsHome_10min',
-                                        'foulsHome_10min',
-                                        'foulsAway_10min',
-                                        'shotsAway_10min',
-                                        'blockedShotsAway_10min',
-                                        'TotalCardsHome_10min',
-                                        'passesHome_10min',
-                                        'passesAway_10min',
-                                        'blockedShotsHome_10min',
-                                        'TotalCardsAway_10min'], inplace=True)
+                Xht.drop(columns=['redcards_away', 
+                                   'redcards_home',
+                                   'TotalCards_away',
+                                   'yellowcards_away',
+                                   'TotalCards_home',
+                                   'yellowcards_home',
+                                   'shotsHome_10min',
+                                   'foulsHome_10min',
+                                   'foulsAway_10min',
+                                   'shotsAway_10min',
+                                   'blockedShotsAway_10min',
+                                   'TotalCardsHome_10min',
+                                   'passesHome_10min',
+                                   'passesAway_10min',
+                                   'blockedShotsHome_10min',
+                                   'TotalCardsAway_10min'], inplace=True)
                                                 
                 shotsHome = Xht['shotsHome'].values[0]
                 shotsAway = Xht['shotsAway'].values[0]
@@ -599,36 +653,29 @@ while True:
                 condicao_rede = 0
                 condicao_Automl = 0
 
-                # if minute > 1 and minute < 90 and status != 'HT':
-                try:
+                if iD not in df_jogos:
+                    df_jogos[iD] = []
+                    df_jogos[iD].append(Xht)
+                else:
+                    df_jogos[iD].append(Xht)
 
-                    if iD not in df_jogos:
-                        df_jogos[iD] = []
-                        df_jogos[iD].append(Xht)
-                    else:
-                        df_jogos[iD].append(Xht)
+                if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
+                    Xht = preprocessor.transform(Xht)
+                    novo_dado = torch.tensor(Xht, dtype=torch.float32)
 
-                    if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
-                        Xht = preprocessor.transform(Xht)
-                        novo_dado = torch.tensor(Xht, dtype=torch.float32)
+                    with torch.no_grad():
+                        value_pred_rede = model(novo_dado)[0][0]
+                    value_pred_automl = model_Automl.predict(Xht)[0]
+                    
+                    print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
+                    print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
+                    
+                    if value_pred_rede >= 0.52:
 
-                        with torch.no_grad():
-                            value_pred_rede = model(novo_dado)[0][0]
-                        value_pred_automl = model_Automl.predict(Xht)[0]
-                        
-                        print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
-                        print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
-                        
-                        if value_pred_rede >= 0.52:
+                        condicao_rede = 1
 
-                            condicao_rede = 1
-
-                        if value_pred_automl >= 0.52:
-                            condicao_Automl = 1
-
-                except Exception as e:
-                    print(e)
-                    continue
+                    if value_pred_automl >= 0.52:
+                        condicao_Automl = 1
 
                 for key, value in id_jogos_mensagem.items():
                     if key == 'id_over05HTmodel':
@@ -662,7 +709,7 @@ while True:
                     if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
                         winht_model += 1
                         id_over05HTmodel.remove(iD)
-                        df_jogos.pop(iD)
+                        
                         
                         valor = valorEsperado - 5
                         lucro += valor
@@ -685,10 +732,10 @@ while True:
                                         id_jogos_mensagem[key].remove(jogos)
 
                     # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                    if status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0:
+                    if status == 'HT' and (awayTeamScore + homeTeamScore) == 0 or iD not in ids:
                         loseht_model += 1
                         id_over05HTmodel.remove(iD)
-                        df_jogos.pop(iD)
+                        
                         lucro -= 5
                         for key, value in id_jogos_mensagem.items():
                             if key == 'id_over05HTmodel':
@@ -714,7 +761,7 @@ while True:
                     if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
                         winht_Automl += 1
                         id_over05HTAutoml.remove(iD)
-                        df_jogos.pop(iD)
+                        
                         valor = valorEsperado - 5
                         lucro += valor
                         for key, value in id_jogos_mensagem.items():
@@ -732,10 +779,10 @@ while True:
                                         sendMenssageTelegram(text)
                                         id_jogos_mensagem[key].remove(jogos)
                     
-                    if status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0:
+                    if status == 'HT' and (awayTeamScore + homeTeamScore) == 0 or iD not in ids:
                         loseht_Automl += 1
                         id_over05HTAutoml.remove(iD)
-                        df_jogos.pop(iD)
+                        
                         lucro -= 5
                         for key, value in id_jogos_mensagem.items():
                             if key == 'id_over05HTAutoml':
