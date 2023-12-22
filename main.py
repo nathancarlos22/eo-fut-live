@@ -840,6 +840,7 @@ while True:
     
     except Exception as e:
         traceback.print_exc()
+        sendMenssageTelegram(f'Erro: {e}')
         time.sleep(60)
         print(e)
         continue
