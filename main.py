@@ -541,22 +541,36 @@ while True:
                                   'TotalCardsMinute_Home', 
                                   'TotalCardsMinute_Away'], inplace=True)
 
-                # Xht.drop(columns=['redcards_away', 
-                #                    'redcards_home',
-                #                    'TotalCards_away',
-                #                    'yellowcards_away',
-                #                    'TotalCards_home',
-                #                    'yellowcards_home',
-                #                    'shotsHome_10min',
-                #                    'foulsHome_10min',
-                #                    'foulsAway_10min',
-                #                    'shotsAway_10min',
-                #                    'blockedShotsAway_10min',
-                #                    'TotalCardsHome_10min',
-                #                    'passesHome_10min',
-                #                    'passesAway_10min',
-                #                    'blockedShotsHome_10min',
-                #                    'TotalCardsAway_10min'], inplace=True)
+                Xht.drop(columns=['offsides_away',
+                                    'goalAway',
+                                    'total_change_offsides_home',
+                                    'redcards_away',
+                                    'blockedShotsAway',
+                                    'total_change_shotsHome',
+                                    'total_change_shotsOngoal_home',
+                                    'offsides_home',
+                                    'total_change_yellowcards_home',
+                                    'total_change_shotsAway',
+                                    'TotalCards_away',
+                                    'total_change_corners_away',
+                                    'total_change_offsides_away',
+                                    'total_change_shotsOffgoal_away',
+                                    'total_change_blockedShotsHome',
+                                    'total_change_shotsOngoal_away',
+                                    'timeSinceLastEventPasses_Away',
+                                    'redcards_home',
+                                    'total_change_fouls_away',
+                                    'yellowcards_home',
+                                    'timeSinceLastEventPasses_Home',
+                                    'yellowcards_away',
+                                    'total_change_shotsOffgoal_home',
+                                    'TotalCards_home',
+                                    'total_change_fouls_home',
+                                    'total_change_corners_home',
+                                    'total_change_yellowcards_away',
+                                    'total_change_blockedShotsAway',
+                                    'total_change_redcards_away',
+                                    'total_change_redcards_home'], inplace=True)
                                                 
                 shotsHome = Xht['shotsHome'].values[0]
                 shotsAway = Xht['shotsAway'].values[0]
@@ -580,24 +594,25 @@ while True:
                 corners_away = Xht['corners_away'].values[0]
                 possessiontime_home = Xht['possessiontime_home'].values[0]
                 possessiontime_away = Xht['possessiontime_away'].values[0]
-                offsides_home = Xht['offsides_home'].values[0]
-                offsides_away = Xht['offsides_away'].values[0]
                 shotsBlocked_home = Xht['blockedShotsHome'].values[0]
-                shotsBlocked_away = Xht['blockedShotsAway'].values[0]
+                # shotsBlocked_away = Xht['blockedShotsAway'].values[0]
                 passRiskHome = Xht['passRiskHome'].values[0]
                 passRiskAway = Xht['passRiskAway'].values[0]
                 timeSinceLastEvent_Home = Xht['timeSinceLastEvent_Home'].values[0]
                 timeSinceLastEvent_Away = Xht['timeSinceLastEvent_Away'].values[0]
                 timeSinceLastEventShots_Home = Xht['timeSinceLastEventShots_Home'].values[0]
                 timeSinceLastEventShots_Away = Xht['timeSinceLastEventShots_Away'].values[0]
-                timeSinceLastEventPasses_Home = Xht['timeSinceLastEventPasses_Home'].values[0]
-                timeSinceLastEventPasses_Away = Xht['timeSinceLastEventPasses_Away'].values[0]
+                # timeSinceLastEventPasses_Away = Xht['timeSinceLastEventPasses_Away'].values[0]
                 timeSinceLastEventFouls_Home = Xht['timeSinceLastEventFouls_Home'].values[0]
                 timeSinceLastEventFouls_Away = Xht['timeSinceLastEventFouls_Away'].values[0]
                 timeSinceLastEventTotalCards_Home = Xht['timeSinceLastEventTotalCards_Home'].values[0]
                 timeSinceLastEventTotalCards_Away = Xht['timeSinceLastEventTotalCards_Away'].values[0]
-
-
+                timeSinceLastEventCorners_Home = Xht['timeSinceLastEventCorners_Home'].values[0]
+                timeSinceLastEventCorners_Away = Xht['timeSinceLastEventCorners_Away'].values[0]
+                total_change_possessiontime_home = Xht['total_change_possessiontime_home'].values[0]
+                total_change_possessiontime_away = Xht['total_change_possessiontime_away'].values[0]
+                total_change_tackles_home = Xht['total_change_tackles_home'].values[0]
+                total_change_tackles_away = Xht['total_change_tackles_away'].values[0]
 
                 # try:
                 #     id_evento = game['betfairId']
@@ -609,60 +624,54 @@ while True:
                 print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
                 print_jogos = f'''
                 🚨 Jogo: {homeTeam} x {awayTeam}
-                ⚔️ Placar: {homeTeamScore} x {awayTeamScore}
+                ⚔️ Placar: {goals_home} (casa) x {goals_away} (fora)
                 🏆 Liga: {league}
                 ⏱️ Minuto: {minute}
 
                 📋 Estatísticas
                 🎯 Chutes Casa: {shotsHome}
                 🎯 Chutes Fora: {shotsAway}
+                🚫 Chutes bloqueados Casa: {shotsBlocked_home}
+                ⛳ Escanteios Casa: {corners_home}
+                ⛳ Escanteios Fora: {corners_away}
+                🦵 Chutes fora Casa: {shotsOffgoal_home}
+                🦵 Chutes fora Fora: {shotsOffgoal_away}
+                🎯 Chutes ao gol Casa: {shotsOngoal_home}
+                🎯 Chutes ao gol Fora: {shotsOngoal_away}
+                🔴 Faltas Casa: {fouls_home}
+                🔴 Faltas Fora: {fouls_away}
+                🛑 Desarmes Casa: {tackles_home}
+                🛑 Desarmes Fora: {tackles_away}
+                ⏰ Tempo de posse Casa: {possessiontime_home}
+                ⏰ Tempo de posse Fora: {possessiontime_away}
                 🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency}
                 ⚡ Pressão de Ataque: {attackPressure}
                 🎯 Precisão de Chutes Casa: {shotAccuracy_home}
                 🎯 Precisão de Chutes Fora: {shotAccuracy_away}
                 🎮 Controle de Posse: {possessionControl}
+                🎲 Risco de Passe Casa: {passRiskHome}
+                🎲 Risco de Passe Fora: {passRiskAway}
                 🛡️ Disciplina Defensiva: {defensiveDiscipline}
                 🛡️ Eficácia Defensiva: {defensiveEfficacy}
                 🛡️ Agressão Defensiva: {defensiveAggression}
-                🎯 Chutes ao gol Casa: {shotsOngoal_home}
-                🎯 Chutes ao gol Fora: {shotsOngoal_away}
-                🦵 Chutes fora Casa: {shotsOffgoal_home}
-                🦵 Chutes fora Fora: {shotsOffgoal_away}
-                🔴 Faltas Casa: {fouls_home}
-                🔴 Faltas Fora: {fouls_away}
-                🛑 Desarmes Casa: {tackles_home}
-                🛑 Desarmes Fora: {tackles_away}
-                ⛳ Escanteios Casa: {corners_home}
-                ⛳ Escanteios Fora: {corners_away}
-                ⏰ Tempo de posse Casa: {possessiontime_home}
-                ⏰ Tempo de posse Fora: {possessiontime_away}
-                🚩 Impedimentos Casa: {offsides_home}
-                🚩 Impedimentos Fora: {offsides_away}
-                🚫 Chutes bloqueados Casa: {shotsBlocked_home}
-                🚫 Chutes bloqueados Fora: {shotsBlocked_away}
-                🎲 Risco de Passe Casa: {passRiskHome}
-                🎲 Risco de Passe Fora: {passRiskAway}
-                ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home}
-                ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away}
                 ⏱️ Tempo desde o último chute Casa: {timeSinceLastEventShots_Home}
                 ⏱️ Tempo desde o último chute Fora: {timeSinceLastEventShots_Away}
-                ⏱️ Tempo desde o último passe Casa: {timeSinceLastEventPasses_Home}
-                ⏱️ Tempo desde o último passe Fora: {timeSinceLastEventPasses_Away}
+                ⏱️ Tempo desde o último escanteio Casa: {timeSinceLastEventCorners_Home}
+                ⏱️ Tempo desde o último escanteio Fora: {timeSinceLastEventCorners_Away}
+                ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home}
+                ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away}
                 ⏱️ Tempo desde a última falta Casa: {timeSinceLastEventFouls_Home}
                 ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away}
                 ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home}
                 ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away}
-
+                ⏱️ Mudança no tempo de posse Casa: {total_change_possessiontime_home}
+                ⏱️ Mudança no tempo de posse Fora: {total_change_possessiontime_away}
+                🛑 Mudança nos desarmes Casa: {total_change_tackles_home}
+                🛑 Mudança nos desarmes Fora: {total_change_tackles_away}
                 '''
 
                 condicao_rede = 0
                 condicao_Automl = 0
-
-                if iD not in df_jogos:
-                    df_jogos[iD] = []
-                    df_jogos[iD].append(Xht)
-                else:
-                    df_jogos[iD].append(Xht)
 
                 if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
                     try:
