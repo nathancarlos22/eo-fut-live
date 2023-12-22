@@ -202,6 +202,8 @@ while True:
 
         ids = []
         for game in dic_response['data']:
+            if game['stats'] == None:
+                continue
             ids.append(game['stats']['_id'])
 
         for game in dic_response['data']:
@@ -289,6 +291,9 @@ while True:
             }
 
             Xht = pd.DataFrame(novo_dado, index=[0])
+            Xht['shotsHome'] = Xht['shotsOngoal_home'] + Xht['shotsOffgoal_home']
+            Xht['shotsAway'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
+
             if Xht.isna().sum().sum() > 0:
                 continue
 
@@ -536,22 +541,22 @@ while True:
                                   'TotalCardsMinute_Home', 
                                   'TotalCardsMinute_Away'], inplace=True)
 
-                Xht.drop(columns=['redcards_away', 
-                                   'redcards_home',
-                                   'TotalCards_away',
-                                   'yellowcards_away',
-                                   'TotalCards_home',
-                                   'yellowcards_home',
-                                   'shotsHome_10min',
-                                   'foulsHome_10min',
-                                   'foulsAway_10min',
-                                   'shotsAway_10min',
-                                   'blockedShotsAway_10min',
-                                   'TotalCardsHome_10min',
-                                   'passesHome_10min',
-                                   'passesAway_10min',
-                                   'blockedShotsHome_10min',
-                                   'TotalCardsAway_10min'], inplace=True)
+                # Xht.drop(columns=['redcards_away', 
+                #                    'redcards_home',
+                #                    'TotalCards_away',
+                #                    'yellowcards_away',
+                #                    'TotalCards_home',
+                #                    'yellowcards_home',
+                #                    'shotsHome_10min',
+                #                    'foulsHome_10min',
+                #                    'foulsAway_10min',
+                #                    'shotsAway_10min',
+                #                    'blockedShotsAway_10min',
+                #                    'TotalCardsHome_10min',
+                #                    'passesHome_10min',
+                #                    'passesAway_10min',
+                #                    'blockedShotsHome_10min',
+                #                    'TotalCardsAway_10min'], inplace=True)
                                                 
                 shotsHome = Xht['shotsHome'].values[0]
                 shotsAway = Xht['shotsAway'].values[0]
@@ -660,7 +665,10 @@ while True:
                     df_jogos[iD].append(Xht)
 
                 if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
-                    Xht = preprocessor.transform(Xht)
+                    try:
+                        Xht = preprocessor.transform(Xht)
+                    except:
+                        continue
                     novo_dado = torch.tensor(Xht, dtype=torch.float32)
 
                     with torch.no_grad():
@@ -840,7 +848,7 @@ while True:
     
     except Exception as e:
         traceback.print_exc()
-        sendMenssageTelegram(f'Erro: {e}')
+        # sendMenssageTelegram(f'Erro: {e}')
         time.sleep(60)
         print(e)
         continue
