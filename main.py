@@ -195,17 +195,6 @@ while True:
         numero_jogos = len(dic_response['data'])
         print(f'🤖 {numero_jogos} jogos ao vivo\n')
 
-        # import json
-
-        # with open('data.json', 'w') as outfile:
-        #     json.dump(dic_response, outfile)
-
-        ids = []
-        for game in dic_response['data']:
-            if game['stats'] == None:
-                continue
-            ids.append(game['stats']['_id'])
-
         for game in dic_response['data']:
             date = game['date']
 
@@ -309,7 +298,7 @@ while True:
                 league = 'Europe - Europa League'
                 Xht['league'] = league
 
-            if minute > 1 and status == 'LIVE':
+            if minute > 1:
                 Xht['shotsOnGoalEfficiency'] = (Xht['shotsOngoal_home'] + Xht['shotsOngoal_away']) / (Xht['shotsHome'] + Xht['shotsAway'] + 1) # A eficiência do ataque em termos de chutes que realmente vão em direção ao gol.
                 Xht['attackPressure'] = (Xht['shotsHome'] + Xht['shotsAway'] + Xht['corners_home'] + Xht['corners_away']) / Xht['minute'] # Uma medida de quão ofensivas as equipes estão ao longo do jogo.
                 Xht['shotAccuracy_home'] = Xht['shotsOngoal_home'] / (Xht['shotsHome'] + 1) # Proporção de chutes no gol em relação ao total de chutes.
@@ -749,7 +738,7 @@ while True:
                                         id_jogos_mensagem[key].remove(jogos)
 
                     # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                    if status == 'HT' and (awayTeamScore + homeTeamScore) == 0 or iD not in ids:
+                    if status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0:
                         loseht_model += 1
                         id_over05HTmodel.remove(iD)
                         
@@ -796,7 +785,7 @@ while True:
                                         sendMenssageTelegram(text)
                                         id_jogos_mensagem[key].remove(jogos)
                     
-                    if status == 'HT' and (awayTeamScore + homeTeamScore) == 0 or iD not in ids:
+                    if status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0:
                         loseht_Automl += 1
                         id_over05HTAutoml.remove(iD)
                         
@@ -857,7 +846,7 @@ while True:
     
     except Exception as e:
         traceback.print_exc()
-        # sendMenssageTelegram(f'Erro: {e}')
+        sendMenssageTelegram(f'Erro: {e}')
         time.sleep(60)
         print(e)
         continue
