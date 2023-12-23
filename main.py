@@ -22,10 +22,15 @@ token = os.getenv('TOKEN')
 
 
 def sendMenssageTelegram(message):
-    url_base = f'https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}'
-    response = requests.get(url_base)
-    print(message)
-    return response.json()['result']['message_id']
+    try:
+        url_base = f'https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}'
+        response = requests.get(url_base)
+        print(message)
+        result = response.json()['result']['message_id']
+        return result
+    except Exception as e:
+        print(e)
+        return None
 
 def editMessageTelegram(message_id, new_message):
     url_base = f'https://api.telegram.org/bot{token}/editMessageText?chat_id={chat_id}&message_id={message_id}&text={new_message}'
@@ -662,26 +667,28 @@ while True:
                 condicao_rede = 0
                 condicao_Automl = 0
 
-                if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
-                    try:
-                        Xht = preprocessor.transform(Xht)
-                    except:
-                        continue
-                    novo_dado = torch.tensor(Xht, dtype=torch.float32)
+                if status == 'LIVE':
 
-                    with torch.no_grad():
-                        value_pred_rede = model(novo_dado)[0][0]
-                    value_pred_automl = model_Automl.predict(Xht)[0]
-                    
-                    print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
-                    print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
-                    
-                    if value_pred_rede >= 0.52:
+                    if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
+                        try:
+                            Xht = preprocessor.transform(Xht)
+                        except:
+                            continue
+                        novo_dado = torch.tensor(Xht, dtype=torch.float32)
 
-                        condicao_rede = 1
+                        with torch.no_grad():
+                            value_pred_rede = model(novo_dado)[0][0]
+                        value_pred_automl = model_Automl.predict(Xht)[0]
+                        
+                        print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
+                        print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
+                        
+                        if value_pred_rede >= 0.52:
 
-                    if value_pred_automl >= 0.52:
-                        condicao_Automl = 1
+                            condicao_rede = 1
+
+                        if value_pred_automl >= 0.52:
+                            condicao_Automl = 1
 
                 for key, value in id_jogos_mensagem.items():
                     if key == 'id_over05HTmodel':
@@ -846,7 +853,7 @@ while True:
     
     except Exception as e:
         traceback.print_exc()
-        sendMenssageTelegram(f'Erro: {e}')
+        # sendMenssageTelegram(f'Erro: {e}')
         time.sleep(60)
         print(e)
         continue
