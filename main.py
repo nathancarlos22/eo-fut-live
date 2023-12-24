@@ -20,7 +20,6 @@ load_dotenv()
 chat_id = os.getenv('CHAT_ID')
 token = os.getenv('TOKEN')
 
-
 def sendMenssageTelegram(message):
     try:
         url_base = f'https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}'
@@ -39,7 +38,6 @@ def editMessageTelegram(message_id, new_message):
 id_jogos_mensagem = {
     "id_over05HTmodel": [],
     "id_over05HTAutoml": [],
-    "id_over05HTRandomf": []
 }
 
 
@@ -51,9 +49,6 @@ id_over05HTAutoml = []
 winht_Automl = 0
 loseht_Automl = 0
 
-id_over05HTRandomf = []
-winht_Randomf = 0
-loseht_Randomf = 0
 
 text = ' '
 resultados = {}
@@ -523,6 +518,12 @@ while True:
                 
                 if Xht['goalAway'].values[0] == 0:
                     Xht['timeSinceLastEvent_Away'] = Xht['minute'] - 1
+                
+                if Xht['corners_home'].values[0] == 0:
+                    Xht['timeSinceLastEventCorners_Home'] = Xht['minute'] - 1
+                
+                if Xht['corners_away'].values[0] == 0:
+                    Xht['timeSinceLastEventCorners_Away'] = Xht['minute'] - 1
                 
                 Xht.drop(columns=['goalMinute_Home', 
                                   'goalMinute_Away', 
