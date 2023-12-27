@@ -167,6 +167,7 @@ value_pred_automl = 0
 
 df_jogos = {}
 
+historic_ids = {}
 while True:
     print('🤖 Procurando jogos...\n')
 
@@ -202,6 +203,15 @@ while True:
         dic_response = response.json()
         numero_jogos = len(dic_response['data'])
         print(f'🤖 {numero_jogos} jogos ao vivo\n')
+
+        for game in dic_response['data']:
+            if game['stats'] == None:
+                continue
+            iD = game['stats']['_id']
+            
+            if iD not in historic_ids.keys():
+                historic_ids[iD] = 1
+
 
         for game in dic_response['data']:
             date = game['date']
@@ -699,38 +709,38 @@ while True:
                 🛑 Desarmes Fora: {tackles_away}
                 ⏰ Tempo de posse Casa: {possessiontime_home}
                 ⏰ Tempo de posse Fora: {possessiontime_away}
-                🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency}
-                ⚡ Pressão de Ataque: {attackPressure}
-                🎯 Precisão de Chutes Casa: {shotAccuracy_home}
-                🎯 Precisão de Chutes Fora: {shotAccuracy_away}
-                🎮 Controle de Posse: {possessionControl}
-                🎲 Risco de Passe Casa: {passRiskHome}
-                🎲 Risco de Passe Fora: {passRiskAway}
-                🛡️ Disciplina Defensiva: {defensiveDiscipline}
-                🛡️ Eficácia Defensiva: {defensiveEfficacy}
-                🛡️ Agressão Defensiva: {defensiveAggression}
-                ⏱️ Tempo desde o último chute Casa: {timeSinceLastEventShots_Home}
-                ⏱️ Tempo desde o último chute Fora: {timeSinceLastEventShots_Away}
-                ⏱️ Tempo desde o último escanteio Casa: {timeSinceLastEventCorners_Home}
-                ⏱️ Tempo desde o último escanteio Fora: {timeSinceLastEventCorners_Away}
-                ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home}
-                ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away}
-                ⏱️ Tempo desde a última falta Casa: {timeSinceLastEventFouls_Home}
-                ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away}
-                ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home}
-                ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away}
-                ⏱️ Mudança no tempo de posse Casa: {total_change_possessiontime_home}
-                ⏱️ Mudança no tempo de posse Fora: {total_change_possessiontime_away}
-                📊 05 HT Casa: {zero_meioht_home}
-                📊 05 FT Casa: {zero_meioft_home}
-                📊 15 FT Casa: {um_meioft_home}
-                📊 25 FT Casa: {dois_meioft_home}
-                📊 15 Casa: {um_meio_home}
-                📊 05 HT Fora: {zero_meioht_away}
-                📊 05 FT Fora: {zero_meioft_away}
-                📊 15 FT Fora: {um_meioft_away}
-                📊 05 Fora: {zero_meio_away}
-                📊 15 Fora: {um_meio_away}
+                🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency:.2f}
+                ⚡ Pressão de Ataque: {attackPressure:.2f}
+                🎯 Precisão de Chutes Casa: {shotAccuracy_home:.2f}
+                🎯 Precisão de Chutes Fora: {shotAccuracy_away:.2f}
+                🎮 Controle de Posse: {possessionControl:.2f}
+                🎲 Risco de Passe Casa: {passRiskHome:.2f}
+                🎲 Risco de Passe Fora: {passRiskAway:.2f}
+                🛡️ Disciplina Defensiva: {defensiveDiscipline:.2f}
+                🛡️ Eficácia Defensiva: {defensiveEfficacy:.2f}
+                🛡️ Agressão Defensiva: {defensiveAggression:.2f}
+                ⏱️ Tempo desde o último chute Casa: {timeSinceLastEventShots_Home:.2f}
+                ⏱️ Tempo desde o último chute Fora: {timeSinceLastEventShots_Away:.2f}
+                ⏱️ Tempo desde o último escanteio Casa: {timeSinceLastEventCorners_Home:.2f}
+                ⏱️ Tempo desde o último escanteio Fora: {timeSinceLastEventCorners_Away:.2f}
+                ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home:.2f}
+                ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away:.2f}
+                ⏱️ Tempo desde a última falta Casa: {timeSinceLastEventFouls_Home:.2f}
+                ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away:.2f}
+                ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home:.2f}
+                ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away:.2f}
+                ⏱️ Mudança no tempo de posse Casa: {total_change_possessiontime_home:.2f}
+                ⏱️ Mudança no tempo de posse Fora: {total_change_possessiontime_away:.2f}
+                📊 05 HT Casa: {zero_meioht_home:.2f}
+                📊 05 FT Casa: {zero_meioft_home:.2f}
+                📊 15 FT Casa: {um_meioft_home:.2f}
+                📊 25 FT Casa: {dois_meioft_home:.2f}
+                📊 15 Casa: {um_meio_home:.2f}
+                📊 05 HT Fora: {zero_meioht_away:.2f}
+                📊 05 FT Fora: {zero_meioft_away:.2f}
+                📊 15 FT Fora: {um_meioft_away:.2f}
+                📊 05 Fora: {zero_meio_away:.2f}
+                📊 15 Fora: {um_meio_away:.2f}
                 '''
 
                 condicao_rede = 0
@@ -809,12 +819,13 @@ while True:
                                         if '&' in text:
                                             text = text.replace('&', '')
                                         sendMenssageTelegram(text)
+
                         
                                         # remove do dicionario
                                         id_jogos_mensagem[key].remove(jogos)
 
                     # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                    if status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0:
+                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0) or (historic_ids[iD] == 1):
                         loseht_model += 1
                         id_over05HTmodel.remove(iD)
                         
@@ -861,7 +872,7 @@ while True:
                                         sendMenssageTelegram(text)
                                         id_jogos_mensagem[key].remove(jogos)
                     
-                    if status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0:
+                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0) or (historic_ids[iD] == 1):
                         loseht_Automl += 1
                         id_over05HTAutoml.remove(iD)
                         
@@ -886,7 +897,7 @@ while True:
                 if condicao_rede == 1 and iD not in id_over05HTmodel:
                     id_over05HTmodel.append(iD)
                     # state, valorEsperado = makeBet(id_evento)
-                    state, valorEsperado = 'SUCCESS', 10
+                    # state, valorEsperado = 'SUCCESS', 10
 
                     text = f'''
                     👑 Modelo Rede Neural 
@@ -898,13 +909,16 @@ while True:
 
                     if '&' in text:
                         text = text.replace('&', '')
-                    sendMenssageTelegram(text)
+                    # sendMenssageTelegram(text)
+                    if iD not in historic_ids.keys():
+                        historic_ids[iD] = 0
+                    
                     id_jogos_mensagem["id_over05HTmodel"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
                 if condicao_Automl == 1 and iD not in id_over05HTAutoml:
                     id_over05HTAutoml.append(iD)
                     # state, valorEsperado = makeBet(id_evento)
-                    state, valorEsperado = 'SUCCESS', 10
+                    # state, valorEsperado = 'SUCCESS', 10
 
                     text = f'''
                     👑 Modelo Automl 
@@ -915,6 +929,9 @@ while True:
                     if '&' in text:
                         text = text.replace('&', '')
                     # sendMenssageTelegram(text)
+                    if iD not in historic_ids.keys():
+                        historic_ids[iD] = 0
+                    
                     id_jogos_mensagem["id_over05HTAutoml"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
                 
