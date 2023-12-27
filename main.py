@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime
 import numpy as np
-from fuzzywuzzy import fuzz
+from rapidfuzz import fuzz
 
 def calculate_similarity(vector, reference):
     return np.array([fuzz.ratio(reference, x) for x in vector])
