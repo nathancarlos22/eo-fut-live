@@ -12,10 +12,18 @@ import pandas as pd
 from dotenv import load_dotenv
 import os
 from datetime import datetime
+import numpy as np
+from fuzzywuzzy import fuzz
+
+def calculate_similarity(vector, reference):
+    return np.array([fuzz.ratio(reference, x) for x in vector])
+
 
 warnings.filterwarnings('ignore')
 
 load_dotenv()
+
+df = pd.read_csv('src/data_live_engineer_filtered.csv', encoding='utf-8')
 
 chat_id = os.getenv('CHAT_ID')
 token = os.getenv('TOKEN')
@@ -365,6 +373,24 @@ while True:
                     'shotsOngoal_away', 'yellowcards_home', 'yellowcards_away',
                     'fouls_home', 'fouls_away', 'offsides_home', 'offsides_away',
                     'tackles_home', 'tackles_away']
+                
+                gols_columns = ['05ht_home', '05ft_home',
+                                '15ft_home', '25ft_home', '15_home', '05ht_away', '05ft_away',
+                                '15ft_away', '05_away', '15_away']
+                
+
+                df['similaridade_home'] = calculate_similarity(df['homeTeam'], homeTeam)
+                df['similaridade_away'] = calculate_similarity(df['awayTeam'], awayTeam)
+
+                # Encontrando a string com a maior similaridade (usando a abordagem vetorizada)
+                string_mais_similar_home = df.loc[df['similaridade_home'].idxmax()]
+                string_mais_similar_away = df.loc[df['similaridade_away'].idxmax()]
+                
+                for gols_c in gols_columns:
+                    if 'home' in gols_c:
+                        Xht[gols_c] = df[df['homeTeam'] == string_mais_similar_home][gols_c].tail(1).values[0]
+                    else:
+                        Xht[gols_c] = df[df['awayTeam'] == string_mais_similar_away][gols_c].tail(1).values[0]
 
                 def calculate_event_change(data, event_column, lookback=10):
                     """
@@ -463,6 +489,25 @@ while True:
                     'shotsOngoal_away', 'yellowcards_home', 'yellowcards_away',
                     'fouls_home', 'fouls_away', 'offsides_home', 'offsides_away',
                     'tackles_home', 'tackles_away']
+                
+                gols_columns = ['05ht_home', '05ft_home',
+                                '15ft_home', '25ft_home', '15_home', '05ht_away', '05ft_away',
+                                '15ft_away', '05_away', '15_away']
+                
+
+                df['similaridade_home'] = calculate_similarity(df['homeTeam'], homeTeam)
+                df['similaridade_away'] = calculate_similarity(df['awayTeam'], awayTeam)
+
+                # Encontrando a string com a maior similaridade (usando a abordagem vetorizada)
+                string_mais_similar_home = df.loc[df['similaridade_home'].idxmax()]
+                string_mais_similar_away = df.loc[df['similaridade_away'].idxmax()]
+                
+                for gols_c in gols_columns:
+                    if 'home' in gols_c:
+                        Xht[gols_c] = df[df['homeTeam'] == string_mais_similar_home][gols_c].tail(1).values[0]
+                    else:
+                        Xht[gols_c] = df[df['awayTeam'] == string_mais_similar_away][gols_c].tail(1).values[0]
+                
 
                 def calculate_event_change(data, event_column, lookback=10):
                     """
@@ -536,36 +581,50 @@ while True:
                                   'TotalCardsMinute_Home', 
                                   'TotalCardsMinute_Away'], inplace=True)
 
-                Xht.drop(columns=['offsides_away',
-                                    'goalAway',
-                                    'total_change_offsides_home',
-                                    'redcards_away',
-                                    'blockedShotsAway',
-                                    'total_change_shotsHome',
-                                    'total_change_shotsOngoal_home',
-                                    'offsides_home',
-                                    'total_change_yellowcards_home',
-                                    'total_change_shotsAway',
-                                    'TotalCards_away',
-                                    'total_change_corners_away',
-                                    'total_change_offsides_away',
-                                    'total_change_shotsOffgoal_away',
-                                    'total_change_blockedShotsHome',
-                                    'total_change_shotsOngoal_away',
-                                    'timeSinceLastEventPasses_Away',
-                                    'redcards_home',
-                                    'total_change_fouls_away',
-                                    'yellowcards_home',
-                                    'timeSinceLastEventPasses_Home',
-                                    'yellowcards_away',
-                                    'total_change_shotsOffgoal_home',
-                                    'TotalCards_home',
-                                    'total_change_fouls_home',
-                                    'total_change_corners_home',
-                                    'total_change_yellowcards_away',
-                                    'total_change_blockedShotsAway',
-                                    'total_change_redcards_away',
-                                    'total_change_redcards_home'], inplace=True)
+                Xht.drop(columns=['25_away',
+                                '15ht_home',
+                                '25ft_away',
+                                '05_home',
+                                '25ht_away',
+                                '15ht_away',
+                                '25_home',
+                                '25ht_home',
+                                'goalHome',
+                                'goalAway',
+                                'total_change_tackles_away',
+                                'total_change_tackles_home',
+                                'shotsOngoal_away',
+                                'TotalCards_away',
+                                'corners_away',
+                                'yellowcards_away',
+                                'blockedShotsHome',
+                                'offsides_home',
+                                'total_change_shotsHome',
+                                'total_change_shotsOngoal_home',
+                                'TotalCards_home',
+                                'total_change_shotsAway',
+                                'timeSinceLastEventPasses_Home',
+                                'yellowcards_home',
+                                'total_change_shotsOngoal_away',
+                                'blockedShotsAway',
+                                'timeSinceLastEventPasses_Away',
+                                'total_change_fouls_away',
+                                'offsides_away',
+                                'total_change_blockedShotsHome',
+                                'total_change_fouls_home',
+                                'total_change_offsides_away',
+                                'total_change_corners_away',
+                                'total_change_corners_home',
+                                'total_change_awayellowcards_home',
+                                'total_change_blockedShotsAway',
+                                'total_change_offsides_home',
+                                'total_change_awayellowcards_away',
+                                'total_change_shotsOffgoal_away',
+                                'total_change_shotsOffgoal_home',
+                                'redcards_away',
+                                'redcards_home',
+                                'total_change_redcards_home',
+                                'total_change_redcards_away'], inplace=True)
                                                 
                 shotsHome = Xht['shotsHome'].values[0]
                 shotsAway = Xht['shotsAway'].values[0]
@@ -608,6 +667,38 @@ while True:
                 total_change_possessiontime_away = Xht['total_change_possessiontime_away'].values[0]
                 total_change_tackles_home = Xht['total_change_tackles_home'].values[0]
                 total_change_tackles_away = Xht['total_change_tackles_away'].values[0]
+                zero_meioht_home = Xht['05ht_home'].values[0]
+                zero_meioft_home = Xht['05ft_home'].values[0]
+                um_meioft_home = Xht['15ft_home'].values[0]
+                dois_meioft_home = Xht['25ft_home'].values[0]
+                um_meio_home = Xht['15_home'].values[0]
+                zero_meioht_away = Xht['05ht_away'].values[0]
+                zero_meioft_away = Xht['05ft_away'].values[0]
+                um_meioft_away = Xht['15ft_away'].values[0]
+                dois_meioft_away = Xht['25ft_away'].values[0]
+                um_meio_away = Xht['15_away'].values[0]
+                zero_meio_away = Xht['05_away'].values[0]
+
+                # ordenando as colunas
+                colunas = ['minute', 'shotsHome', 'shotsAway', 'league',
+                            'corners_home', 'shotsOffgoal_home', 'shotsOffgoal_away',
+                            'shotsOngoal_home', 'fouls_home', 'fouls_away', 'tackles_home',
+                            'tackles_away', 'result', 'possessiontime_away',
+                            'possessiontime_home', 'shotsOnGoalEfficiency', 'attackPressure',
+                            'shotAccuracy_home', 'shotAccuracy_away', 'possessionControl',
+                            'passRiskHome', 'passRiskAway', 'defensiveDiscipline',
+                            'defensiveEfficacy', 'defensiveAggression',
+                            'timeSinceLastEventShots_Home', 'timeSinceLastEventShots_Away',
+                            'timeSinceLastEventCorners_Home', 'timeSinceLastEventCorners_Away',
+                            'timeSinceLastEvent_Home', 'timeSinceLastEvent_Away',
+                            'timeSinceLastEventFouls_Home', 'timeSinceLastEventFouls_Away',
+                            'timeSinceLastEventTotalCards_Home',
+                            'timeSinceLastEventTotalCards_Away', 'total_change_possessiontime_home',
+                            'total_change_possessiontime_away', '05ht_home', '05ft_home',
+                            '15ft_home', '25ft_home', '15_home', '05ht_away', '05ft_away',
+                            '15ft_away', '05_away', '15_away']
+                
+                Xht = Xht[colunas]
 
                 # try:
                 #     id_evento = game['betfairId']
@@ -619,20 +710,16 @@ while True:
                 print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
                 print_jogos = f'''
                 🚨 Jogo: {homeTeam} x {awayTeam}
-                ⚔️ Placar: {goals_home} (casa) x {goals_away} (fora)
                 🏆 Liga: {league}
                 ⏱️ Minuto: {minute}
 
                 📋 Estatísticas
                 🎯 Chutes Casa: {shotsHome}
                 🎯 Chutes Fora: {shotsAway}
-                🚫 Chutes bloqueados Casa: {shotsBlocked_home}
                 ⛳ Escanteios Casa: {corners_home}
-                ⛳ Escanteios Fora: {corners_away}
                 🦵 Chutes fora Casa: {shotsOffgoal_home}
                 🦵 Chutes fora Fora: {shotsOffgoal_away}
                 🎯 Chutes ao gol Casa: {shotsOngoal_home}
-                🎯 Chutes ao gol Fora: {shotsOngoal_away}
                 🔴 Faltas Casa: {fouls_home}
                 🔴 Faltas Fora: {fouls_away}
                 🛑 Desarmes Casa: {tackles_home}
@@ -661,8 +748,16 @@ while True:
                 ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away}
                 ⏱️ Mudança no tempo de posse Casa: {total_change_possessiontime_home}
                 ⏱️ Mudança no tempo de posse Fora: {total_change_possessiontime_away}
-                🛑 Mudança nos desarmes Casa: {total_change_tackles_home}
-                🛑 Mudança nos desarmes Fora: {total_change_tackles_away}
+                📊 05 HT Casa: {zero_meioht_home}
+                📊 05 FT Casa: {zero_meioft_home}
+                📊 15 FT Casa: {um_meioft_home}
+                📊 25 FT Casa: {dois_meioft_home}
+                📊 15 Casa: {um_meio_home}
+                📊 05 HT Fora: {zero_meioht_away}
+                📊 05 FT Fora: {zero_meioft_away}
+                📊 15 FT Fora: {um_meioft_away}
+                📊 05 Fora: {zero_meio_away}
+                📊 15 Fora: {um_meio_away}
                 '''
 
                 condicao_rede = 0
