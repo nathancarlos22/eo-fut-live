@@ -692,23 +692,6 @@ while True:
                             'timeSinceLastEventTotalCards_Home',
                             'timeSinceLastEventTotalCards_Away', 'total_change_possessiontime_home',
                             'total_change_possessiontime_away', '05ht_home', '05ft_home',
-                            '15ft_home', '25ft_home', '15_home', '05ht_away', '05ft_away',
-                            '15ft_away', '05_away', '15_away']
-                colunas = ['minute', 'shotsHome', 'shotsAway', 'league',
-                            'corners_home', 'shotsOffgoal_home', 'shotsOffgoal_away',
-                            'shotsOngoal_home', 'fouls_home', 'fouls_away', 'tackles_home',
-                            'tackles_away', 'possessiontime_away',
-                            'possessiontime_home', 'shotsOnGoalEfficiency', 'attackPressure',
-                            'shotAccuracy_home', 'shotAccuracy_away', 'possessionControl',
-                            'passRiskHome', 'passRiskAway', 'defensiveDiscipline',
-                            'defensiveEfficacy', 'defensiveAggression',
-                            'timeSinceLastEventShots_Home', 'timeSinceLastEventShots_Away',
-                            'timeSinceLastEventCorners_Home', 'timeSinceLastEventCorners_Away',
-                            'timeSinceLastEvent_Home', 'timeSinceLastEvent_Away',
-                            'timeSinceLastEventFouls_Home', 'timeSinceLastEventFouls_Away',
-                            'timeSinceLastEventTotalCards_Home',
-                            'timeSinceLastEventTotalCards_Away', 'total_change_possessiontime_home',
-                            'total_change_possessiontime_away', '05ht_home', '05ft_home',
                             '15ft_home', '05_home', '15_home', '05ht_away', '05ft_away',
                             '15ft_away', '05_away', '15_away']
                 
