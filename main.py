@@ -592,40 +592,50 @@ while True:
                                   'TotalCardsMinute_Away'], inplace=True)
 
                 Xht.drop(columns=[
+                                '25_away',
+                                '25ft_home',
+                                '15ht_away',
+                                '25ft_away',
+                                '15ht_home',
                                 'goalHome',
+                                '25ht_away',
                                 'goalAway',
+                                '25_home',
+                                '25ht_home',
                                 'total_change_tackles_away',
-                                'total_change_tackles_home',
-                                'shotsOngoal_away',
-                                'TotalCards_away',
-                                'corners_away',
+                                'TotalCards_home',
                                 'yellowcards_away',
+                                'TotalCards_away',
+                                'total_change_blockedShotsHome',
+                                'total_change_fouls_away',
+                                'timeSinceLastEventPasses_Away',
                                 'blockedShotsHome',
                                 'offsides_home',
-                                'total_change_shotsHome',
-                                'total_change_shotsOngoal_home',
-                                'TotalCards_home',
+                                'offsides_away',
+                                'total_change_tackles_home',
+                                'blockedShotsAway',
                                 'total_change_shotsAway',
                                 'timeSinceLastEventPasses_Home',
-                                'yellowcards_home',
-                                'total_change_shotsOngoal_away',
-                                'blockedShotsAway',
-                                'timeSinceLastEventPasses_Away',
-                                'total_change_fouls_away',
-                                'offsides_away',
-                                'total_change_blockedShotsHome',
-                                'total_change_fouls_home',
-                                'total_change_offsides_away',
-                                'total_change_corners_away',
-                                'total_change_corners_home',
-                                'total_change_blockedShotsAway',
-                                'total_change_offsides_home',
                                 'total_change_shotsOffgoal_away',
+                                'total_change_shotsOngoal_away',
+                                'yellowcards_home',
+                                'total_change_fouls_home',
+                                'total_change_shotsOngoal_home',
+                                'shotsOngoal_away',
+                                'corners_away',
+                                'total_change_corners_away',
+                                'total_change_awayellowcards_home',
+                                'total_change_shotsHome',
+                                'total_change_blockedShotsAway',
+                                'total_change_offsides_away',
+                                'total_change_offsides_home',
+                                'total_change_corners_home',
                                 'total_change_shotsOffgoal_home',
+                                'total_change_awayellowcards_away',
                                 'redcards_away',
                                 'redcards_home',
-                                'total_change_redcards_home',
-                                'total_change_redcards_away'], inplace=True)
+                                'total_change_redcards_away',
+                                'total_change_redcards_home'], inplace=True)
                                                 
                 shotsHome = Xht['shotsHome'].values[0]
                 shotsAway = Xht['shotsAway'].values[0]
@@ -654,13 +664,17 @@ while True:
                 zero_meioht_home = Xht['05ht_home'].values[0]
                 zero_meioft_home = Xht['05ft_home'].values[0]
                 um_meioft_home = Xht['15ft_home'].values[0]
-                dois_meioft_home = Xht['25ft_home'].values[0]
+                zero_meio_home = Xht['05_home'].values[0]
                 um_meio_home = Xht['15_home'].values[0]
                 zero_meioht_away = Xht['05ht_away'].values[0]
                 zero_meioft_away = Xht['05ft_away'].values[0]
                 um_meioft_away = Xht['15ft_away'].values[0]
                 zero_meio_away = Xht['05_away'].values[0]
                 um_meio_away = Xht['15_away'].values[0]
+
+   #             '05ht_home', '05ft_home',
+            #    '15ft_home', '05_home', '15_home', '05ht_away', '05ft_away',
+            #    '15ft_away', '05_away', '15_away'
 
                 # ordenando as colunas
                 colunas = ['minute', 'shotsHome', 'shotsAway', 'league',
@@ -679,6 +693,23 @@ while True:
                             'timeSinceLastEventTotalCards_Away', 'total_change_possessiontime_home',
                             'total_change_possessiontime_away', '05ht_home', '05ft_home',
                             '15ft_home', '25ft_home', '15_home', '05ht_away', '05ft_away',
+                            '15ft_away', '05_away', '15_away']
+                colunas = ['minute', 'shotsHome', 'shotsAway', 'league',
+                            'corners_home', 'shotsOffgoal_home', 'shotsOffgoal_away',
+                            'shotsOngoal_home', 'fouls_home', 'fouls_away', 'tackles_home',
+                            'tackles_away', 'possessiontime_away',
+                            'possessiontime_home', 'shotsOnGoalEfficiency', 'attackPressure',
+                            'shotAccuracy_home', 'shotAccuracy_away', 'possessionControl',
+                            'passRiskHome', 'passRiskAway', 'defensiveDiscipline',
+                            'defensiveEfficacy', 'defensiveAggression',
+                            'timeSinceLastEventShots_Home', 'timeSinceLastEventShots_Away',
+                            'timeSinceLastEventCorners_Home', 'timeSinceLastEventCorners_Away',
+                            'timeSinceLastEvent_Home', 'timeSinceLastEvent_Away',
+                            'timeSinceLastEventFouls_Home', 'timeSinceLastEventFouls_Away',
+                            'timeSinceLastEventTotalCards_Home',
+                            'timeSinceLastEventTotalCards_Away', 'total_change_possessiontime_home',
+                            'total_change_possessiontime_away', '05ht_home', '05ft_home',
+                            '15ft_home', '05_home', '15_home', '05ht_away', '05ft_away',
                             '15ft_away', '05_away', '15_away']
                 
                 Xht = Xht[colunas]
@@ -734,11 +765,11 @@ while True:
                 📊 05 HT Casa: {zero_meioht_home:.2f}
                 📊 05 FT Casa: {zero_meioft_home:.2f}
                 📊 15 FT Casa: {um_meioft_home:.2f}
-                📊 25 FT Casa: {dois_meioft_home:.2f}
                 📊 15 Casa: {um_meio_home:.2f}
                 📊 05 HT Fora: {zero_meioht_away:.2f}
                 📊 05 FT Fora: {zero_meioft_away:.2f}
                 📊 15 FT Fora: {um_meioft_away:.2f}
+                📊 05 Casa: {zero_meio_home:.2f}
                 📊 05 Fora: {zero_meio_away:.2f}
                 📊 15 Fora: {um_meio_away:.2f}
                 '''
