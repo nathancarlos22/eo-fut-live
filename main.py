@@ -385,22 +385,29 @@ while True:
                     'tackles_home', 'tackles_away']
                 
                 gols_columns = ['05ht_home', '05ft_home',
-                                '15ft_home', '25ft_home', '15_home', '05ht_away', '05ft_away',
+                                '15ft_home', '05_home', '15_home', '05ht_away', '05ft_away',
                                 '15ft_away', '05_away', '15_away']
+
+                ligas_df = dataframe['league'].unique()
+
+                if league not in ligas_df:
+                    continue
+                
+                dataframe_league = dataframe[dataframe['league'] == league]
                 
 
-                dataframe['similaridade_home'] = calculate_similarity(dataframe['homeTeam'], homeTeam)
-                dataframe['similaridade_away'] = calculate_similarity(dataframe['awayTeam'], awayTeam)
+                dataframe_league['similaridade_home'] = calculate_similarity(dataframe_league['homeTeam'], homeTeam)
+                dataframe_league['similaridade_away'] = calculate_similarity(dataframe_league['awayTeam'], awayTeam)
 
                 # Encontrando a string com a maior similaridade (usando a abordagem vetorizada)
-                string_mais_similar_home = dataframe.loc[dataframe['similaridade_home'].idxmax()]['homeTeam']
-                string_mais_similar_away = dataframe.loc[dataframe['similaridade_away'].idxmax()]['awayTeam']
+                string_mais_similar_home = dataframe_league.loc[dataframe_league['similaridade_home'].idxmax()]['homeTeam']
+                string_mais_similar_away = dataframe_league.loc[dataframe_league['similaridade_away'].idxmax()]['awayTeam']
                 
                 for gols_c in gols_columns:
                     if 'home' in gols_c:
-                        Xht[gols_c] = dataframe[dataframe['homeTeam'] == string_mais_similar_home][gols_c].tail(1).values[0]
+                        Xht[gols_c] = dataframe_league[dataframe_league['homeTeam'] == string_mais_similar_home][gols_c].tail(1).values[0]
                     else:
-                        Xht[gols_c] = dataframe[dataframe['awayTeam'] == string_mais_similar_away][gols_c].tail(1).values[0]
+                        Xht[gols_c] = dataframe_league[dataframe_league['awayTeam'] == string_mais_similar_away][gols_c].tail(1).values[0]
 
                 def calculate_event_change(data, event_column, lookback=10):
                     """
@@ -420,7 +427,7 @@ while True:
 
                     return data
 
-                # Aplicando a função ao dataframe 'data_teste' para a coluna os eventos
+                # Aplicando a função ao dataframe_league 'data_teste' para a coluna os eventos
                 # Criando uma cópia do data_copyframe original para trabalhar com as mudanças
                 data = Xht.copy()
                 for event_column in event_columns:
@@ -501,22 +508,22 @@ while True:
                     'tackles_home', 'tackles_away']
                 
                 gols_columns = ['05ht_home', '05ft_home',
-                                '15ft_home', '25ft_home', '15_home', '05ht_away', '05ft_away',
+                                '15ft_home', '05_home', '15_home', '05ht_away', '05ft_away',
                                 '15ft_away', '05_away', '15_away']
                 
 
-                dataframe['similaridade_home'] = calculate_similarity(dataframe['homeTeam'], homeTeam)
-                dataframe['similaridade_away'] = calculate_similarity(dataframe['awayTeam'], awayTeam)
+                dataframe_league['similaridade_home'] = calculate_similarity(dataframe_league['homeTeam'], homeTeam)
+                dataframe_league['similaridade_away'] = calculate_similarity(dataframe_league['awayTeam'], awayTeam)
 
                 # Encontrando a string com a maior similaridade (usando a abordagem vetorizada)
-                string_mais_similar_home = dataframe.loc[dataframe['similaridade_home'].idxmax()]['homeTeam']
-                string_mais_similar_away = dataframe.loc[dataframe['similaridade_away'].idxmax()]['awayTeam']
+                string_mais_similar_home = dataframe_league.loc[dataframe_league['similaridade_home'].idxmax()]['homeTeam']
+                string_mais_similar_away = dataframe_league.loc[dataframe_league['similaridade_away'].idxmax()]['awayTeam']
                 
                 for gols_c in gols_columns:
                     if 'home' in gols_c:
-                        Xht[gols_c] = dataframe[dataframe['homeTeam'] == string_mais_similar_home][gols_c].tail(1).values[0]
+                        Xht[gols_c] = dataframe_league[dataframe_league['homeTeam'] == string_mais_similar_home][gols_c].tail(1).values[0]
                     else:
-                        Xht[gols_c] = dataframe[dataframe['awayTeam'] == string_mais_similar_away][gols_c].tail(1).values[0]
+                        Xht[gols_c] = dataframe_league[dataframe_league['awayTeam'] == string_mais_similar_away][gols_c].tail(1).values[0]
                 
 
                 def calculate_event_change(data, event_column, lookback=10):
@@ -592,16 +599,8 @@ while True:
                                   'TotalCardsMinute_Away'], inplace=True)
 
                 Xht.drop(columns=[
-                                '25_away',
-                                '25ft_home',
-                                '15ht_away',
-                                '25ft_away',
-                                '15ht_home',
                                 'goalHome',
-                                '25ht_away',
                                 'goalAway',
-                                '25_home',
-                                '25ht_home',
                                 'total_change_tackles_away',
                                 'TotalCards_home',
                                 'yellowcards_away',
@@ -624,14 +623,12 @@ while True:
                                 'shotsOngoal_away',
                                 'corners_away',
                                 'total_change_corners_away',
-                                'total_change_awayellowcards_home',
                                 'total_change_shotsHome',
                                 'total_change_blockedShotsAway',
                                 'total_change_offsides_away',
                                 'total_change_offsides_home',
                                 'total_change_corners_home',
                                 'total_change_shotsOffgoal_home',
-                                'total_change_awayellowcards_away',
                                 'redcards_away',
                                 'redcards_home',
                                 'total_change_redcards_away',
@@ -677,23 +674,6 @@ while True:
             #    '15ft_away', '05_away', '15_away'
 
                 # ordenando as colunas
-                colunas = ['minute', 'shotsHome', 'shotsAway', 'league',
-                            'corners_home', 'shotsOffgoal_home', 'shotsOffgoal_away',
-                            'shotsOngoal_home', 'fouls_home', 'fouls_away', 'tackles_home',
-                            'tackles_away', 'possessiontime_away',
-                            'possessiontime_home', 'shotsOnGoalEfficiency', 'attackPressure',
-                            'shotAccuracy_home', 'shotAccuracy_away', 'possessionControl',
-                            'passRiskHome', 'passRiskAway', 'defensiveDiscipline',
-                            'defensiveEfficacy', 'defensiveAggression',
-                            'timeSinceLastEventShots_Home', 'timeSinceLastEventShots_Away',
-                            'timeSinceLastEventCorners_Home', 'timeSinceLastEventCorners_Away',
-                            'timeSinceLastEvent_Home', 'timeSinceLastEvent_Away',
-                            'timeSinceLastEventFouls_Home', 'timeSinceLastEventFouls_Away',
-                            'timeSinceLastEventTotalCards_Home',
-                            'timeSinceLastEventTotalCards_Away', 'total_change_possessiontime_home',
-                            'total_change_possessiontime_away', '05ht_home', '05ft_home',
-                            '15ft_home', '25ft_home', '15_home', '05ht_away', '05ft_away',
-                            '15ft_away', '05_away', '15_away']
                 colunas = ['minute', 'shotsHome', 'shotsAway', 'league',
                             'corners_home', 'shotsOffgoal_home', 'shotsOffgoal_away',
                             'shotsOngoal_home', 'fouls_home', 'fouls_away', 'tackles_home',
@@ -856,7 +836,7 @@ while True:
                                         id_jogos_mensagem[key].remove(jogos)
 
                     # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0) or (historic_ids[iD] == 1):
+                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0):
                         loseht_model += 1
                         id_over05HTmodel.remove(iD)
                         
@@ -903,7 +883,7 @@ while True:
                                         sendMenssageTelegram(text)
                                         id_jogos_mensagem[key].remove(jogos)
                     
-                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0) or (historic_ids[iD] == 1):
+                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0):
                         loseht_Automl += 1
                         id_over05HTAutoml.remove(iD)
                         
