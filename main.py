@@ -385,9 +385,9 @@ while True:
                     'tackles_home', 'tackles_away']
                 
                 gols_columns = ['05ht_home', '15ht_home',
-                            '05ft_home', '15ft_home', '25ft_home', '05_home', '15_home', '25_home',
-                            '05ht_away', '15ht_away', '05ft_away', '15ft_away', '25ft_away',
-                            '05_away', '15_away', '25_away']
+                                '05ft_home', '15ft_home', '25ft_home', '05_home', '15_home', '25_home',
+                                '05ht_away', '15ht_away', '05ft_away', '15ft_away', '25ft_away',
+                                '05_away', '15_away', '25_away']
 
                 ligas_df = dataframe['league'].unique()
 
@@ -509,9 +509,9 @@ while True:
                     'tackles_home', 'tackles_away']
                 
                 gols_columns = ['05ht_home', '15ht_home',
-                            '05ft_home', '15ft_home', '25ft_home', '05_home', '15_home', '25_home',
-                            '05ht_away', '15ht_away', '05ft_away', '15ft_away', '25ft_away',
-                            '05_away', '15_away', '25_away']
+                                '05ft_home', '15ft_home', '25ft_home', '05_home', '15_home', '25_home',
+                                '05ht_away', '15ht_away', '05ft_away', '15ft_away', '25ft_away',
+                                '05_away', '15_away', '25_away']
                 
 
                 dataframe_league['similaridade_home'] = calculate_similarity(dataframe_league['homeTeam'], homeTeam)
