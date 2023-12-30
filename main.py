@@ -384,9 +384,10 @@ while True:
                     'fouls_home', 'fouls_away', 'offsides_home', 'offsides_away',
                     'tackles_home', 'tackles_away']
                 
-                gols_columns = ['05ht_home', '05ft_home',
-                                '15ft_home', '05_home', '15_home', '05ht_away', '05ft_away',
-                                '15ft_away', '05_away', '15_away']
+                gols_columns = ['05ht_home', '15ht_home',
+                            '05ft_home', '15ft_home', '25ft_home', '05_home', '15_home', '25_home',
+                            '05ht_away', '15ht_away', '05ft_away', '15ft_away', '25ft_away',
+                            '05_away', '15_away', '25_away']
 
                 ligas_df = dataframe['league'].unique()
 
@@ -507,9 +508,10 @@ while True:
                     'fouls_home', 'fouls_away', 'offsides_home', 'offsides_away',
                     'tackles_home', 'tackles_away']
                 
-                gols_columns = ['05ht_home', '05ft_home',
-                                '15ft_home', '05_home', '15_home', '05ht_away', '05ft_away',
-                                '15ft_away', '05_away', '15_away']
+                gols_columns = ['05ht_home', '15ht_home',
+                            '05ft_home', '15ft_home', '25ft_home', '05_home', '15_home', '25_home',
+                            '05ht_away', '15ht_away', '05ft_away', '15ft_away', '25ft_away',
+                            '05_away', '15_away', '25_away']
                 
 
                 dataframe_league['similaridade_home'] = calculate_similarity(dataframe_league['homeTeam'], homeTeam)
@@ -600,36 +602,39 @@ while True:
 
                 Xht.drop(columns=[
                                 'goalHome',
-                                'goalAway',
-                                'total_change_tackles_away',
-                                'TotalCards_home',
-                                'yellowcards_away',
-                                'TotalCards_away',
-                                'total_change_blockedShotsHome',
-                                'total_change_fouls_away',
-                                'timeSinceLastEventPasses_Away',
-                                'blockedShotsHome',
-                                'offsides_home',
-                                'offsides_away',
-                                'total_change_tackles_home',
-                                'blockedShotsAway',
-                                'total_change_shotsAway',
-                                'timeSinceLastEventPasses_Home',
-                                'total_change_shotsOffgoal_away',
-                                'total_change_shotsOngoal_away',
-                                'yellowcards_home',
-                                'total_change_fouls_home',
-                                'total_change_shotsOngoal_home',
-                                'shotsOngoal_away',
                                 'corners_away',
-                                'total_change_corners_away',
+                                'total_change_tackles_away',
+                                'offsides_home',
+                                'corners_home',
+                                'shotsOngoal_away',
+                                'blockedShotsAway',
+                                'yellowcards_away',
                                 'total_change_shotsHome',
+                                'shotsOngoal_home',
+                                'shotsOffgoal_away',
+                                'total_change_possessiontime_home',
+                                'total_change_corners_away',
+                                'blockedShotsHome',
+                                'total_change_tackles_home',
+                                'total_change_shotsOffgoal_home',
+                                'TotalCards_home',
+                                'total_change_fouls_home',
+                                'total_change_possessiontime_away',
+                                'total_change_shotsOngoal_home',
+                                'goalAway',
+                                'total_change_shotsOffgoal_away',
+                                'yellowcards_home',
+                                'offsides_away',
+                                'TotalCards_away',
+                                'total_change_fouls_away',
+                                'total_change_shotsAway',
+                                'total_change_corners_home',
                                 'total_change_blockedShotsAway',
                                 'total_change_offsides_away',
-                                'total_change_offsides_home',
-                                'total_change_corners_home',
-                                'total_change_shotsOffgoal_home',
+                                'total_change_blockedShotsHome',
+                                'total_change_shotsOngoal_away',
                                 'redcards_away',
+                                'total_change_offsides_home',
                                 'redcards_home',
                                 'total_change_redcards_away',
                                 'total_change_redcards_home'], inplace=True)
@@ -654,29 +659,37 @@ while True:
                 timeSinceLastEventFouls_Away = Xht['timeSinceLastEventFouls_Away'].values[0]
                 timeSinceLastEventTotalCards_Home = Xht['timeSinceLastEventTotalCards_Home'].values[0]
                 timeSinceLastEventTotalCards_Away = Xht['timeSinceLastEventTotalCards_Away'].values[0]
-                total_change_possessiontime_home = Xht['total_change_possessiontime_home'].values[0]
-                total_change_possessiontime_away = Xht['total_change_possessiontime_away'].values[0]
+                timeSinceLastEventPasses_Home = Xht['timeSinceLastEventPasses_Home'].values[0]
+                timeSinceLastEventPasses_Away = Xht['timeSinceLastEventPasses_Away'].values[0]
                 passRiskHome = Xht['passRiskHome'].values[0]
                 passRiskAway = Xht['passRiskAway'].values[0]
                 zero_meioht_home = Xht['05ht_home'].values[0]
                 zero_meioft_home = Xht['05ft_home'].values[0]
                 um_meioft_home = Xht['15ft_home'].values[0]
-                zero_meio_home = Xht['05_home'].values[0]
-                um_meio_home = Xht['15_home'].values[0]
+                zero_meiohome = Xht['05_home'].values[0]
+                um_meiohome = Xht['15_home'].values[0]
                 zero_meioht_away = Xht['05ht_away'].values[0]
                 zero_meioft_away = Xht['05ft_away'].values[0]
                 um_meioft_away = Xht['15ft_away'].values[0]
-                zero_meio_away = Xht['05_away'].values[0]
+                zero_meioaway = Xht['05_away'].values[0]
+                um_meioaway = Xht['15_away'].values[0]
+                um_meioht_home = Xht['15ht_home'].values[0]
+                dois_meioft_home = Xht['25ft_home'].values[0]
+                dois_meioft_away = Xht['25ft_away'].values[0]
+                um_meioht_away = Xht['15ht_away'].values[0]
+                dois_meiohome = Xht['25_home'].values[0]
+                dois_meioaway = Xht['25_away'].values[0]
+                um_meio_home = Xht['15_home'].values[0]
                 um_meio_away = Xht['15_away'].values[0]
+                
 
    #             '05ht_home', '05ft_home',
             #    '15ft_home', '05_home', '15_home', '05ht_away', '05ft_away',
             #    '15ft_away', '05_away', '15_away'
 
                 # ordenando as colunas
-                colunas = ['minute', 'shotsHome', 'shotsAway', 'league',
-                            'corners_home', 'shotsOffgoal_home', 'shotsOffgoal_away',
-                            'shotsOngoal_home', 'fouls_home', 'fouls_away', 'tackles_home',
+                colunas = ['minute', 'shotsHome', 'shotsAway',
+                            'shotsOffgoal_home', 'fouls_home', 'fouls_away', 'tackles_home',
                             'tackles_away', 'possessiontime_away',
                             'possessiontime_home', 'shotsOnGoalEfficiency', 'attackPressure',
                             'shotAccuracy_home', 'shotAccuracy_away', 'possessionControl',
@@ -684,13 +697,14 @@ while True:
                             'defensiveEfficacy', 'defensiveAggression',
                             'timeSinceLastEventShots_Home', 'timeSinceLastEventShots_Away',
                             'timeSinceLastEventCorners_Home', 'timeSinceLastEventCorners_Away',
+                            'timeSinceLastEventPasses_Home', 'timeSinceLastEventPasses_Away',
                             'timeSinceLastEvent_Home', 'timeSinceLastEvent_Away',
                             'timeSinceLastEventFouls_Home', 'timeSinceLastEventFouls_Away',
                             'timeSinceLastEventTotalCards_Home',
-                            'timeSinceLastEventTotalCards_Away', 'total_change_possessiontime_home',
-                            'total_change_possessiontime_away', '05ht_home', '05ft_home',
-                            '15ft_home', '05_home', '15_home', '05ht_away', '05ft_away',
-                            '15ft_away', '05_away', '15_away']
+                            'timeSinceLastEventTotalCards_Away', '05ht_home', '15ht_home',
+                            '05ft_home', '15ft_home', '25ft_home', '05_home', '15_home', '25_home',
+                            '05ht_away', '15ht_away', '05ft_away', '15ft_away', '25ft_away',
+                            '05_away', '15_away', '25_away']
                 
                 Xht = Xht[colunas]
 
@@ -707,51 +721,62 @@ while True:
                 🏆 Liga: {league}
                 ⏱️ Minuto: {minute}
 
-                📋 Estatísticas
-                🎯 Chutes Casa: {shotsHome}
-                🎯 Chutes Fora: {shotsAway}
-                ⛳ Escanteios Casa: {corners_home}
-                🦵 Chutes fora Casa: {shotsOffgoal_home}
-                🦵 Chutes fora Fora: {shotsOffgoal_away}
-                🎯 Chutes ao gol Casa: {shotsOngoal_home}
-                🔴 Faltas Casa: {fouls_home}
-                🔴 Faltas Fora: {fouls_away}
-                🛑 Desarmes Casa: {tackles_home}
-                🛑 Desarmes Fora: {tackles_away}
-                ⏰ Tempo de posse Casa: {possessiontime_home}
-                ⏰ Tempo de posse Fora: {possessiontime_away}
-                🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency:.2f}
-                ⚡ Pressão de Ataque: {attackPressure:.2f}
-                🎯 Precisão de Chutes Casa: {shotAccuracy_home:.2f}
-                🎯 Precisão de Chutes Fora: {shotAccuracy_away:.2f}
-                🎮 Controle de Posse: {possessionControl:.2f}
-                🎲 Risco de Passe Casa: {passRiskHome:.2f}
-                🎲 Risco de Passe Fora: {passRiskAway:.2f}
-                🛡️ Disciplina Defensiva: {defensiveDiscipline:.2f}
-                🛡️ Eficácia Defensiva: {defensiveEfficacy:.2f}
-                🛡️ Agressão Defensiva: {defensiveAggression:.2f}
-                ⏱️ Tempo desde o último chute Casa: {timeSinceLastEventShots_Home:.2f}
-                ⏱️ Tempo desde o último chute Fora: {timeSinceLastEventShots_Away:.2f}
-                ⏱️ Tempo desde o último escanteio Casa: {timeSinceLastEventCorners_Home:.2f}
-                ⏱️ Tempo desde o último escanteio Fora: {timeSinceLastEventCorners_Away:.2f}
-                ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home:.2f}
-                ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away:.2f}
-                ⏱️ Tempo desde a última falta Casa: {timeSinceLastEventFouls_Home:.2f}
-                ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away:.2f}
-                ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home:.2f}
-                ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away:.2f}
-                ⏱️ Mudança no tempo de posse Casa: {total_change_possessiontime_home:.2f}
-                ⏱️ Mudança no tempo de posse Fora: {total_change_possessiontime_away:.2f}
-                📊 05 HT Casa: {zero_meioht_home:.2f}
-                📊 05 FT Casa: {zero_meioft_home:.2f}
-                📊 15 FT Casa: {um_meioft_home:.2f}
-                📊 15 Casa: {um_meio_home:.2f}
-                📊 05 HT Fora: {zero_meioht_away:.2f}
-                📊 05 FT Fora: {zero_meioft_away:.2f}
-                📊 15 FT Fora: {um_meioft_away:.2f}
-                📊 05 Casa: {zero_meio_home:.2f}
-                📊 05 Fora: {zero_meio_away:.2f}
-                📊 15 Fora: {um_meio_away:.2f}
+                📋 Estatísticas do Jogo
+                ⏱️ Minuto: {minute}
+
+                📊 Estatísticas Casa
+                🎯 Chutes: {shotsHome}
+                🦵 Chutes fora: {shotsOffgoal_home}
+                🔴 Faltas: {fouls_home}
+                🛑 Desarmes: {tackles_home}
+                ⏰ Tempo de posse: {possessiontime_home}
+                🎯 Precisão de Chutes: {shotAccuracy_home}
+                📊 05' HT: {zero_meioht_home}
+                📊 15' HT: {um_meioht_home}
+                📊 05' FT: {zero_meioft_home}
+                📊 15' FT: {um_meioft_home}
+                📊 25' FT: {dois_meioft_home}
+                📊 05': {zero_meiohome}
+                📊 15': {um_meio_home}
+                📊 25': {dois_meiohome}
+
+                📊 Estatísticas Fora
+                🎯 Chutes: {shotsAway}
+                🦵 Chutes fora: {shotsOffgoal_away}
+                🔴 Faltas: {fouls_away}
+                🛑 Desarmes: {tackles_away}
+                ⏰ Tempo de posse: {possessiontime_away}
+                🎯 Precisão de Chutes: {shotAccuracy_away}
+                📊 05' HT: {zero_meioht_away}
+                📊 15' HT: {um_meioht_away}
+                📊 05' FT: {zero_meioft_away}
+                📊 15' FT: {um_meioft_away}
+                📊 25' FT: {dois_meioft_away}
+                📊 05': {zero_meioaway}
+                📊 15': {um_meio_away}
+                📊 25': {dois_meioaway}
+
+                📊 Estatísticas Gerais
+                🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency}
+                ⚡ Pressão de Ataque: {attackPressure}
+                🎮 Controle de Posse: {possessionControl}
+                🎲 Risco de Passe Casa: {passRiskHome}
+                🎲 Risco de Passe Fora: {passRiskAway}
+                🛡️ Disciplina Defensiva: {defensiveDiscipline}
+                🛡️ Eficácia Defensiva: {defensiveEfficacy}
+                🛡️ Agressão Defensiva: {defensiveAggression}
+                ⏱️ Tempo desde o último chute Casa: {timeSinceLastEventShots_Home}
+                ⏱️ Tempo desde o último chute Fora: {timeSinceLastEventShots_Away}
+                ⏱️ Tempo desde o último escanteio Casa: {timeSinceLastEventCorners_Home}
+                ⏱️ Tempo desde o último escanteio Fora: {timeSinceLastEventCorners_Away}
+                ⏱️ Tempo desde o último passe Casa: {timeSinceLastEventPasses_Home}
+                ⏱️ Tempo desde o último passe Fora: {timeSinceLastEventPasses_Away}
+                ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home}
+                ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away}
+                ⏱️ Tempo desde a última falta Casa: {timeSinceLastEventFouls_Home}
+                ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away}
+                ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home}
+                ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away}
                 '''
 
                 condicao_rede = 0
@@ -763,6 +788,7 @@ while True:
                         try:
                             Xht = preprocessor.transform(Xht)
                         except:
+                            print(f'Liga {league} não treinada')
                             continue
                         novo_dado = torch.tensor(Xht, dtype=torch.float32)
 
