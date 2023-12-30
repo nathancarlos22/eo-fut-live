@@ -125,7 +125,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Usando dispositivo: {device}")
 
 # Definição da arquitetura do modelo com a mesma configuração usada para treinar e salvar o estado do modelo
-input_size = 81  # Certifique-se de que 'X_train' está definido e é acessível neste ponto do seu código
+input_size = 80  # Certifique-se de que 'X_train' está definido e é acessível neste ponto do seu código
 lr = 1e-05  # Voltar para a taxa de aprendizado anterior para estabilidade
 batch_size = 32
 num_layers = 2  # Voltar para a quantidade de camadas anterior
