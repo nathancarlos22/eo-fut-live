@@ -125,14 +125,14 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Usando dispositivo: {device}")
 
 # Definição da arquitetura do modelo com a mesma configuração usada para treinar e salvar o estado do modelo
-input_size = 77  # Certifique-se de que 'X_train' está definido e é acessível neste ponto do seu código
+input_size = 81  # Certifique-se de que 'X_train' está definido e é acessível neste ponto do seu código
 lr = 1e-05  # Voltar para a taxa de aprendizado anterior para estabilidade
-batch_size = 64
-num_layers = 4  # Voltar para a quantidade de camadas anterior
-neurons = (921, 768, 615, 461)  # Ajustar número de neurônios, mantendo uma distribuição densa
+batch_size = 32
+num_layers = 2  # Voltar para a quantidade de camadas anterior
+neurons = (1024, 512)  # Ajustar número de neurônios, mantendo uma distribuição densa
 dropout_rate = 0.2  # Reduzir a taxa de dropout
 activation_type = 'relu'  # Manter ReLU
-normalization_type = 'batch'  # Manter normalização em lote
+normalization_type = 'none'  # Manter normalização em lote
 
 
 model = NeuralNetwork(input_size, neurons, dropout_rate, activation_type, normalization_type)
@@ -167,7 +167,7 @@ value_pred_automl = 0
 
 df_jogos = {}
 
-historic_ids = {}
+historic_ids = []
 while True:
     print('🤖 Procurando jogos...\n')
 
@@ -204,13 +204,13 @@ while True:
         numero_jogos = len(dic_response['data'])
         print(f'🤖 {numero_jogos} jogos ao vivo\n')
 
-        for game in dic_response['data']:
-            if game['stats'] == None:
-                continue
-            iD = game['stats']['_id']
+        # for game in dic_response['data']:
+        #     if game['stats'] == None:
+        #         continue
+        #     iD = game['stats']['_id']
             
-            if iD not in historic_ids.keys():
-                historic_ids[iD] = 1
+        #     if iD not in historic_ids.keys():
+        #         historic_ids[iD] = 1
 
 
         for game in dic_response['data']:
@@ -836,7 +836,7 @@ while True:
                                         id_jogos_mensagem[key].remove(jogos)
 
                     # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0):
+                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0)  or (iD not in historic_ids): 
                         loseht_model += 1
                         id_over05HTmodel.remove(iD)
                         
@@ -883,7 +883,7 @@ while True:
                                         sendMenssageTelegram(text)
                                         id_jogos_mensagem[key].remove(jogos)
                     
-                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0):
+                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0) or (iD not in historic_ids):
                         loseht_Automl += 1
                         id_over05HTAutoml.remove(iD)
                         
@@ -921,8 +921,8 @@ while True:
                     if '&' in text:
                         text = text.replace('&', '')
                     # sendMenssageTelegram(text)
-                    if iD not in historic_ids.keys():
-                        historic_ids[iD] = 0
+                    if iD not in historic_ids:
+                        historic_ids.append(iD)
                     
                     id_jogos_mensagem["id_over05HTmodel"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
@@ -940,9 +940,9 @@ while True:
                     if '&' in text:
                         text = text.replace('&', '')
                     # sendMenssageTelegram(text)
-                    if iD not in historic_ids.keys():
-                        historic_ids[iD] = 0
-                    
+                    if iD not in historic_ids:
+                            historic_ids.append(iD)
+
                     id_jogos_mensagem["id_over05HTAutoml"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
                 
