@@ -65,84 +65,84 @@ minutoss = datetime.now().minute
 flag = 0
 
 # Carregar o modelo do arquivo
-# model = keras.models.load_model('models/model_redeht.h5')
+model = keras.models.load_model('models/model_redeht.h5')
 # carregar modelo torch
-import torch
-from torch import nn
-import torch.nn.functional as F
-from torch.utils.data import TensorDataset, DataLoader
+# import torch
+# from torch import nn
+# import torch.nn.functional as F
+# from torch.utils.data import TensorDataset, DataLoader
 
-# Definindo o modelo
-class NeuralNetwork(nn.Module):
-    def __init__(self, input_size, neurons, dropout_rate, activation_type, normalization_type):
-        super(NeuralNetwork, self).__init__()
-        layers = []
-
-
-        # Primeira camada
-        layers.append(nn.Linear(input_size, neurons[0]))
-        if normalization_type == 'batch':
-            layers.append(nn.BatchNorm1d(neurons[0]))
-        layers.append(self._get_activation(activation_type))
-        if dropout_rate > 0:
-            layers.append(nn.Dropout(dropout_rate))
-
-        # Camadas ocultas
-        for i in range(1, len(neurons)):
-            layers.append(nn.Linear(neurons[i-1], neurons[i]))
-            if normalization_type == 'batch':
-                layers.append(nn.BatchNorm1d(neurons[i]))
-            layers.append(self._get_activation(activation_type))
-            if dropout_rate > 0:
-                layers.append(nn.Dropout(dropout_rate))
+# # Definindo o modelo
+# class NeuralNetwork(nn.Module):
+#     def __init__(self, input_size, neurons, dropout_rate, activation_type, normalization_type):
+#         super(NeuralNetwork, self).__init__()
+#         layers = []
 
 
-        # Camada de saída
-        self.layers = nn.Sequential(*layers)
-        self.output = nn.Linear(neurons[-1], 1)
-        self.sigmoid = nn.Sigmoid()
+#         # Primeira camada
+#         layers.append(nn.Linear(input_size, neurons[0]))
+#         if normalization_type == 'batch':
+#             layers.append(nn.BatchNorm1d(neurons[0]))
+#         layers.append(self._get_activation(activation_type))
+#         if dropout_rate > 0:
+#             layers.append(nn.Dropout(dropout_rate))
 
-    def _get_activation(self, activation_type):
-        if activation_type == 'relu':
-            return nn.ReLU()
-        elif activation_type == 'tanh':
-            return nn.Tanh()
-        elif activation_type == 'leaky_relu':
-            return nn.LeakyReLU()
-        elif activation_type == 'elu':
-            return nn.ELU()
-        # Adicione outras funções de ativação conforme necessário
-        else:
-            raise ValueError(f"Tipo de ativação desconhecido: {activation_type}")
-
-    def forward(self, x):
-        x = self.layers(x)
-        x = self.output(x)
-        x = self.sigmoid(x)
-        return x
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Usando dispositivo: {device}")
-
-# Definição da arquitetura do modelo com a mesma configuração usada para treinar e salvar o estado do modelo
-input_size = 80  # Certifique-se de que 'X_train' está definido e é acessível neste ponto do seu código
-lr = 1e-05  # Voltar para a taxa de aprendizado anterior para estabilidade
-batch_size = 32
-num_layers = 2  # Voltar para a quantidade de camadas anterior
-neurons = (1024, 512)  # Ajustar número de neurônios, mantendo uma distribuição densa
-dropout_rate = 0.2  # Reduzir a taxa de dropout
-activation_type = 'relu'  # Manter ReLU
-normalization_type = 'none'  # Manter normalização em lote
+#         # Camadas ocultas
+#         for i in range(1, len(neurons)):
+#             layers.append(nn.Linear(neurons[i-1], neurons[i]))
+#             if normalization_type == 'batch':
+#                 layers.append(nn.BatchNorm1d(neurons[i]))
+#             layers.append(self._get_activation(activation_type))
+#             if dropout_rate > 0:
+#                 layers.append(nn.Dropout(dropout_rate))
 
 
-model = NeuralNetwork(input_size, neurons, dropout_rate, activation_type, normalization_type)
+#         # Camada de saída
+#         self.layers = nn.Sequential(*layers)
+#         self.output = nn.Linear(neurons[-1], 1)
+#         self.sigmoid = nn.Sigmoid()
 
-checkpoint = torch.load('models/model_redeht.pth',map_location=torch.device('cpu'))
-model.load_state_dict(checkpoint)
-model = model.to(device)
+#     def _get_activation(self, activation_type):
+#         if activation_type == 'relu':
+#             return nn.ReLU()
+#         elif activation_type == 'tanh':
+#             return nn.Tanh()
+#         elif activation_type == 'leaky_relu':
+#             return nn.LeakyReLU()
+#         elif activation_type == 'elu':
+#             return nn.ELU()
+#         # Adicione outras funções de ativação conforme necessário
+#         else:
+#             raise ValueError(f"Tipo de ativação desconhecido: {activation_type}")
 
-# model.load_state_dict(torch.load('models/model_redeht.pth',map_location=torch.device('cpu')))
-model.eval()  # Coloca o modelo em modo de avaliação
+#     def forward(self, x):
+#         x = self.layers(x)
+#         x = self.output(x)
+#         x = self.sigmoid(x)
+#         return x
+
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# print(f"Usando dispositivo: {device}")
+
+# # Definição da arquitetura do modelo com a mesma configuração usada para treinar e salvar o estado do modelo
+# input_size = 80  # Certifique-se de que 'X_train' está definido e é acessível neste ponto do seu código
+# lr = 1e-05  # Voltar para a taxa de aprendizado anterior para estabilidade
+# batch_size = 32
+# num_layers = 2  # Voltar para a quantidade de camadas anterior
+# neurons = (1024, 512)  # Ajustar número de neurônios, mantendo uma distribuição densa
+# dropout_rate = 0.2  # Reduzir a taxa de dropout
+# activation_type = 'relu'  # Manter ReLU
+# normalization_type = 'none'  # Manter normalização em lote
+
+
+# model = NeuralNetwork(input_size, neurons, dropout_rate, activation_type, normalization_type)
+
+# checkpoint = torch.load('models/model_redeht.pth',map_location=torch.device('cpu'))
+# model.load_state_dict(checkpoint)
+# model = model.to(device)
+
+# # model.load_state_dict(torch.load('models/model_redeht.pth',map_location=torch.device('cpu')))
+# model.eval()  # Coloca o modelo em modo de avaliação
 
 model_Automl = pickle.load(open('./models/tpot_model.pkl', 'rb'))
 
@@ -384,10 +384,9 @@ while True:
                     'fouls_home', 'fouls_away', 'offsides_home', 'offsides_away',
                     'tackles_home', 'tackles_away']
                 
-                gols_columns = ['05ht_home', '15ht_home',
-                                '05ft_home', '15ft_home', '25ft_home', '05_home', '15_home', '25_home',
-                                '05ht_away', '15ht_away', '05ft_away', '15ft_away', '25ft_away',
-                                '05_away', '15_away', '25_away']
+                gols_columns = ['05ht_home', '05ft_home',
+       '15ft_home', '25ft_home', '05_home', '15_home', '25_home', '05ht_away',
+       '05ft_away', '15ft_away', '05_away', '15_away']
 
                 ligas_df = dataframe['league'].unique()
 
@@ -508,10 +507,9 @@ while True:
                     'fouls_home', 'fouls_away', 'offsides_home', 'offsides_away',
                     'tackles_home', 'tackles_away']
                 
-                gols_columns = ['05ht_home', '15ht_home',
-                                '05ft_home', '15ft_home', '25ft_home', '05_home', '15_home', '25_home',
-                                '05ht_away', '15ht_away', '05ft_away', '15ft_away', '25ft_away',
-                                '05_away', '15_away', '25_away']
+                gols_columns = ['05ht_home', '05ft_home',
+       '15ft_home', '25ft_home', '05_home', '15_home', '25_home', '05ht_away',
+       '05ft_away', '15ft_away', '05_away', '15_away']
                 
 
                 dataframe_league['similaridade_home'] = calculate_similarity(dataframe_league['homeTeam'], homeTeam)
@@ -601,86 +599,42 @@ while True:
                                   'TotalCardsMinute_Away'], inplace=True)
 
                 Xht.drop(columns=[
-                                'goalHome',
-                                'corners_away',
-                                'total_change_tackles_away',
-                                'offsides_home',
                                 'corners_home',
-                                'shotsOngoal_away',
-                                'blockedShotsAway',
-                                'yellowcards_away',
-                                'total_change_shotsHome',
-                                'shotsOngoal_home',
-                                'shotsOffgoal_away',
-                                'total_change_possessiontime_home',
-                                'total_change_corners_away',
-                                'blockedShotsHome',
-                                'total_change_tackles_home',
-                                'total_change_shotsOffgoal_home',
-                                'TotalCards_home',
-                                'total_change_fouls_home',
-                                'total_change_possessiontime_away',
-                                'total_change_shotsOngoal_home',
                                 'goalAway',
-                                'total_change_shotsOffgoal_away',
+                                'goalHome',
+                                'TotalCards_home',
                                 'yellowcards_home',
+                                'total_change_tackles_away',
                                 'offsides_away',
+                                'shotsOngoal_home',
+                                'shotsOngoal_away',
+                                'total_change_shotsOffgoal_home',
                                 'TotalCards_away',
-                                'total_change_fouls_away',
-                                'total_change_shotsAway',
-                                'total_change_corners_home',
+                                'total_change_tackles_home',
+                                'total_change_fouls_home',
+                                'blockedShotsHome',
+                                'yellowcards_away',
                                 'total_change_blockedShotsAway',
-                                'total_change_offsides_away',
+                                'offsides_home',
+                                'corners_away',
+                                'total_change_shotsAway',
                                 'total_change_blockedShotsHome',
-                                'total_change_shotsOngoal_away',
-                                'redcards_away',
+                                'total_change_offsides_away',
+                                'blockedShotsAway',
+                                'total_change_shotsHome',
+                                'total_change_fouls_away',
                                 'total_change_offsides_home',
+                                'total_change_shotsOffgoal_away',
+                                'total_change_corners_away',
+                                'total_change_shotsOngoal_away',
+                                'total_change_shotsOngoal_home',
+                                'total_change_corners_home',
+                                'redcards_away',
                                 'redcards_home',
                                 'total_change_redcards_away',
                                 'total_change_redcards_home'], inplace=True)
                                                 
-                shotsHome = Xht['shotsHome'].values[0]
-                shotsAway = Xht['shotsAway'].values[0]
-                shotsOnGoalEfficiency = Xht['shotsOnGoalEfficiency'].values[0]
-                attackPressure = Xht['attackPressure'].values[0]
-                shotAccuracy_home = Xht['shotAccuracy_home'].values[0]
-                shotAccuracy_away = Xht['shotAccuracy_away'].values[0]
-                possessionControl = Xht['possessionControl'].values[0]
-                defensiveDiscipline = Xht['defensiveDiscipline'].values[0]
-                defensiveEfficacy = Xht['defensiveEfficacy'].values[0]
-                defensiveAggression = Xht['defensiveAggression'].values[0]
-                timeSinceLastEventShots_Home = Xht['timeSinceLastEventShots_Home'].values[0]
-                timeSinceLastEventShots_Away = Xht['timeSinceLastEventShots_Away'].values[0]
-                timeSinceLastEventCorners_Home = Xht['timeSinceLastEventCorners_Home'].values[0]
-                timeSinceLastEventCorners_Away = Xht['timeSinceLastEventCorners_Away'].values[0]
-                timeSinceLastEvent_Home = Xht['timeSinceLastEvent_Home'].values[0]
-                timeSinceLastEvent_Away = Xht['timeSinceLastEvent_Away'].values[0]
-                timeSinceLastEventFouls_Home = Xht['timeSinceLastEventFouls_Home'].values[0]
-                timeSinceLastEventFouls_Away = Xht['timeSinceLastEventFouls_Away'].values[0]
-                timeSinceLastEventTotalCards_Home = Xht['timeSinceLastEventTotalCards_Home'].values[0]
-                timeSinceLastEventTotalCards_Away = Xht['timeSinceLastEventTotalCards_Away'].values[0]
-                timeSinceLastEventPasses_Home = Xht['timeSinceLastEventPasses_Home'].values[0]
-                timeSinceLastEventPasses_Away = Xht['timeSinceLastEventPasses_Away'].values[0]
-                passRiskHome = Xht['passRiskHome'].values[0]
-                passRiskAway = Xht['passRiskAway'].values[0]
-                zero_meioht_home = Xht['05ht_home'].values[0]
-                zero_meioft_home = Xht['05ft_home'].values[0]
-                um_meioft_home = Xht['15ft_home'].values[0]
-                zero_meiohome = Xht['05_home'].values[0]
-                um_meiohome = Xht['15_home'].values[0]
-                zero_meioht_away = Xht['05ht_away'].values[0]
-                zero_meioft_away = Xht['05ft_away'].values[0]
-                um_meioft_away = Xht['15ft_away'].values[0]
-                zero_meioaway = Xht['05_away'].values[0]
-                um_meioaway = Xht['15_away'].values[0]
-                um_meioht_home = Xht['15ht_home'].values[0]
-                dois_meioft_home = Xht['25ft_home'].values[0]
-                dois_meioft_away = Xht['25ft_away'].values[0]
-                um_meioht_away = Xht['15ht_away'].values[0]
-                dois_meiohome = Xht['25_home'].values[0]
-                dois_meioaway = Xht['25_away'].values[0]
-                um_meio_home = Xht['15_home'].values[0]
-                um_meio_away = Xht['15_away'].values[0]
+                
                 
 
    #             '05ht_home', '05ft_home',
@@ -688,23 +642,23 @@ while True:
             #    '15ft_away', '05_away', '15_away'
 
                 # ordenando as colunas
-                colunas = ['minute', 'shotsHome', 'shotsAway',
-                            'shotsOffgoal_home', 'fouls_home', 'fouls_away', 'tackles_home',
-                            'tackles_away', 'possessiontime_away',
-                            'possessiontime_home', 'shotsOnGoalEfficiency', 'attackPressure',
-                            'shotAccuracy_home', 'shotAccuracy_away', 'possessionControl',
-                            'passRiskHome', 'passRiskAway', 'defensiveDiscipline',
-                            'defensiveEfficacy', 'defensiveAggression',
-                            'timeSinceLastEventShots_Home', 'timeSinceLastEventShots_Away',
-                            'timeSinceLastEventCorners_Home', 'timeSinceLastEventCorners_Away',
-                            'timeSinceLastEventPasses_Home', 'timeSinceLastEventPasses_Away',
-                            'timeSinceLastEvent_Home', 'timeSinceLastEvent_Away',
-                            'timeSinceLastEventFouls_Home', 'timeSinceLastEventFouls_Away',
-                            'timeSinceLastEventTotalCards_Home',
-                            'timeSinceLastEventTotalCards_Away', '05ht_home', '15ht_home',
-                            '05ft_home', '15ft_home', '25ft_home', '05_home', '15_home', '25_home',
-                            '05ht_away', '15ht_away', '05ft_away', '15ft_away', '25ft_away',
-                            '05_away', '15_away', '25_away']
+                colunas = ['minute',  'shotsHome', 'shotsAway', 'league',
+       'shotsOffgoal_home', 'shotsOffgoal_away', 'fouls_home', 'fouls_away',
+       'tackles_home', 'tackles_away', 
+       'possessiontime_away', 'possessiontime_home', 'shotsOnGoalEfficiency',
+       'attackPressure', 'shotAccuracy_home', 'shotAccuracy_away',
+       'possessionControl', 'passRiskHome', 'passRiskAway',
+       'defensiveDiscipline', 'defensiveEfficacy', 'defensiveAggression',
+       'timeSinceLastEventShots_Home', 'timeSinceLastEventShots_Away',
+       'timeSinceLastEventCorners_Home', 'timeSinceLastEventCorners_Away',
+       'timeSinceLastEventPasses_Home', 'timeSinceLastEventPasses_Away',
+       'timeSinceLastEvent_Home', 'timeSinceLastEvent_Away',
+       'timeSinceLastEventFouls_Home', 'timeSinceLastEventFouls_Away',
+       'timeSinceLastEventTotalCards_Home',
+       'timeSinceLastEventTotalCards_Away', 'total_change_possessiontime_home',
+       'total_change_possessiontime_away', '05ht_home', '05ft_home',
+       '15ft_home', '25ft_home', '05_home', '15_home', '25_home', '05ht_away',
+       '05ft_away', '15ft_away', '05_away', '15_away']
                 
                 Xht = Xht[colunas]
 
@@ -714,6 +668,44 @@ while True:
                 #     continue
 
             
+                shotsHome = Xht['shotsHome'].values[0]
+                shotsAway = Xht['shotsAway'].values[0]
+                shotsOnGoalEfficiency = Xht['shotsOnGoalEfficiency'].values[0]
+                attackPressure = Xht['attackPressure'].values[0]
+                shotAccuracy_home = Xht['shotAccuracy_home'].values[0]
+                shotAccuracy_away = Xht['shotAccuracy_away'].values[0]
+                possessionControl = Xht['possessionControl'].values[0]
+                passRiskHome = Xht['passRiskHome'].values[0]
+                passRiskAway = Xht['passRiskAway'].values[0]
+                defensiveDiscipline = Xht['defensiveDiscipline'].values[0]
+                defensiveEfficacy = Xht['defensiveEfficacy'].values[0]
+                defensiveAggression = Xht['defensiveAggression'].values[0]
+                timeSinceLastEventShots_Home = Xht['timeSinceLastEventShots_Home'].values[0]
+                timeSinceLastEventShots_Away = Xht['timeSinceLastEventShots_Away'].values[0]
+                timeSinceLastEventCorners_Home = Xht['timeSinceLastEventCorners_Home'].values[0]
+                timeSinceLastEventCorners_Away = Xht['timeSinceLastEventCorners_Away'].values[0]
+                timeSinceLastEventPasses_Home = Xht['timeSinceLastEventPasses_Home'].values[0]
+                timeSinceLastEventPasses_Away = Xht['timeSinceLastEventPasses_Away'].values[0]
+                timeSinceLastEvent_Home = Xht['timeSinceLastEvent_Home'].values[0]
+                timeSinceLastEvent_Away = Xht['timeSinceLastEvent_Away'].values[0]
+                timeSinceLastEventFouls_Home = Xht['timeSinceLastEventFouls_Home'].values[0]
+                timeSinceLastEventFouls_Away = Xht['timeSinceLastEventFouls_Away'].values[0]
+                timeSinceLastEventTotalCards_Home = Xht['timeSinceLastEventTotalCards_Home'].values[0]
+                timeSinceLastEventTotalCards_Away = Xht['timeSinceLastEventTotalCards_Away'].values[0]
+                total_change_possessiontime_home = Xht['total_change_possessiontime_home'].values[0]
+                total_change_possessiontime_away = Xht['total_change_possessiontime_away'].values[0]
+                zero_meioht_home = Xht['05ht_home'].values[0]
+                zero_meioft_home = Xht['05ft_home'].values[0]
+                um_meioft_home = Xht['15ft_home'].values[0]
+                dois_meioft_home = Xht['25ft_home'].values[0]
+                zero_meio_home = Xht['05_home'].values[0]
+                um_meio_home = Xht['15_home'].values[0]
+                dois_meio_home = Xht['25_home'].values[0]
+                zero_meioht_away = Xht['05ht_away'].values[0]
+                zero_meioft_away = Xht['05ft_away'].values[0]
+                um_meioft_away = Xht['15ft_away'].values[0]
+                zero_meio_away = Xht['05_away'].values[0]
+                um_meio_away = Xht['15_away'].values[0]
 
                 print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
                 print_jogos = f'''
@@ -724,41 +716,21 @@ while True:
                 📋 Estatísticas do Jogo
                 ⏱️ Minuto: {minute}
 
-                📊 Estatísticas Casa
-                🎯 Chutes: {shotsHome}
-                🦵 Chutes fora: {shotsOffgoal_home}
-                🔴 Faltas: {fouls_home}
-                🛑 Desarmes: {tackles_home}
-                ⏰ Tempo de posse: {possessiontime_home}
-                🎯 Precisão de Chutes: {shotAccuracy_home}
-                📊 05' HT: {zero_meioht_home}
-                📊 15' HT: {um_meioht_home}
-                📊 05' FT: {zero_meioft_home}
-                📊 15' FT: {um_meioft_home}
-                📊 25' FT: {dois_meioft_home}
-                📊 05': {zero_meiohome}
-                📊 15': {um_meio_home}
-                📊 25': {dois_meiohome}
-
-                📊 Estatísticas Fora
-                🎯 Chutes: {shotsAway}
-                🦵 Chutes fora: {shotsOffgoal_away}
-                🔴 Faltas: {fouls_away}
-                🛑 Desarmes: {tackles_away}
-                ⏰ Tempo de posse: {possessiontime_away}
-                🎯 Precisão de Chutes: {shotAccuracy_away}
-                📊 05' HT: {zero_meioht_away}
-                📊 15' HT: {um_meioht_away}
-                📊 05' FT: {zero_meioft_away}
-                📊 15' FT: {um_meioft_away}
-                📊 25' FT: {dois_meioft_away}
-                📊 05': {zero_meioaway}
-                📊 15': {um_meio_away}
-                📊 25': {dois_meioaway}
-
-                📊 Estatísticas Gerais
+                📋 Estatísticas
+                🎯 Chutes Casa: {shotsHome}
+                🎯 Chutes Fora: {shotsAway}
+                🦵 Chutes fora Casa: {shotsOffgoal_home}
+                🦵 Chutes fora Fora: {shotsOffgoal_away}
+                🔴 Faltas Casa: {fouls_home}
+                🔴 Faltas Fora: {fouls_away}
+                🛑 Desarmes Casa: {tackles_home}
+                🛑 Desarmes Fora: {tackles_away}
+                ⏰ Tempo de posse Casa: {possessiontime_home}
+                ⏰ Tempo de posse Fora: {possessiontime_away}
                 🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency}
                 ⚡ Pressão de Ataque: {attackPressure}
+                🎯 Precisão de Chutes Casa: {shotAccuracy_home}
+                🎯 Precisão de Chutes Fora: {shotAccuracy_away}
                 🎮 Controle de Posse: {possessionControl}
                 🎲 Risco de Passe Casa: {passRiskHome}
                 🎲 Risco de Passe Fora: {passRiskAway}
@@ -777,6 +749,20 @@ while True:
                 ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away}
                 ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home}
                 ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away}
+                ⏱️ Mudança no tempo de posse Casa: {total_change_possessiontime_home}
+                ⏱️ Mudança no tempo de posse Fora: {total_change_possessiontime_away}
+                📊 05' HT Casa: {zero_meioht_home}
+                📊 05' FT Casa: {zero_meioft_home}
+                📊 15' FT Casa: {um_meioft_home}
+                📊 25' FT Casa: {dois_meioft_home}
+                📊 05' Casa: {zero_meio_home}
+                📊 15' Casa: {um_meio_home}
+                📊 25' Casa: {dois_meio_home}
+                📊 05' HT Fora: {zero_meioht_away}
+                📊 05' FT Fora: {zero_meioft_away}
+                📊 15' FT Fora: {um_meioft_away}
+                📊 05' Fora: {zero_meio_away}
+                📊 15' Fora: {um_meio_away}
                 '''
 
                 condicao_rede = 0
@@ -790,10 +776,11 @@ while True:
                         except:
                             print(f'Liga {league} não treinada')
                             continue
-                        novo_dado = torch.tensor(Xht, dtype=torch.float32)
+                        # novo_dado = torch.tensor(Xht, dtype=torch.float32)
 
-                        with torch.no_grad():
-                            value_pred_rede = model(novo_dado)[0][0]
+                        # with torch.no_grad():
+                        #     value_pred_rede = model(novo_dado)[0][0]
+                        value_pred_rede = model(Xht)[0][0]
                         value_pred_automl = model_Automl.predict(Xht)[0]
                         
                         print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
