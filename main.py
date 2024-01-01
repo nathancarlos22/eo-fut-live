@@ -167,7 +167,6 @@ value_pred_automl = 0
 
 df_jogos = {}
 
-historic_ids = []
 while True:
     print('🤖 Procurando jogos...\n')
 
@@ -209,8 +208,6 @@ while True:
         #         continue
         #     iD = game['stats']['_id']
             
-        #     if iD not in historic_ids.keys():
-        #         historic_ids[iD] = 1
 
 
         for game in dic_response['data']:
@@ -634,31 +631,25 @@ while True:
                                 'total_change_redcards_away',
                                 'total_change_redcards_home'], inplace=True)
                                                 
-                
-                
-
-   #             '05ht_home', '05ft_home',
-            #    '15ft_home', '05_home', '15_home', '05ht_away', '05ft_away',
-            #    '15ft_away', '05_away', '15_away'
 
                 # ordenando as colunas
                 colunas = ['minute',  'shotsHome', 'shotsAway', 'league',
-       'shotsOffgoal_home', 'shotsOffgoal_away', 'fouls_home', 'fouls_away',
-       'tackles_home', 'tackles_away', 
-       'possessiontime_away', 'possessiontime_home', 'shotsOnGoalEfficiency',
-       'attackPressure', 'shotAccuracy_home', 'shotAccuracy_away',
-       'possessionControl', 'passRiskHome', 'passRiskAway',
-       'defensiveDiscipline', 'defensiveEfficacy', 'defensiveAggression',
-       'timeSinceLastEventShots_Home', 'timeSinceLastEventShots_Away',
-       'timeSinceLastEventCorners_Home', 'timeSinceLastEventCorners_Away',
-       'timeSinceLastEventPasses_Home', 'timeSinceLastEventPasses_Away',
-       'timeSinceLastEvent_Home', 'timeSinceLastEvent_Away',
-       'timeSinceLastEventFouls_Home', 'timeSinceLastEventFouls_Away',
-       'timeSinceLastEventTotalCards_Home',
-       'timeSinceLastEventTotalCards_Away', 'total_change_possessiontime_home',
-       'total_change_possessiontime_away', '05ht_home', '05ft_home',
-       '15ft_home', '25ft_home', '05_home', '15_home', '25_home', '05ht_away',
-       '05ft_away', '15ft_away', '05_away', '15_away']
+                            'shotsOffgoal_home', 'shotsOffgoal_away', 'fouls_home', 'fouls_away',
+                            'tackles_home', 'tackles_away', 
+                            'possessiontime_away', 'possessiontime_home', 'shotsOnGoalEfficiency',
+                            'attackPressure', 'shotAccuracy_home', 'shotAccuracy_away',
+                            'possessionControl', 'passRiskHome', 'passRiskAway',
+                            'defensiveDiscipline', 'defensiveEfficacy', 'defensiveAggression',
+                            'timeSinceLastEventShots_Home', 'timeSinceLastEventShots_Away',
+                            'timeSinceLastEventCorners_Home', 'timeSinceLastEventCorners_Away',
+                            'timeSinceLastEventPasses_Home', 'timeSinceLastEventPasses_Away',
+                            'timeSinceLastEvent_Home', 'timeSinceLastEvent_Away',
+                            'timeSinceLastEventFouls_Home', 'timeSinceLastEventFouls_Away',
+                            'timeSinceLastEventTotalCards_Home',
+                            'timeSinceLastEventTotalCards_Away', 'total_change_possessiontime_home',
+                            'total_change_possessiontime_away', '05ht_home', '05ft_home',
+                            '15ft_home', '25ft_home', '05_home', '15_home', '25_home', '05ht_away',
+                            '05ft_away', '15ft_away', '05_away', '15_away']
                 
                 Xht = Xht[colunas]
 
@@ -934,8 +925,6 @@ while True:
                     if '&' in text:
                         text = text.replace('&', '')
                     # sendMenssageTelegram(text)
-                    if iD not in historic_ids:
-                        historic_ids.append(iD)
                     
                     id_jogos_mensagem["id_over05HTmodel"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
@@ -953,8 +942,6 @@ while True:
                     if '&' in text:
                         text = text.replace('&', '')
                     # sendMenssageTelegram(text)
-                    if iD not in historic_ids:
-                            historic_ids.append(iD)
 
                     id_jogos_mensagem["id_over05HTAutoml"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
