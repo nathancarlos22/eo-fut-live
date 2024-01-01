@@ -772,7 +772,7 @@ while True:
                         # with torch.no_grad():
                         #     value_pred_rede = model(novo_dado)[0][0]
                         value_pred_rede = model(Xht)[0][0]
-                        value_pred_automl = model_Automl.predict(Xht)[0]
+                        # value_pred_automl = model_Automl.predict(Xht)[0]
                         
                         print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
                         # print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
