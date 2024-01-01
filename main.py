@@ -718,42 +718,42 @@ while True:
                 🛑 Desarmes Fora: {tackles_away}
                 ⏰ Tempo de posse Casa: {possessiontime_home}
                 ⏰ Tempo de posse Fora: {possessiontime_away}
-                🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency:.2}
-                ⚡ Pressão de Ataque: {attackPressure:.2}
-                🎯 Precisão de Chutes Casa: {shotAccuracy_home:.2}
-                🎯 Precisão de Chutes Fora: {shotAccuracy_away:.2}
-                🎮 Controle de Posse: {possessionControl:.2}
-                🎲 Risco de Passe Casa: {passRiskHome:.2}
-                🎲 Risco de Passe Fora: {passRiskAway:.2}
-                🛡️ Disciplina Defensiva: {defensiveDiscipline:.2}
-                🛡️ Eficácia Defensiva: {defensiveEfficacy:.2}
-                🛡️ Agressão Defensiva: {defensiveAggression:.2}
-                ⏱️ Tempo desde o último chute Casa: {timeSinceLastEventShots_Home:.2}
-                ⏱️ Tempo desde o último chute Fora: {timeSinceLastEventShots_Away:.2}
-                ⏱️ Tempo desde o último escanteio Casa: {timeSinceLastEventCorners_Home:.2}
-                ⏱️ Tempo desde o último escanteio Fora: {timeSinceLastEventCorners_Away:.2}
-                ⏱️ Tempo desde o último passe Casa: {timeSinceLastEventPasses_Home:.2}
-                ⏱️ Tempo desde o último passe Fora: {timeSinceLastEventPasses_Away:.2}
-                ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home:.2}
-                ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away:.2}
-                ⏱️ Tempo desde a última falta Casa: {timeSinceLastEventFouls_Home:.2}
-                ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away:.2}
-                ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home:.2}
-                ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away:.2}
-                ⏱️ Mudança no tempo de posse Casa: {total_change_possessiontime_home:.2}
-                ⏱️ Mudança no tempo de posse Fora: {total_change_possessiontime_away:.2}
-                📊 05' HT Casa: {zero_meioht_home:.2}
-                📊 05' FT Casa: {zero_meioft_home:.2}
-                📊 15' FT Casa: {um_meioft_home:.2}
-                📊 25' FT Casa: {dois_meioft_home:.2}
-                📊 05' Casa: {zero_meio_home:.2}
-                📊 15' Casa: {um_meio_home:.2}
-                📊 25' Casa: {dois_meio_home:.2}
-                📊 05' HT Fora: {zero_meioht_away:.2}
-                📊 05' FT Fora: {zero_meioft_away:.2}
-                📊 15' FT Fora: {um_meioft_away:.2}
-                📊 05' Fora: {zero_meio_away:.2}
-                📊 15' Fora: {um_meio_away:.2}
+                🎯 Eficiência de Chutes no Gol: {shotsOnGoalEfficiency:.2f}
+                ⚡ Pressão de Ataque: {attackPressure:.2f}
+                🎯 Precisão de Chutes Casa: {shotAccuracy_home:.2f}
+                🎯 Precisão de Chutes Fora: {shotAccuracy_away:.2f}
+                🎮 Controle de Posse: {possessionControl:.2f}
+                🎲 Risco de Passe Casa: {passRiskHome:.2f}
+                🎲 Risco de Passe Fora: {passRiskAway:.2f}
+                🛡️ Disciplina Defensiva: {defensiveDiscipline:.2f}
+                🛡️ Eficácia Defensiva: {defensiveEfficacy:.2f}
+                🛡️ Agressão Defensiva: {defensiveAggression:.2f}
+                ⏱️ Tempo desde o último chute Casa: {timeSinceLastEventShots_Home:.2f}
+                ⏱️ Tempo desde o último chute Fora: {timeSinceLastEventShots_Away:.2f}
+                ⏱️ Tempo desde o último escanteio Casa: {timeSinceLastEventCorners_Home:.2f}
+                ⏱️ Tempo desde o último escanteio Fora: {timeSinceLastEventCorners_Away:.2f}
+                ⏱️ Tempo desde o último passe Casa: {timeSinceLastEventPasses_Home:.2f}
+                ⏱️ Tempo desde o último passe Fora: {timeSinceLastEventPasses_Away:.2f}
+                ⏱️ Tempo desde o último evento Casa: {timeSinceLastEvent_Home:.2f}
+                ⏱️ Tempo desde o último evento Fora: {timeSinceLastEvent_Away:.2f}
+                ⏱️ Tempo desde a última falta Casa: {timeSinceLastEventFouls_Home:.2f}
+                ⏱️ Tempo desde a última falta Fora: {timeSinceLastEventFouls_Away:.2f}
+                ⏱️ Tempo desde o último cartão Casa: {timeSinceLastEventTotalCards_Home:.2f}
+                ⏱️ Tempo desde o último cartão Fora: {timeSinceLastEventTotalCards_Away:.2f}
+                ⏱️ Mudança no tempo de posse Casa: {total_change_possessiontime_home:.2f}
+                ⏱️ Mudança no tempo de posse Fora: {total_change_possessiontime_away:.2f}
+                📊 05' HT Casa: {zero_meioht_home:.2f}
+                📊 05' FT Casa: {zero_meioft_home:.2f}
+                📊 15' FT Casa: {um_meioft_home:.2f}
+                📊 25' FT Casa: {dois_meioft_home:.2f}
+                📊 05' Casa: {zero_meio_home:.2f}
+                📊 15' Casa: {um_meio_home:.2f}
+                📊 25' Casa: {dois_meio_home:.2f}
+                📊 05' HT Fora: {zero_meioht_away:.2f}
+                📊 05' FT Fora: {zero_meioft_away:.2f}
+                📊 15' FT Fora: {um_meioft_away:.2f}
+                📊 05' Fora: {zero_meio_away:.2f}
+                📊 15' Fora: {um_meio_away:.2f}
                 '''
 
                 condicao_rede = 0
