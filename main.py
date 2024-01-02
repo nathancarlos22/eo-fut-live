@@ -772,7 +772,7 @@ while True:
                         # with torch.no_grad():
                         #     value_pred_rede = model(novo_dado)[0][0]
                         value_pred_rede = model(Xht)[0][0]
-                        # value_pred_automl = model_Automl.predict(Xht)[0]
+                        value_pred_automl = model_Automl.predict(Xht)[0]
                         
                         print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
                         # print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
@@ -781,8 +781,8 @@ while True:
 
                             condicao_rede = 1
 
-                        # if value_pred_automl >= 0.52:
-                        #     condicao_Automl = 1
+                        if value_pred_automl >= 0.52:
+                            condicao_Automl = 1
 
                 for key, value in id_jogos_mensagem.items():
                     if key == 'id_over05HTmodel':
@@ -797,18 +797,18 @@ while True:
                                 if '&' in text:
                                     text = text.replace('&', '')
                                 editMessageTelegram(jogos['message_id'], text)
-                    # if key == 'id_over05HTAutoml':
-                    #     for jogos in value:
-                    #         if jogos['id'] == iD:
-                    #             text = f'''
-                    #             👑 Modelo Automl
+                    if key == 'id_over05HTAutoml':
+                        for jogos in value:
+                            if jogos['id'] == iD:
+                                text = f'''
+                                👑 Modelo Automl
                                                                         
-                    #             💭 Previsão: {value_pred_automl}
-                    #             {print_jogos}
-                    #             '''
-                    #             if '&' in text:
-                    #                 text = text.replace('&', '')
-                    #             editMessageTelegram(jogos['message_id'], text)
+                                💭 Previsão: {value_pred_automl}
+                                {print_jogos}
+                                '''
+                                if '&' in text:
+                                    text = text.replace('&', '')
+                                editMessageTelegram(jogos['message_id'], text)
 
 
                 # rede neural
@@ -865,49 +865,49 @@ while True:
                 
 
                 # Automl
-                # if iD in id_over05HTAutoml:
-                #     if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
-                #         winht_Automl += 1
-                #         id_over05HTAutoml.remove(iD)
+                if iD in id_over05HTAutoml:
+                    if minute <= 90 and (awayTeamScore + homeTeamScore) > 0:
+                        winht_Automl += 1
+                        id_over05HTAutoml.remove(iD)
                         
-                #         valor = valorEsperado - 5
-                #         lucro += valor
-                #         for key, value in id_jogos_mensagem.items():
-                #             if key == 'id_over05HTAutoml':
-                #                 for jogos in value:
-                #                     if jogos['id'] == iD:
-                #                         text = f'''
-                #                         👑 Modelo Automl
+                        valor = valorEsperado - 5
+                        lucro += valor
+                        for key, value in id_jogos_mensagem.items():
+                            if key == 'id_over05HTAutoml':
+                                for jogos in value:
+                                    if jogos['id'] == iD:
+                                        text = f'''
+                                        👑 Modelo Automl
 
-                #                         ✅ Win {winht_Automl} - {loseht_Automl}
-                #                         {print_jogos}
-                #                         '''
-                #                         if '&' in text:
-                #                             text = text.replace('&', '')
-                #                         sendMenssageTelegram(text)
-                #                         id_jogos_mensagem[key].remove(jogos)
+                                        ✅ Win {winht_Automl} - {loseht_Automl}
+                                        {print_jogos}
+                                        '''
+                                        if '&' in text:
+                                            text = text.replace('&', '')
+                                        sendMenssageTelegram(text)
+                                        id_jogos_mensagem[key].remove(jogos)
                     
-                    # if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0) or (minute >= 90):
-                    #     loseht_Automl += 1
-                    #     id_over05HTAutoml.remove(iD)
+                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0) or (minute >= 90):
+                        loseht_Automl += 1
+                        id_over05HTAutoml.remove(iD)
                         
-                    #     lucro -= 5
-                    #     for key, value in id_jogos_mensagem.items():
-                    #         if key == 'id_over05HTAutoml':
-                    #             for jogos in value:
-                    #                 if jogos['id'] == iD:
-                    #                     text = f'''
-                    #                     👑 Modelo Automl
+                        lucro -= 5
+                        for key, value in id_jogos_mensagem.items():
+                            if key == 'id_over05HTAutoml':
+                                for jogos in value:
+                                    if jogos['id'] == iD:
+                                        text = f'''
+                                        👑 Modelo Automl
                                                                                             
-                    #                     🛑 Lose {winht_Automl} - {loseht_Automl}
-                    #                     {print_jogos}
-                    #                     '''
-                    #                     if '&' in text:
-                    #                         text = text.replace('&', '')
+                                        🛑 Lose {winht_Automl} - {loseht_Automl}
+                                        {print_jogos}
+                                        '''
+                                        if '&' in text:
+                                            text = text.replace('&', '')
                                         
-                    #                     sendMenssageTelegram(text)
-                    #                     # remove do dicionario
-                    #                     id_jogos_mensagem[key].remove(jogos)
+                                        sendMenssageTelegram(text)
+                                        # remove do dicionario
+                                        id_jogos_mensagem[key].remove(jogos)
 
                 if condicao_rede == 1 and iD not in id_over05HTmodel:
                     id_over05HTmodel.append(iD)
@@ -928,22 +928,22 @@ while True:
                     
                     id_jogos_mensagem["id_over05HTmodel"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
-                # if condicao_Automl == 1 and iD not in id_over05HTAutoml:
-                #     id_over05HTAutoml.append(iD)
-                #     # state, valorEsperado = makeBet(id_evento)
-                #     # state, valorEsperado = 'SUCCESS', 10
+                if condicao_Automl == 1 and iD not in id_over05HTAutoml:
+                    id_over05HTAutoml.append(iD)
+                    # state, valorEsperado = makeBet(id_evento)
+                    # state, valorEsperado = 'SUCCESS', 10
 
-                #     text = f'''
-                #     👑 Modelo Automl 
+                    text = f'''
+                    👑 Modelo Automl 
                     
-                #     💭 Previsão: {value_pred_automl}
-                #     {print_jogos}
-                #     '''
-                #     if '&' in text:
-                #         text = text.replace('&', '')
-                #     # sendMenssageTelegram(text)
+                    💭 Previsão: {value_pred_automl}
+                    {print_jogos}
+                    '''
+                    if '&' in text:
+                        text = text.replace('&', '')
+                    # sendMenssageTelegram(text)
 
-                #     id_jogos_mensagem["id_over05HTAutoml"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
+                    id_jogos_mensagem["id_over05HTAutoml"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
 
                 
         time.sleep(60)
