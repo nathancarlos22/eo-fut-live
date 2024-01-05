@@ -382,43 +382,7 @@ while True:
                         Xht[gols_c] = dataframe_league[dataframe_league['homeTeam'] == string_mais_similar_home][gols_c].tail(1).values[0]
                     else:
                         Xht[gols_c] = dataframe_league[dataframe_league['awayTeam'] == string_mais_similar_away][gols_c].tail(1).values[0]
-                
-                if iD not in df_jogos:
-                    df_jogos[iD] = []
 
-                df_jogos[iD].append(Xht)
-                df = pd.concat(df_jogos[iD], axis=0)
-                df.sort_values(by=['minute'], inplace=True)
-                df.reset_index(drop=True, inplace=True)
-                calculate_efficiency_attack(df)
-                calculate_defense_performance(df)
-                calculate_passing_performance(df)
-                calculate_cards(df)
-
-                Xht = df.tail(1)
-                calculate_efficiency_attack(Xht)
-                calculate_defense_performance(Xht)
-                calculate_passing_performance(Xht)
-                calculate_cards(Xht)
-                
-                gols_columns = ['f_attack_home', 'f_defensive_away', 'f_defensive_home', 'f_attack_away',
-                                'win_rate_home', 'loss_rate_home', 'draw_rate_home', 'win_rate_away',
-                                'loss_rate_away', 'draw_rate_away', '05ht_home',
-                                '05ft_home', '05_home', '05ht_away', '05ft_away', '05_away']
-                
-
-                dataframe_league['similaridade_home'] = calculate_similarity(dataframe_league['homeTeam'], homeTeam)
-                dataframe_league['similaridade_away'] = calculate_similarity(dataframe_league['awayTeam'], awayTeam)
-
-                # Encontrando a string com a maior similaridade (usando a abordagem vetorizada)
-                string_mais_similar_home = dataframe_league.loc[dataframe_league['similaridade_home'].idxmax()]['homeTeam']
-                string_mais_similar_away = dataframe_league.loc[dataframe_league['similaridade_away'].idxmax()]['awayTeam']
-                
-                for gols_c in gols_columns:
-                    if 'home' in gols_c:
-                        Xht[gols_c] = dataframe_league[dataframe_league['homeTeam'] == string_mais_similar_home][gols_c].tail(1).values[0]
-                    else:
-                        Xht[gols_c] = dataframe_league[dataframe_league['awayTeam'] == string_mais_similar_away][gols_c].tail(1).values[0]
 
                 Xht.drop(columns=[
                                 'blockedShots_home',
