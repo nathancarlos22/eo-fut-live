@@ -252,6 +252,13 @@ while True:
             second = game['currentTime']['second']
             awayTeamScore = game['scores']['awayTeamScore']
             homeTeamScore = game['scores']['homeTeamScore']
+            injuryTime = game['currentTime']['injuryTime']
+            extraMinute = game['currentTime']['extraMinute']
+
+            if injuryTime == None:
+                injuryTime = 0
+            if extraMinute == None:
+                extraMinute = 0
 
             status = game['status']
 
@@ -575,7 +582,7 @@ while True:
                         value_pred_automl = model_Automl.predict(Xht)[0]
                         
                         print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
-                        # print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
+                        print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
                         
                         if value_pred_rede >= 0.52:
 
@@ -640,7 +647,7 @@ while True:
                                         id_jogos_mensagem[key].remove(jogos)
 
                     # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0)  or (minute >= 90): 
+                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0)  or (minute >= minute + injuryTime + extraMinute): 
                         loseht_model += 1
                         id_over05HTmodel.remove(iD)
                         
@@ -687,7 +694,7 @@ while True:
                                         sendMenssageTelegram(text)
                                         id_jogos_mensagem[key].remove(jogos)
                     
-                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0) or (minute >= 90):
+                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0) or (minute >= minute + injuryTime + extraMinute):
                         loseht_Automl += 1
                         id_over05HTAutoml.remove(iD)
                         
