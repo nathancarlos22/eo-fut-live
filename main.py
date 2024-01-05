@@ -298,8 +298,8 @@ while True:
             yellowcards_away = game['stats']['yellowcards']['away']
 
             novo_dado = {
-                'goalHome': goals_home,
-                'goalAway': goals_away,
+                'goal_home': goals_home,
+                'goal_away': goals_away,
                 'minute': minute,
                 'league': league,
                 'corners_home': corners_home,
@@ -353,10 +353,8 @@ while True:
 
                 gols_columns = ['f_attack_home', 'f_defensive_away', 'f_defensive_home', 'f_attack_away',
                                 'win_rate_home', 'loss_rate_home', 'draw_rate_home', 'win_rate_away',
-                                'loss_rate_away', 'draw_rate_away', '05ht_home', '15ht_home',
-                                '25ht_home', '05ft_home', '15ft_home', '25ft_home', '05_home',
-                                '15_home', '25_home', '05ht_away', '15ht_away', '25ht_away',
-                                '05ft_away', '15ft_away', '25ft_away', '05_away', '15_away', '25_away']
+                                'loss_rate_away', 'draw_rate_away', '05ht_home',
+                                '05ft_home', '05_home', '05ht_away', '05ft_away', '05_away']
 
                 ligas_df = dataframe['league'].unique()
 
@@ -398,10 +396,8 @@ while True:
                 
                 gols_columns = ['f_attack_home', 'f_defensive_away', 'f_defensive_home', 'f_attack_away',
                                 'win_rate_home', 'loss_rate_home', 'draw_rate_home', 'win_rate_away',
-                                'loss_rate_away', 'draw_rate_away', '05ht_home', '15ht_home',
-                                '25ht_home', '05ft_home', '15ft_home', '25ft_home', '05_home',
-                                '15_home', '25_home', '05ht_away', '15ht_away', '25ht_away',
-                                '05ft_away', '15ft_away', '25ft_away', '05_away', '15_away', '25_away']
+                                'loss_rate_away', 'draw_rate_away', '05ht_home',
+                                '05ft_home', '05_home', '05ht_away', '05ft_away', '05_away']
                 
 
                 dataframe_league['similaridade_home'] = calculate_similarity(dataframe_league['homeTeam'], homeTeam)
@@ -430,18 +426,7 @@ while True:
                                 'TotalCards_home',
                                 'redcards_away',
                                 'redcards_home',
-                                '15_away',
-                                '15ft_away',
-                                '15ht_away',
-                                '15_home',
-                                '15ht_home',
-                                '15ft_home',
-                                '25ft_away',
-                                '25ft_home',
-                                '25ht_away',
-                                '25_home',
-                                '25ht_home',
-                                '25_away'], inplace=True)
+                                ], inplace=True)
                                                 
 
                 # ordenando as colunas
