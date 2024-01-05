@@ -252,12 +252,12 @@ while True:
             second = game['currentTime']['second']
             awayTeamScore = game['scores']['awayTeamScore']
             homeTeamScore = game['scores']['homeTeamScore']
-            injuryTime = game['currentTime']['injuryTime']
-            extraMinute = game['currentTime']['extraMinute']
 
-            if injuryTime == None:
+            try:
+                injuryTime = int(game['currentTime']['injuryTime'])
+                extraMinute = int(game['currentTime']['extraMinute'])
+            except:
                 injuryTime = 0
-            if extraMinute == None:
                 extraMinute = 0
 
             status = game['status']
