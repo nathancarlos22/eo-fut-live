@@ -397,19 +397,8 @@ while True:
                                 'offsides_away',
                                 'redcards_home',
                                 'goal_away',
-                                '15ht_home',
                                 'redcards_away',
-                                '15_away',
-                                '15_home',
-                                '15ht_away',
-                                '15ft_away',
-                                '15ft_home',
-                                '25_home',
-                                '25ht_away',
-                                '25ft_home',
-                                '25ft_away',
-                                '25ht_home',
-                                '25_away',
+                                
                                 ], inplace=True)
                                                 
 
