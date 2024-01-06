@@ -401,9 +401,9 @@ while True:
                                                 
 
                 # ordenando as colunas
-                colunas = ['minute', 'goal_home', 'goal_away', 'shots_home', 'shots_away', 'league',
-                            'corners_home', 'corners_away', 'shotsOffgoal_home', 'shotsOffgoal_away',
-                            'fouls_home', 'fouls_away', 'tackles_home', 'tackles_away', 
+                colunas = ['minute', 'shots_home', 'shots_away', 'blockedShots_home', 'league', 
+                           'corners_home', 'corners_away', 'shotsOffgoal_home', 'shotsOffgoal_away', 
+                           'fouls_home', 'fouls_away','tackles_home', 'tackles_away', 
                             'possessiontime_away', 'possessiontime_home', 'f_attack_home',
                             'f_defensive_away', 'f_defensive_home', 'f_attack_away',
                             'win_rate_home', 'loss_rate_home', 'draw_rate_home', 'win_rate_away',
