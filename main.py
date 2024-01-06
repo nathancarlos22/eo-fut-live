@@ -613,7 +613,7 @@ while True:
                                         id_jogos_mensagem[key].remove(jogos)
 
                     # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0)  or (minute >= minute + injuryTime + extraMinute): 
+                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0)  or (minute > minute + injuryTime + extraMinute): 
                         loseht_model += 1
                         id_over05HTmodel.remove(iD)
                         
@@ -660,7 +660,7 @@ while True:
                                         sendMenssageTelegram(text)
                                         id_jogos_mensagem[key].remove(jogos)
                     
-                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0) or (minute >= minute + injuryTime + extraMinute):
+                    if (status != 'LIVE' and (awayTeamScore + homeTeamScore) == 0) or (minute > minute + injuryTime + extraMinute):
                         loseht_Automl += 1
                         id_over05HTAutoml.remove(iD)
                         
