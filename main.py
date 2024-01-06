@@ -385,18 +385,31 @@ while True:
 
 
                 Xht.drop(columns=[
-                                'blockedShots_home',
                                 'yellowcards_away',
-                                'shotsOngoal_home',
-                                'shotsOngoal_away',
-                                'blockedShots_away',
                                 'TotalCards_away',
                                 'offsides_home',
-                                'offsides_away',
+                                'shotsOngoal_away',
+                                'blockedShots_away',
+                                'goal_home',
                                 'yellowcards_home',
                                 'TotalCards_home',
-                                'redcards_away',
+                                'shotsOngoal_home',
+                                'offsides_away',
                                 'redcards_home',
+                                'goal_away',
+                                '15ht_home',
+                                'redcards_away',
+                                '15_away',
+                                '15_home',
+                                '15ht_away',
+                                '15ft_away',
+                                '15ft_home',
+                                '25_home',
+                                '25ht_away',
+                                '25ft_home',
+                                '25ft_away',
+                                '25ht_home',
+                                '25_away',
                                 ], inplace=True)
                                                 
 
