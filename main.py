@@ -261,12 +261,18 @@ while True:
                 extraMinute = 0
 
             try:
+                if minute == None:
+                    minute = 0
+                if second == None:
+                    second = 0
+                
                 minute = f'{minute}.{second}'
                 minute = float(minute)
-            except:
-                minute = 0
+            except Exception as e:
+                pass
 
             status = game['status']
+            print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
 
             if game['stats'] == None:
                 continue
