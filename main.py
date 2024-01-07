@@ -260,6 +260,12 @@ while True:
                 injuryTime = 0
                 extraMinute = 0
 
+            try:
+                minute = f'{minute}.{second}'
+                minute = float(minute)
+            except:
+                minute = 0
+
             status = game['status']
 
             if game['stats'] == None:
