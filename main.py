@@ -272,14 +272,9 @@ while True:
                 pass
 
             status = game['status']
-            print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
 
             if game['stats'] == None:
                 continue
-
-            if minute == 0:
-                continue
-            
 
             iD = game['stats']['_id']
 
