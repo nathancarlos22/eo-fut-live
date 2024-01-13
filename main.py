@@ -14,6 +14,9 @@ import os
 from datetime import datetime
 import numpy as np
 from rapidfuzz import fuzz
+import betfairlightweight
+import configparser
+
 
 def calculate_similarity(vector, reference):
     return np.array([fuzz.ratio(reference, x) for x in vector])
@@ -75,6 +78,132 @@ def calculate_cards(df):
     df['TotalCards_home'] = df['redcards_home'] + df['yellowcards_home']
     df['TotalCards_away'] = df['redcards_away'] + df['yellowcards_away']
 
+def makeBet(id_evento):
+
+        try:
+            config = configparser.ConfigParser()
+            config.read('credenciais.ini')
+
+            app_key = config['api_credentials']['app_key']
+            username = config['api_credentials']['username']
+            password = config['api_credentials']['password']
+
+            trading = betfairlightweight.APIClient(username, password, app_key=app_key, cert_files=("./betfair-certs/nc-odds.crt", "./betfair-certs/nc-odds.key"))
+            trading.login()
+
+            filtros_mercado = betfairlightweight.filters.market_filter()
+
+            eventos_fut = trading.betting.list_events(filter=filtros_mercado)
+
+            competitions = trading.betting.list_competitions(filter=filtros_mercado)
+
+            planilha_eventos = pd.DataFrame({
+                'NomeEvento': [evento.event.name for evento in eventos_fut],
+                'IdEvento': [evento.event.id for evento in eventos_fut],
+                'LocalEvento': [evento.event.venue for evento in eventos_fut],
+                'CodPais': [evento.event.country_code for evento in eventos_fut],
+                'Timezone': [evento.event.time_zone for evento in eventos_fut],
+                'DataAbertura': [evento.event.open_date for evento in eventos_fut],
+                'TotalMercados': [evento.market_count for evento in eventos_fut],
+                'DataLocal': [evento.event.open_date.replace(tzinfo=datetime.timezone.utc).astimezone(tz=None) for evento in eventos_fut],
+
+            })
+
+            planilha_eventos = planilha_eventos[planilha_eventos['NomeEvento'].str.contains(' v ')] # retirando mercados de eventos que não são partidas de futebol
+            planilha_eventos['IdEvento'] = planilha_eventos['IdEvento'].astype(str)
+
+            jogo = planilha_eventos[planilha_eventos['IdEvento'] == id_evento]
+
+            filtros_mercado = betfairlightweight.filters.market_filter(event_ids=[id_evento])
+
+            catalogos_mercado = trading.betting.list_market_catalogue(
+                filter=filtros_mercado,
+                max_results='100',
+                sort='FIRST_TO_START',
+                market_projection=['RUNNER_METADATA']
+            )
+
+            mercados = pd.DataFrame({
+                'NomeMercado': [mercado.market_name for mercado in catalogos_mercado],
+                'IdMercado': [mercado.market_id for mercado in catalogos_mercado],
+                'TotalCorrespondido': [mercado.total_matched for mercado in catalogos_mercado],
+                'Home': [mercado.runners[0].runner_name for mercado in catalogos_mercado],
+                'HomeId': [mercado.runners[0].selection_id for mercado in catalogos_mercado],
+                'Away': [mercado.runners[1].runner_name for mercado in catalogos_mercado],
+                'AwayId': [mercado.runners[1].selection_id for mercado in catalogos_mercado],
+                'Draw': [mercado.runners[2].runner_name if len(mercado.runners) > 2 else '' for mercado in catalogos_mercado],
+                'DrawId': [mercado.runners[2].selection_id if len(mercado.runners) > 2 else 0 for mercado in catalogos_mercado],
+
+            })
+
+            filtro_mercado_id_odds = mercados[(mercados['NomeMercado'] == 'First Half Goals 0.5')]
+
+            order_filter = betfairlightweight.filters.ex_best_offers_overrides(
+                best_prices_depth=3,
+            )
+
+            price_filter = betfairlightweight.filters.price_projection(
+                price_data=['EX_BEST_OFFERS'],
+                ex_best_offers_overrides=order_filter,
+            )
+
+            market_id_list = filtro_mercado_id_odds['IdMercado'].to_list()
+
+            market_books = trading.betting.list_market_book(
+                market_ids=market_id_list,
+                price_projection=price_filter,
+            )
+
+            odds = []
+            casa, empate, fora, over25, under25 = [], [], [], [], []
+
+            for market in market_books:
+                runners = market.runners
+
+                for i in range(0,3):
+                    try:
+                        odds.append([runner_book.ex.available_to_back[i].price
+                                    if runner_book.ex.available_to_back
+                                    else 1.01
+                                    for runner_book in runners])
+                    except:
+                        odds.append([1.01, 1.01, 1.01])
+
+            if odds[0][1] > 1.01:
+                for mercado in catalogos_mercado:
+                    if mercado.market_name == 'First Half Goals 0.5' and mercado.total_matched > 0:
+                        selecao_gols_acima = mercado.runners[0].selection_id
+                        odds_gols_acima = odds[0][1]
+                        valor_aposta = 5.0
+                        retorno_esperado = valor_aposta * odds_gols_acima
+
+                        limit_order_filter = betfairlightweight.filters.limit_order(
+                            size=valor_aposta,
+                            price=odds_gols_acima,
+                            persistence_type='PERSIST'
+                        )
+
+                        resposta = betfairlightweight.filters.place_instruction(
+                            selection_id=mercado.runners[1].selection_id,
+                            order_type="LIMIT",
+                            side="BACK",
+                            limit_order=limit_order_filter
+                        )
+
+                        # print(f"Aposta feita com sucesso! ID da aposta: {resposta['instructionReports'][0]['betId']}")
+                        # print(f"Valor apostado: {valor_aposta:.2f} / Odds: {odds_gols_acima:.2f} / Retorno esperado: {retorno_esperado:.2f}")
+
+                        order = trading.betting.place_orders (
+                        market_id=mercado.market_id, # The market id we obtained from before
+                        customer_strategy_ref='back_the_fav',
+                        instructions=[resposta] # This must be a list
+                )
+
+                return order.__dict__['_data']['instructionReports'][0]['status'], retorno_esperado
+                # return "SUCCESS", retorno_esperado
+        except Exception as e:
+            traceback.print_exc()
+
 id_jogos_mensagem = {
     "id_over05HTmodel": [],
     "id_over05HTAutoml": [],
@@ -89,7 +218,6 @@ id_over05HTAutoml = []
 winht_Automl = 0
 loseht_Automl = 0
 
-
 text = ' '
 resultados = {}
 
@@ -98,83 +226,6 @@ flag = 0
 
 # Carregar o modelo do arquivo
 model = keras.models.load_model('models/model_redeht.h5')
-# carregar modelo torch
-# import torch
-# from torch import nn
-# import torch.nn.functional as F
-# from torch.utils.data import TensorDataset, DataLoader
-
-# # Definindo o modelo
-# class NeuralNetwork(nn.Module):
-#     def __init__(self, input_size, neurons, dropout_rate, activation_type, normalization_type):
-#         super(NeuralNetwork, self).__init__()
-#         layers = []
-
-
-#         # Primeira camada
-#         layers.append(nn.Linear(input_size, neurons[0]))
-#         if normalization_type == 'batch':
-#             layers.append(nn.BatchNorm1d(neurons[0]))
-#         layers.append(self._get_activation(activation_type))
-#         if dropout_rate > 0:
-#             layers.append(nn.Dropout(dropout_rate))
-
-#         # Camadas ocultas
-#         for i in range(1, len(neurons)):
-#             layers.append(nn.Linear(neurons[i-1], neurons[i]))
-#             if normalization_type == 'batch':
-#                 layers.append(nn.BatchNorm1d(neurons[i]))
-#             layers.append(self._get_activation(activation_type))
-#             if dropout_rate > 0:
-#                 layers.append(nn.Dropout(dropout_rate))
-
-
-#         # Camada de saída
-#         self.layers = nn.Sequential(*layers)
-#         self.output = nn.Linear(neurons[-1], 1)
-#         self.sigmoid = nn.Sigmoid()
-
-#     def _get_activation(self, activation_type):
-#         if activation_type == 'relu':
-#             return nn.ReLU()
-#         elif activation_type == 'tanh':
-#             return nn.Tanh()
-#         elif activation_type == 'leaky_relu':
-#             return nn.LeakyReLU()
-#         elif activation_type == 'elu':
-#             return nn.ELU()
-#         # Adicione outras funções de ativação conforme necessário
-#         else:
-#             raise ValueError(f"Tipo de ativação desconhecido: {activation_type}")
-
-#     def forward(self, x):
-#         x = self.layers(x)
-#         x = self.output(x)
-#         x = self.sigmoid(x)
-#         return x
-
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# print(f"Usando dispositivo: {device}")
-
-# # Definição da arquitetura do modelo com a mesma configuração usada para treinar e salvar o estado do modelo
-# input_size = 80  # Certifique-se de que 'X_train' está definido e é acessível neste ponto do seu código
-# lr = 1e-05  # Voltar para a taxa de aprendizado anterior para estabilidade
-# batch_size = 32
-# num_layers = 2  # Voltar para a quantidade de camadas anterior
-# neurons = (1024, 512)  # Ajustar número de neurônios, mantendo uma distribuição densa
-# dropout_rate = 0.2  # Reduzir a taxa de dropout
-# activation_type = 'relu'  # Manter ReLU
-# normalization_type = 'none'  # Manter normalização em lote
-
-
-# model = NeuralNetwork(input_size, neurons, dropout_rate, activation_type, normalization_type)
-
-# checkpoint = torch.load('models/model_redeht.pth',map_location=torch.device('cpu'))
-# model.load_state_dict(checkpoint)
-# model = model.to(device)
-
-# # model.load_state_dict(torch.load('models/model_redeht.pth',map_location=torch.device('cpu')))
-# model.eval()  # Coloca o modelo em modo de avaliação
 
 model_Automl = pickle.load(open('./models/tpot_model.pkl', 'rb'))
 
@@ -234,12 +285,6 @@ while True:
         dic_response = response.json()
         numero_jogos = len(dic_response['data'])
         print(f'🤖 {numero_jogos} jogos ao vivo\n')
-
-        # for game in dic_response['data']:
-        #     if game['stats'] == None:
-        #         continue
-        #     iD = game['stats']['_id']
-            
 
 
         for game in dic_response['data']:
@@ -426,10 +471,10 @@ while True:
                 
                 Xht = Xht[colunas]
 
-                # try:
-                #     id_evento = game['betfairId']
-                # except:
-                #     continue
+                try:
+                    id_evento = game['betfairId']
+                except:
+                    continue
 
             
                 shotsHome = Xht['shots_home'].values[0]
@@ -476,14 +521,6 @@ while True:
                 zero_meio_ht_away = Xht['05ht_away'].values[0]
                 zero_meioft_away = Xht['05ft_away'].values[0]
                 zero_meio_away = Xht['05_away'].values[0]
-                
-                
-                
-
-
-                
-
-
                 
                 print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
                 print_jogos = f'''
@@ -539,7 +576,7 @@ while True:
                 condicao_rede = 0
                 condicao_Automl = 0
 
-                if status == 'LIVE':
+                if status == 'LIVE' and minute < 45:
 
                     if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
                         try:
@@ -547,10 +584,7 @@ while True:
                         except Exception as e:
                             traceback.print_exc()
                             continue
-                        # novo_dado = torch.tensor(Xht, dtype=torch.float32)
 
-                        # with torch.no_grad():
-                        #     value_pred_rede = model(novo_dado)[0][0]
                         value_pred_rede = model(Xht)[0][0]
                         value_pred_automl = model_Automl.predict(Xht)[0]
                         
@@ -572,6 +606,7 @@ while True:
                                 👑 Modelo Rede Neural
                                                                             
                                 💭 Previsão: {value_pred_rede}
+                                lucro: {lucro:.2f}
                                 {print_jogos}
                                 '''
                                 if '&' in text:
@@ -598,8 +633,8 @@ while True:
                         id_over05HTmodel.remove(iD)
                         
                         
-                        # valor = valorEsperado - 5
-                        # lucro += valor
+                        valor = valorEsperado - 5
+                        lucro += valor
 
                         for key, value in id_jogos_mensagem.items():
                             if key == 'id_over05HTmodel':
@@ -609,6 +644,7 @@ while True:
                                         👑 Modelo Rede Neural
 
                                         ✅ Win {winht_model} - {loseht_model}
+                                        lucro: {lucro:.2f}
                                         {print_jogos}
                                         '''
                                         if '&' in text:
@@ -633,6 +669,7 @@ while True:
                                         👑 Modelo Rede Neural
 
                                         🛑 Lose {winht_model} - {loseht_model}
+                                        lucro: {lucro:.2f}
                                         {print_jogos}
                                         '''
                                         if '&' in text:
@@ -691,22 +728,26 @@ while True:
 
                 if condicao_rede == 1 and iD not in id_over05HTmodel:
                     id_over05HTmodel.append(iD)
-                    # state, valorEsperado = makeBet(id_evento)
+                    state, valorEsperado = makeBet(id_evento)
                     # state, valorEsperado = 'SUCCESS', 10
 
                     text = f'''
                     👑 Modelo Rede Neural 
 
                     💭 Previsão: {value_pred_rede}
+                    Estado da aposta: {state}
+                    Valor esperado: {valorEsperado:.2f}
+                    lucro: {lucro:.2f}
                     {print_jogos}
                     
                     '''
 
                     if '&' in text:
                         text = text.replace('&', '')
-                    # sendMenssageTelegram(text)
+                    sendMenssageTelegram(text)
                     
                     id_jogos_mensagem["id_over05HTmodel"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
+
 
                 if condicao_Automl == 1 and iD not in id_over05HTAutoml:
                     id_over05HTAutoml.append(iD)
