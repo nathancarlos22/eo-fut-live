@@ -78,132 +78,6 @@ def calculate_cards(df):
     df['TotalCards_home'] = df['redcards_home'] + df['yellowcards_home']
     df['TotalCards_away'] = df['redcards_away'] + df['yellowcards_away']
 
-def makeBet(id_evento):
-
-        try:
-            config = configparser.ConfigParser()
-            config.read('credenciais.ini')
-
-            app_key = config['api_credentials']['app_key']
-            username = config['api_credentials']['username']
-            password = config['api_credentials']['password']
-
-            trading = betfairlightweight.APIClient(username, password, app_key=app_key, cert_files=("./betfair-certs/nc-odds.crt", "./betfair-certs/nc-odds.key"))
-            trading.login()
-
-            filtros_mercado = betfairlightweight.filters.market_filter()
-
-            eventos_fut = trading.betting.list_events(filter=filtros_mercado)
-
-            competitions = trading.betting.list_competitions(filter=filtros_mercado)
-
-            planilha_eventos = pd.DataFrame({
-                'NomeEvento': [evento.event.name for evento in eventos_fut],
-                'IdEvento': [evento.event.id for evento in eventos_fut],
-                'LocalEvento': [evento.event.venue for evento in eventos_fut],
-                'CodPais': [evento.event.country_code for evento in eventos_fut],
-                'Timezone': [evento.event.time_zone for evento in eventos_fut],
-                'DataAbertura': [evento.event.open_date for evento in eventos_fut],
-                'TotalMercados': [evento.market_count for evento in eventos_fut],
-                'DataLocal': [evento.event.open_date.replace(tzinfo=datetime.timezone.utc).astimezone(tz=None) for evento in eventos_fut],
-
-            })
-
-            planilha_eventos = planilha_eventos[planilha_eventos['NomeEvento'].str.contains(' v ')] # retirando mercados de eventos que não são partidas de futebol
-            planilha_eventos['IdEvento'] = planilha_eventos['IdEvento'].astype(str)
-
-            jogo = planilha_eventos[planilha_eventos['IdEvento'] == id_evento]
-
-            filtros_mercado = betfairlightweight.filters.market_filter(event_ids=[id_evento])
-
-            catalogos_mercado = trading.betting.list_market_catalogue(
-                filter=filtros_mercado,
-                max_results='100',
-                sort='FIRST_TO_START',
-                market_projection=['RUNNER_METADATA']
-            )
-
-            mercados = pd.DataFrame({
-                'NomeMercado': [mercado.market_name for mercado in catalogos_mercado],
-                'IdMercado': [mercado.market_id for mercado in catalogos_mercado],
-                'TotalCorrespondido': [mercado.total_matched for mercado in catalogos_mercado],
-                'Home': [mercado.runners[0].runner_name for mercado in catalogos_mercado],
-                'HomeId': [mercado.runners[0].selection_id for mercado in catalogos_mercado],
-                'Away': [mercado.runners[1].runner_name for mercado in catalogos_mercado],
-                'AwayId': [mercado.runners[1].selection_id for mercado in catalogos_mercado],
-                'Draw': [mercado.runners[2].runner_name if len(mercado.runners) > 2 else '' for mercado in catalogos_mercado],
-                'DrawId': [mercado.runners[2].selection_id if len(mercado.runners) > 2 else 0 for mercado in catalogos_mercado],
-
-            })
-
-            filtro_mercado_id_odds = mercados[(mercados['NomeMercado'] == 'First Half Goals 0.5')]
-
-            order_filter = betfairlightweight.filters.ex_best_offers_overrides(
-                best_prices_depth=3,
-            )
-
-            price_filter = betfairlightweight.filters.price_projection(
-                price_data=['EX_BEST_OFFERS'],
-                ex_best_offers_overrides=order_filter,
-            )
-
-            market_id_list = filtro_mercado_id_odds['IdMercado'].to_list()
-
-            market_books = trading.betting.list_market_book(
-                market_ids=market_id_list,
-                price_projection=price_filter,
-            )
-
-            odds = []
-            casa, empate, fora, over25, under25 = [], [], [], [], []
-
-            for market in market_books:
-                runners = market.runners
-
-                for i in range(0,3):
-                    try:
-                        odds.append([runner_book.ex.available_to_back[i].price
-                                    if runner_book.ex.available_to_back
-                                    else 1.01
-                                    for runner_book in runners])
-                    except:
-                        odds.append([1.01, 1.01, 1.01])
-
-            if odds[0][1] > 1.01:
-                for mercado in catalogos_mercado:
-                    if mercado.market_name == 'First Half Goals 0.5' and mercado.total_matched > 0:
-                        selecao_gols_acima = mercado.runners[0].selection_id
-                        odds_gols_acima = odds[0][1]
-                        valor_aposta = 5.0
-                        retorno_esperado = valor_aposta * odds_gols_acima
-
-                        limit_order_filter = betfairlightweight.filters.limit_order(
-                            size=valor_aposta,
-                            price=odds_gols_acima,
-                            persistence_type='PERSIST'
-                        )
-
-                        resposta = betfairlightweight.filters.place_instruction(
-                            selection_id=mercado.runners[1].selection_id,
-                            order_type="LIMIT",
-                            side="BACK",
-                            limit_order=limit_order_filter
-                        )
-
-                        # print(f"Aposta feita com sucesso! ID da aposta: {resposta['instructionReports'][0]['betId']}")
-                        # print(f"Valor apostado: {valor_aposta:.2f} / Odds: {odds_gols_acima:.2f} / Retorno esperado: {retorno_esperado:.2f}")
-
-                        order = trading.betting.place_orders (
-                        market_id=mercado.market_id, # The market id we obtained from before
-                        customer_strategy_ref='back_the_fav',
-                        instructions=[resposta] # This must be a list
-                )
-
-                return order.__dict__['_data']['instructionReports'][0]['status'], retorno_esperado
-                # return "SUCCESS", retorno_esperado
-        except Exception as e:
-            traceback.print_exc()
-
 id_jogos_mensagem = {
     "id_over05HTmodel": [],
     "id_over05HTAutoml": [],
@@ -240,10 +114,6 @@ winht_Automl = 0
 loseht_Automl = 0
 
 id_evento = ''
-
-lucro = 0
-valorEsperado = 0
-state = ''
 
 value_pred_rede = 0
 value_pred_automl = 0
@@ -471,10 +341,10 @@ while True:
                 
                 Xht = Xht[colunas]
 
-                try:
-                    id_evento = game['betfairId']
-                except:
-                    continue
+                # try:
+                #     id_evento = game['betfairId']
+                # except:
+                #     continue
 
             
                 shotsHome = Xht['shots_home'].values[0]
@@ -606,7 +476,6 @@ while True:
                                 👑 Modelo Rede Neural
                                                                             
                                 💭 Previsão: {value_pred_rede}
-                                lucro: {lucro:.2f}
                                 {print_jogos}
                                 '''
                                 if '&' in text:
@@ -633,8 +502,8 @@ while True:
                         id_over05HTmodel.remove(iD)
                         
                         
-                        valor = valorEsperado - 5
-                        lucro += valor
+                        # valor = valorEsperado - 5
+                        # lucro += valor
 
                         for key, value in id_jogos_mensagem.items():
                             if key == 'id_over05HTmodel':
@@ -644,7 +513,6 @@ while True:
                                         👑 Modelo Rede Neural
 
                                         ✅ Win {winht_model} - {loseht_model}
-                                        lucro: {lucro:.2f}
                                         {print_jogos}
                                         '''
                                         if '&' in text:
@@ -660,7 +528,7 @@ while True:
                         loseht_model += 1
                         id_over05HTmodel.remove(iD)
                         
-                        lucro -= 5
+                        # lucro -= 5
                         for key, value in id_jogos_mensagem.items():
                             if key == 'id_over05HTmodel':
                                 for jogos in value:
@@ -669,7 +537,6 @@ while True:
                                         👑 Modelo Rede Neural
 
                                         🛑 Lose {winht_model} - {loseht_model}
-                                        lucro: {lucro:.2f}
                                         {print_jogos}
                                         '''
                                         if '&' in text:
@@ -687,8 +554,8 @@ while True:
                         winht_Automl += 1
                         id_over05HTAutoml.remove(iD)
                         
-                        valor = valorEsperado - 5
-                        lucro += valor
+                        # valor = valorEsperado - 5
+                        # lucro += valor
                         for key, value in id_jogos_mensagem.items():
                             if key == 'id_over05HTAutoml':
                                 for jogos in value:
@@ -708,7 +575,7 @@ while True:
                         loseht_Automl += 1
                         id_over05HTAutoml.remove(iD)
                         
-                        lucro -= 5
+                        # lucro -= 5
                         for key, value in id_jogos_mensagem.items():
                             if key == 'id_over05HTAutoml':
                                 for jogos in value:
@@ -728,16 +595,13 @@ while True:
 
                 if condicao_rede == 1 and iD not in id_over05HTmodel:
                     id_over05HTmodel.append(iD)
-                    state, valorEsperado = makeBet(id_evento)
+                    # state, valorEsperado = makeBet(id_evento)
                     # state, valorEsperado = 'SUCCESS', 10
 
                     text = f'''
                     👑 Modelo Rede Neural 
 
                     💭 Previsão: {value_pred_rede}
-                    Estado da aposta: {state}
-                    Valor esperado: {valorEsperado:.2f}
-                    lucro: {lucro:.2f}
                     {print_jogos}
                     
                     '''
