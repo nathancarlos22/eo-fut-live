@@ -101,7 +101,7 @@ flag = 0
 # Carregar o modelo do arquivo
 model = keras.models.load_model('models/model_redeht.h5')
 
-model_Automl = pickle.load(open('./models/tpot_model.pkl', 'rb'))
+model_Automl = joblib.load('./models/tpot_model.pkl')
 
 preprocessor = pickle.load(open('models/preprocessor.pickle', 'rb'))
 
@@ -350,7 +350,7 @@ while True:
                                     'goal_home',
                                     'yellowcards_home',
                                     'TotalCards_home',
-                                    'shotsOngoal_home',
+                                    # 'shotsOngoal_home',
                                     'offsides_away',
                                     'redcards_home',
                                     'goal_away',
@@ -360,9 +360,10 @@ while True:
                                                     
 
                     # ordenando as colunas
-                    colunas = ['minute', 'shots_home', 'shots_away', 'blockedShots_home', 'league', 
-                            'corners_home', 'corners_away', 'shotsOffgoal_home', 'shotsOffgoal_away', 
-                            'fouls_home', 'fouls_away','tackles_home', 'tackles_away', 
+                    colunas = ['minute', 'shots_home', 'shots_away', 'league',
+                                'corners_home', 'corners_away', 'shotsOffgoal_home',
+                                'shotsOffgoal_away', 'shotsOngoal_home', 'fouls_home', 'fouls_away',
+                                'tackles_home', 'tackles_away',
                                 'possessiontime_away', 'possessiontime_home', 'f_attack_home',
                                 'f_defensive_away', 'f_defensive_home', 'f_attack_away',
                                 'win_rate_home', 'loss_rate_home', 'draw_rate_home', 'win_rate_away',
