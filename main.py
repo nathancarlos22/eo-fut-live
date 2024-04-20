@@ -315,7 +315,7 @@ while True:
                                                     
 
                     # ordenando as colunas
-                    colunas = ['minute', 'homeTeam', 'awayTeam', 'shots_home', 'shots_away', 'league',
+                    colunas = ['minute','shots_home', 'shots_away', 'league',
                                 'corners_home', 'corners_away', 'shotsOffgoal_home',
                                 'shotsOffgoal_away', 'fouls_home', 'fouls_away', 'tackles_home',
                                 'tackles_away', 'possessiontime_away',
