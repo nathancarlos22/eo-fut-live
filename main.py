@@ -99,8 +99,6 @@ minutoss = datetime.now().minute
 flag = 0
 
 # Carregar o modelo do arquivo
-model = keras.models.load_model('models/model_redeht.h5')
-
 model_Automl = joblib.load('./models/tpot_model.pkl')
 
 preprocessor = pickle.load(open('models/preprocessor.pickle', 'rb'))
@@ -158,11 +156,6 @@ while True:
 
 
         for game in dic_response['data']:
-            # salvar json
-            # import json
-            # with open('data.json', 'w') as f:
-            #     json.dump(game, f)
-
             try:
                 date = game['date']
 
@@ -193,11 +186,8 @@ while True:
                 minute = float(minute)
 
                 status = game['status']
-                # print()
-                # print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
 
                 if game['stats'] == None:
-                    # print("Jogo sem stats")
                     continue
 
                 iD = game['stats']['_id']
@@ -268,22 +258,7 @@ while True:
                 Xht['shots_home'] = Xht['shotsOngoal_home'] + Xht['shotsOffgoal_home']
                 Xht['shots_away'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
 
-                # if Xht.isna().sum().sum() > 0:
-                #     continue
                 Xht.fillna(0, inplace=True)
-
-                # Tratando ligas com nomes diferentes, varios grupos, etc..
-                # if 'Asia - AFC Champions League' in league:
-                #     league = 'Asia - AFC Champions League'
-                #     Xht['league'] = league
-                # if 'Europe - Champions League' in league:
-                #     league = 'Europe - Champions League'
-                #     Xht['league'] = league
-                
-                # if 'Europe - Europa League' in league:
-                #     league = 'Europe - Europa League'
-                #     Xht['league'] = league
-
                 if minute > 1:
                     calculate_efficiency_attack(Xht)
                     calculate_defense_performance(Xht)
@@ -292,36 +267,18 @@ while True:
 
                     gols_columns = ['f_attack_home', 'f_defensive_away', 'f_defensive_home', 'f_attack_away',
                                     'win_rate_home', 'loss_rate_home', 'draw_rate_home', 'win_rate_away',
-                                    'loss_rate_away', 'draw_rate_away', '05ht_home',
-                                    '05ft_home', '05_home', '05ht_away', '05ft_away', '05_away']
+                                    'loss_rate_away', 'draw_rate_away', '05ht_home', '05ht_away']
 
                     ligas_df = dataframe['league'].unique()
 
                     for l in ligas_df:
                         if league in l:
                             league = l
-                            break
-                    
-
-
-
-                    
-                    # flag1 = 0
-                    # for l in ligas_df:
-                    #     if league in l:
-                    #         league = l
-                    #         flag1 = 1
-                    #         break
-                    
-                    # if flag1 == 0:
-                    #     print(f'Liga {league} não encontrada')
-                    #     continue
+                            # break
                     
                     if league not in ligas_df:
-                        # print(f'Liga {league} não encontrada')
                         continue
                     
-                    # league_similarity = calculate_similarity(dataframe['league'], league)
                     
                     dataframe_league = dataframe[dataframe['league'] == league]
 
@@ -331,8 +288,6 @@ while True:
                     # Encontrando a string com a maior similaridade (usando a abordagem vetorizada)
                     string_mais_similar_home = dataframe_league.loc[dataframe_league['similaridade_home'].idxmax()]['homeTeam']
                     string_mais_similar_away = dataframe_league.loc[dataframe_league['similaridade_away'].idxmax()]['awayTeam']
-                    # string_mais_similar_home = 'teste1'
-                    # string_mais_similar_away = 'teste2'
                     
                     for gols_c in gols_columns:
                         if 'home' in gols_c:
@@ -343,46 +298,39 @@ while True:
 
                     Xht.drop(columns=[
                                     'yellowcards_away',
+                                    'blockedShots_home',
                                     'TotalCards_away',
                                     'offsides_home',
+                                    'shotsOngoal_home',
+                                    'offsides_away',
                                     'shotsOngoal_away',
                                     'blockedShots_away',
-                                    'goal_home',
-                                    'yellowcards_home',
                                     'TotalCards_home',
-                                    # 'shotsOngoal_home',
-                                    'offsides_away',
-                                    'redcards_home',
+                                    'yellowcards_home',
+                                    'goal_home',
                                     'goal_away',
                                     'redcards_away',
-                                    
+                                    'redcards_home',
                                     ], inplace=True)
                                                     
 
                     # ordenando as colunas
-                    colunas = ['minute', 'shots_home', 'shots_away', 'league',
+                    colunas = ['minute', 'homeTeam', 'awayTeam', 'shots_home', 'shots_away', 'league',
                                 'corners_home', 'corners_away', 'shotsOffgoal_home',
-                                'shotsOffgoal_away', 'shotsOngoal_home', 'fouls_home', 'fouls_away',
-                                'tackles_home', 'tackles_away',
-                                'possessiontime_away', 'possessiontime_home', 'f_attack_home',
-                                'f_defensive_away', 'f_defensive_home', 'f_attack_away',
-                                'win_rate_home', 'loss_rate_home', 'draw_rate_home', 'win_rate_away',
-                                'loss_rate_away', 'draw_rate_away', 'shotAccuracy_home',
-                                'shotAccuracy_away', 'attackPressureOverTime_home',
+                                'shotsOffgoal_away', 'fouls_home', 'fouls_away', 'tackles_home',
+                                'tackles_away', 'possessiontime_away',
+                                'possessiontime_home', 'f_attack_home', 'f_defensive_away',
+                                'f_defensive_home', 'f_attack_away', 'win_rate_home', 'loss_rate_home',
+                                'draw_rate_home', 'win_rate_away', 'loss_rate_away', 'draw_rate_away',
+                                'shotAccuracy_home', 'shotAccuracy_away', 'attackPressureOverTime_home',
                                 'attackPressureOverTime_away', 'aggrressionOverTime_home',
                                 'aggresssionOverTime_away', 'defensiveEfficacy_home',
                                 'defensiveEfficacy_away', 'taklesOverTime_home', 'taklesOverTime_away',
                                 'possessionControl', 'passRisk_home', 'passRisk_away', '05ht_home',
-                                '05ft_home', '05_home', '05ht_away', '05ft_away', '05_away']
+                                '05ht_away']
                     
                     Xht = Xht[colunas]
 
-                    # try:
-                    #     id_evento = game['betfairId']
-                    # except:
-                    #     continue
-
-                
                     shotsHome = Xht['shots_home'].values[0]
                     shotsAway = Xht['shots_away'].values[0]
                     shots_home = Xht['shots_home'].values[0]
@@ -422,11 +370,11 @@ while True:
                     passRisk_home = Xht['passRisk_home'].values[0]
                     passRisk_away = Xht['passRisk_away'].values[0]
                     zero_meioht_home = Xht['05ht_home'].values[0]
-                    zero_meioft_home = Xht['05ft_home'].values[0]
-                    zero_meio_home = Xht['05_home'].values[0]
+                    # zero_meioft_home = Xht['05ft_home'].values[0]
+                    # zero_meio_home = Xht['05_home'].values[0]
                     zero_meio_ht_away = Xht['05ht_away'].values[0]
-                    zero_meioft_away = Xht['05ft_away'].values[0]
-                    zero_meio_away = Xht['05_away'].values[0]
+                    # zero_meioft_away = Xht['05ft_away'].values[0]
+                    # zero_meio_away = Xht['05_away'].values[0]
                     
                     print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
                     print_jogos = f'''
@@ -472,10 +420,6 @@ while True:
                     📊 Desarmes ao Longo do Tempo Fora: {taklesOverTime_away:.2f}
                     📈 Zero a Meio Tempo Casa: {zero_meioht_home:.2f}
                     📈 Zero a Meio Tempo Fora: {zero_meio_ht_away:.2f}
-                    📉 Zero a Fim do Jogo Casa: {zero_meioft_home:.2f}
-                    📉 Zero a Fim do Jogo Fora: {zero_meioft_away:.2f}
-                    📊 Zero ao Longo do Jogo Casa: {zero_meio_home:.2f}
-                    📊 Zero ao Longo do Jogo Fora: {zero_meio_away:.2f}
 
                     '''
 
@@ -491,32 +435,14 @@ while True:
                                 traceback.print_exc()
                                 continue
 
-                            value_pred_rede = model(Xht)[0][0]
                             value_pred_automl = model_Automl.predict(Xht)[0]
                             
-                            print(f'{homeTeam} x {awayTeam} rede: {value_pred_rede}')
                             print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
                             
-                            if value_pred_rede >= 0.52:
-
-                                condicao_rede = 1
-
                             if value_pred_automl >= 0.52:
                                 condicao_Automl = 1
 
                     for key, value in id_jogos_mensagem.items():
-                        if key == 'id_over05HTmodel':
-                            for jogos in value:
-                                if jogos['id'] == iD:
-                                    text = f'''
-                                    👑 Modelo Rede Neural
-                                                                                
-                                    💭 Previsão: {value_pred_rede}
-                                    {print_jogos}
-                                    '''
-                                    if '&' in text:
-                                        text = text.replace('&', '')
-                                    editMessageTelegram(jogos['message_id'], text)
                         if key == 'id_over05HTAutoml':
                             for jogos in value:
                                 if jogos['id'] == iD:
@@ -531,67 +457,12 @@ while True:
                                     editMessageTelegram(jogos['message_id'], text)
 
 
-                    # rede neural
-                    if iD in id_over05HTmodel:
-                        if (awayTeamScore + homeTeamScore) > 0:
-                            winht_model += 1
-                            id_over05HTmodel.remove(iD)
-                            
-                            
-                            # valor = valorEsperado - 5
-                            # lucro += valor
-
-                            for key, value in id_jogos_mensagem.items():
-                                if key == 'id_over05HTmodel':
-                                    for jogos in value:
-                                        if jogos['id'] == iD:
-                                            text = f'''
-                                            👑 Modelo Rede Neural
-
-                                            ✅ Win {winht_model} - {loseht_model}
-                                            {print_jogos}
-                                            '''
-                                            if '&' in text:
-                                                text = text.replace('&', '')
-                                            sendMenssageTelegram(text)
-
-                            
-                                            # remove do dicionario
-                                            id_jogos_mensagem[key].remove(jogos)
-
-                        # if status == 'HT' and (awayTeamScore + homeTeamScore) == 0:
-                        if (minute > 45 and (awayTeamScore + homeTeamScore) == 0): 
-                            loseht_model += 1
-                            id_over05HTmodel.remove(iD)
-                            
-                            # lucro -= 5
-                            for key, value in id_jogos_mensagem.items():
-                                if key == 'id_over05HTmodel':
-                                    for jogos in value:
-                                        if jogos['id'] == iD:
-                                            text = f'''
-                                            👑 Modelo Rede Neural
-
-                                            🛑 Lose {winht_model} - {loseht_model}
-                                            {print_jogos}
-                                            '''
-                                            if '&' in text:
-                                                text = text.replace('&', '')
-                                            sendMenssageTelegram(text)
-            
-                                            # remove do dicionario
-                                            id_jogos_mensagem[key].remove(jogos)
-                    
-                    
-
                     # Automl
                     if iD in id_over05HTAutoml:
                         if (awayTeamScore + homeTeamScore) > 0:
                             winht_Automl += 1
                             id_over05HTAutoml.remove(iD)
                             
-                            # valor = valorEsperado - 5
-                            # lucro += valor
                             for key, value in id_jogos_mensagem.items():
                                 if key == 'id_over05HTAutoml':
                                     for jogos in value:
@@ -626,33 +497,10 @@ while True:
                                                 text = text.replace('&', '')
                                             
                                             sendMenssageTelegram(text)
-                                            # remove do dicionario
                                             id_jogos_mensagem[key].remove(jogos)
-
-                    if condicao_rede == 1 and iD not in id_over05HTmodel:
-                        id_over05HTmodel.append(iD)
-                        # state, valorEsperado = makeBet(id_evento)
-                        # state, valorEsperado = 'SUCCESS', 10
-
-                        text = f'''
-                        👑 Modelo Rede Neural 
-
-                        💭 Previsão: {value_pred_rede}
-                        {print_jogos}
-                        
-                        '''
-
-                        if '&' in text:
-                            text = text.replace('&', '')
-                        sendMenssageTelegram(text)
-                        
-                        id_jogos_mensagem["id_over05HTmodel"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
-
 
                     if condicao_Automl == 1 and iD not in id_over05HTAutoml:
                         id_over05HTAutoml.append(iD)
-                        # state, valorEsperado = makeBet(id_evento)
-                        # state, valorEsperado = 'SUCCESS', 10
 
                         text = f'''
                         👑 Modelo Automl 
@@ -662,7 +510,6 @@ while True:
                         '''
                         if '&' in text:
                             text = text.replace('&', '')
-                        # sendMenssageTelegram(text)
 
                         id_jogos_mensagem["id_over05HTAutoml"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
             except Exception as e:
@@ -671,12 +518,9 @@ while True:
                 continue
         
         time.sleep(60)
-
-                
     
     except Exception as e:
         traceback.print_exc()
-        # sendMenssageTelegram(f'Erro: {e}')
         time.sleep(60)
         print(e)
         continue
