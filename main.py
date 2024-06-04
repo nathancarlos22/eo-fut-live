@@ -311,11 +311,7 @@ while True:
                                     'goal_home',
                                     'goal_away',
                                     'redcards_home',
-                                    '15ht_home',
                                     'redcards_away',
-                                    '15ht_away',
-                                    '25ht_home',
-                                    '25ht_away',
                                     ], inplace=True)
                                                     
 
