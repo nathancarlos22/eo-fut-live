@@ -297,20 +297,25 @@ while True:
 
 
                     Xht.drop(columns=[
-                                    'yellowcards_away',
-                                    'blockedShots_home',
-                                    'TotalCards_away',
-                                    'offsides_home',
+                                    'defensiveEfficacy_away',
                                     'shotsOngoal_home',
-                                    'offsides_away',
-                                    'shotsOngoal_away',
+                                    'blockedShots_home',
                                     'blockedShots_away',
+                                    'offsides_home',
+                                    'offsides_away',
+                                    'yellowcards_away',
+                                    'TotalCards_away',
                                     'TotalCards_home',
                                     'yellowcards_home',
+                                    'shotsOngoal_away',
                                     'goal_home',
                                     'goal_away',
-                                    'redcards_away',
                                     'redcards_home',
+                                    '15ht_home',
+                                    'redcards_away',
+                                    '15ht_away',
+                                    '25ht_home',
+                                    '25ht_away',
                                     ], inplace=True)
                                                     
 
@@ -324,8 +329,7 @@ while True:
                                 'draw_rate_home', 'win_rate_away', 'loss_rate_away', 'draw_rate_away',
                                 'shotAccuracy_home', 'shotAccuracy_away', 'attackPressureOverTime_home',
                                 'attackPressureOverTime_away', 'aggrressionOverTime_home',
-                                'aggresssionOverTime_away', 'defensiveEfficacy_home',
-                                'defensiveEfficacy_away', 'taklesOverTime_home', 'taklesOverTime_away',
+                                'aggresssionOverTime_away', 'defensiveEfficacy_home', 'taklesOverTime_home', 'taklesOverTime_away',
                                 'possessionControl', 'passRisk_home', 'passRisk_away', '05ht_home',
                                 '05ht_away']
                     
@@ -363,7 +367,7 @@ while True:
                     aggrressionOverTime_home = Xht['aggrressionOverTime_home'].values[0]
                     aggresssionOverTime_away = Xht['aggresssionOverTime_away'].values[0]
                     defensiveEfficacy_home = Xht['defensiveEfficacy_home'].values[0]
-                    defensiveEfficacy_away = Xht['defensiveEfficacy_away'].values[0]
+                    # defensiveEfficacy_away = Xht['defensiveEfficacy_away'].values[0]
                     possessionControl = Xht['possessionControl'].values[0]
                     taklesOverTime_home = Xht['taklesOverTime_home'].values[0]
                     taklesOverTime_away = Xht['taklesOverTime_away'].values[0]
