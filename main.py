@@ -413,7 +413,6 @@ while True:
                     🚀 Agressividade ao Longo do Tempo Casa: {aggrressionOverTime_home:.2f}
                     🚀 Agressividade ao Longo do Tempo Fora: {aggresssionOverTime_away:.2f}
                     🛡️ Eficácia Defensiva Casa: {defensiveEfficacy_home:.2f}
-                    🛡️ Eficácia Defensiva Fora: {defensiveEfficacy_away:.2f}
                     🎲 Risco de Passe Casa: {passRisk_home:.2f}
                     🎲 Risco de Passe Fora: {passRisk_away:.2f}
                     📊 Desarmes ao Longo do Tempo Casa: {taklesOverTime_home:.2f}
