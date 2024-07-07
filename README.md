@@ -38,7 +38,7 @@ Obs: Se quiser executar a ferramenta com os dados de jogos do dataset que já fo
 2. Para fazer a coleta de dados de jogos atuais, execute o arquivo `make-data.py`, altere a data da variável `date_strings` para fazer a coleta dessa data até a data do dia de hoje.
    Obs: Esta etapa precisa de um container docker, crie um container docker baixando a ferramenta `docker desktop`.
 
-3.  Para treinar os modelos, é preciso avaliar todos os dados novamente, execute sequencialmente os arquivos jupyter `after_engineering.ipynb`, `balanceando e tratando.ipynb` , `model-automl.ipynb` 
+3.  Para treinar os modelos, é preciso avaliar todos os dados novamente, execute sequencialmente os arquivos jupyter `after_engineering.ipynb`, `balanceando e tratando.ipynb` , `modelo_por_liga.ipynb` e `model-automl.ipynb`.
 
 4.  Crie um arquivo `.env` e adicione as credenciais do telegrama para que a ferramenta envie mensagens para o seu grupo ao encontrar um jogo ao vivo com previsão de um gol.
     Arquivo `.env` exemplo:
