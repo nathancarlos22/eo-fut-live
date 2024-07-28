@@ -22,6 +22,97 @@ def calculate_similarity(vector, reference):
     return np.array([fuzz.ratio(reference, x) for x in vector])
 
 
+# Implementar o agente de Q-learning
+state_size = 20
+class QLearningAgent:
+    def __init__(self, state_size, action_size):
+        self.state_size = state_size
+        self.action_size = action_size
+        self.q_table = np.zeros((state_size, action_size))
+        self.gamma = 0.95
+        self.epsilon = 1.0
+        self.epsilon_min = 0.01
+        self.epsilon_decay = 0.995
+        self.learning_rate = 0.01
+        self.memory = []
+
+    def act(self, state):
+        if np.random.rand() <= self.epsilon:
+            return np.random.choice(self.action_size)
+        return np.argmax(self.q_table[state])
+
+    def remember(self, state, action, reward, next_state, done):
+        self.memory.append((state, action, reward, next_state, done))
+
+    def replay(self, batch_size):
+        if len(self.memory) < batch_size:
+            return
+        minibatch = np.random.choice(len(self.memory), batch_size, replace=False)
+        for index in minibatch:
+            state, action, reward, next_state, done = self.memory[index]
+            target = reward if done else reward + self.gamma * np.max(self.q_table[next_state])
+            self.q_table[state][action] += self.learning_rate * (target - self.q_table[state][action])
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
+
+# Carregar o agente salvo
+with open('models/best_q_learning_agent.pkl', 'rb') as f:
+    saved_agent = pickle.load(f)
+
+# Função para simular apostas ao vivo com o agente salvo
+def simulate_with_saved_agent(agent, X_new):
+    betting_stats = []
+    for i in range(len(X_new)):
+        state = prepare_state(X_new[i])
+        action = agent.act(state)
+        betting_stats.append((X_new[i], action))
+    return betting_stats
+
+# Função para preparar estado
+def prepare_state(data_row):
+    return int(data_row.sum()) % state_size
+
+# Função para preparar dados
+def prepare_data(df):
+    X = df.drop(columns=['result', 'homeTeam', 'awayTeam', 'match_id'])
+    y = df['result']
+    return X, y
+
+# Função para criar e aplicar o transformador de colunas
+def create_preprocessor(X):
+    numeric_features = X.select_dtypes(exclude=['object']).columns.tolist()
+    categorical_features = ['league']
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', StandardScaler(), numeric_features),
+            ('cat', OneHotEncoder(drop='first'), categorical_features)
+        ])
+    return preprocessor.fit(X)
+
+# Função para simular apostas ao vivo com os novos parâmetros
+def simulate_live_betting(agent, X_test, y_test):
+    total_money = 0
+    betting_stats = []
+    for i in range(len(X_test)):
+        state = prepare_state(X_test[i])
+        action = agent.act(state)
+        if action == 1:  # Fez uma aposta
+            reward = 100 if y_test.iloc[i] == 1 else -100
+            total_money += reward
+        else:
+            reward = 0
+        next_state = prepare_state(X_test[(i + 1) % len(X_test)])
+        agent.remember(state, action, reward, next_state, reward != 0)
+        agent.replay(batch_size)
+        betting_stats.append((X_test[i], action, reward))
+    return total_money, betting_stats
+
+# Função para preparar estado
+def prepare_state(data_row):
+    return int(data_row.sum()) % state_size
+
+
 warnings.filterwarnings('ignore')
 
 load_dotenv()
@@ -295,42 +386,6 @@ while True:
                         else:
                             Xht[gols_c] = dataframe_league[dataframe_league['awayTeam'] == string_mais_similar_away][gols_c].tail(1).values[0]
 
-
-                    Xht.drop(columns=[
-                                    'defensiveEfficacy_away',
-                                    'shotsOngoal_home',
-                                    'blockedShots_home',
-                                    'blockedShots_away',
-                                    'offsides_home',
-                                    'offsides_away',
-                                    'yellowcards_away',
-                                    'TotalCards_away',
-                                    'TotalCards_home',
-                                    'yellowcards_home',
-                                    'shotsOngoal_away',
-                                    'goal_home',
-                                    'goal_away',
-                                    'redcards_home',
-                                    'redcards_away',
-                                    ], inplace=True)
-                                                    
-
-                    # ordenando as colunas
-                    colunas = ['minute','shots_home', 'shots_away', 'league',
-                                'corners_home', 'corners_away', 'shotsOffgoal_home',
-                                'shotsOffgoal_away', 'fouls_home', 'fouls_away', 'tackles_home',
-                                'tackles_away', 'possessiontime_away',
-                                'possessiontime_home', 'f_attack_home', 'f_defensive_away',
-                                'f_defensive_home', 'f_attack_away', 'win_rate_home', 'loss_rate_home',
-                                'draw_rate_home', 'win_rate_away', 'loss_rate_away', 'draw_rate_away',
-                                'shotAccuracy_home', 'shotAccuracy_away', 'attackPressureOverTime_home',
-                                'attackPressureOverTime_away', 'aggrressionOverTime_home',
-                                'aggresssionOverTime_away', 'defensiveEfficacy_home', 'taklesOverTime_home', 'taklesOverTime_away',
-                                'possessionControl', 'passRisk_home', 'passRisk_away', '05ht_home',
-                                '05ht_away']
-                    
-                    Xht = Xht[colunas]
-
                     shotsHome = Xht['shots_home'].values[0]
                     shotsAway = Xht['shots_away'].values[0]
                     shots_home = Xht['shots_home'].values[0]
@@ -425,6 +480,23 @@ while True:
                     condicao_rede = 0
                     condicao_Automl = 0
 
+                    # ordenando as colunas
+                    colunas = ['minute', 'shots_home', 'shots_away', 'league', 'corners_home',
+                                'corners_away', 'shotsOffgoal_home', 'shotsOffgoal_away',
+                                'shotsOngoal_home', 'fouls_home', 'fouls_away', 'tackles_home',
+                                'tackles_away', 'possessiontime_away', 'possessiontime_home',
+                                'f_attack_home', 'f_defensive_away', 'f_defensive_home',
+                                'f_attack_away', 'win_rate_home', 'loss_rate_home', 'draw_rate_home',
+                                'win_rate_away', 'loss_rate_away', 'draw_rate_away',
+                                'shotAccuracy_home', 'shotAccuracy_away', 'attackPressureOverTime_home',
+                                'attackPressureOverTime_away', 'aggrressionOverTime_home',
+                                'aggresssionOverTime_away', 'defensiveEfficacy_home',
+                                'defensiveEfficacy_away', 'taklesOverTime_home', 'taklesOverTime_away',
+                                'possessionControl', 'passRisk_home', 'passRisk_away', '05ht_home',
+                                '05ft_home', '05_home', '05ht_away', '05ft_away', '05_away']
+                    
+                    Xht = Xht[colunas]
+
                     if status == 'LIVE' and minute < 45:
 
                         if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
@@ -434,12 +506,16 @@ while True:
                                 traceback.print_exc()
                                 continue
 
-                            value_pred_automl = model_Automl.predict(Xht)[0]
+                            # value_pred_automl = model_Automl.predict(Xht)[0]
+                            value_pred_automl = simulate_with_saved_agent(saved_agent, Xht)[0][1]
+
                             
                             print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
                             
                             if value_pred_automl >= 0.52:
                                 condicao_Automl = 1
+
+                            
 
                     for key, value in id_jogos_mensagem.items():
                         if key == 'id_over05HTAutoml':
