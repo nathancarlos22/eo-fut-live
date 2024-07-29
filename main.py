@@ -21,96 +21,21 @@ import configparser
 def calculate_similarity(vector, reference):
     return np.array([fuzz.ratio(reference, x) for x in vector])
 
+# Load the saved label encoders, scaler, and model
+label_encoders = joblib.load('models/label_encoders.pkl')
+scaler = joblib.load('models/scaler.pkl')
+model = joblib.load('models/random_forest_model.pkl')
 
-# Implementar o agente de Q-learning
-state_size = 20
-class QLearningAgent:
-    def __init__(self, state_size, action_size):
-        self.state_size = state_size
-        self.action_size = action_size
-        self.q_table = np.zeros((state_size, action_size))
-        self.gamma = 0.95
-        self.epsilon = 1.0
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
-        self.learning_rate = 0.01
-        self.memory = []
-
-    def act(self, state):
-        if np.random.rand() <= self.epsilon:
-            return np.random.choice(self.action_size)
-        return np.argmax(self.q_table[state])
-
-    def remember(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))
-
-    def replay(self, batch_size):
-        if len(self.memory) < batch_size:
-            return
-        minibatch = np.random.choice(len(self.memory), batch_size, replace=False)
-        for index in minibatch:
-            state, action, reward, next_state, done = self.memory[index]
-            target = reward if done else reward + self.gamma * np.max(self.q_table[next_state])
-            self.q_table[state][action] += self.learning_rate * (target - self.q_table[state][action])
-        if self.epsilon > self.epsilon_min:
-            self.epsilon *= self.epsilon_decay
-
-# Carregar o agente salvo
-with open('models/best_q_learning_agent.pkl', 'rb') as f:
-    saved_agent = pickle.load(f)
-
-# Função para simular apostas ao vivo com o agente salvo
-def simulate_with_saved_agent(agent, X_new):
-    betting_stats = []
-    for i in range(len(X_new)):
-        state = prepare_state(X_new[i])
-        action = agent.act(state)
-        betting_stats.append((X_new[i], action))
-    return betting_stats
-
-# Função para preparar estado
-def prepare_state(data_row):
-    return int(data_row.sum()) % state_size
-
-# Função para preparar dados
-def prepare_data(df):
-    X = df.drop(columns=['result', 'homeTeam', 'awayTeam', 'match_id'])
-    y = df['result']
-    return X, y
-
-# Função para criar e aplicar o transformador de colunas
-def create_preprocessor(X):
-    numeric_features = X.select_dtypes(exclude=['object']).columns.tolist()
-    categorical_features = ['league']
-
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('num', StandardScaler(), numeric_features),
-            ('cat', OneHotEncoder(drop='first'), categorical_features)
-        ])
-    return preprocessor.fit(X)
-
-# Função para simular apostas ao vivo com os novos parâmetros
-def simulate_live_betting(agent, X_test, y_test):
-    total_money = 0
-    betting_stats = []
-    for i in range(len(X_test)):
-        state = prepare_state(X_test[i])
-        action = agent.act(state)
-        if action == 1:  # Fez uma aposta
-            reward = 100 if y_test.iloc[i] == 1 else -100
-            total_money += reward
-        else:
-            reward = 0
-        next_state = prepare_state(X_test[(i + 1) % len(X_test)])
-        agent.remember(state, action, reward, next_state, reward != 0)
-        agent.replay(batch_size)
-        betting_stats.append((X_test[i], action, reward))
-    return total_money, betting_stats
-
-# Função para preparar estado
-def prepare_state(data_row):
-    return int(data_row.sum()) % state_size
+# Function to preprocess new data
+def preprocess_new_data(data, label_encoders, scaler):
+    # Encode categorical variables
+    for column, le in label_encoders.items():
+        data[column] = le.transform(data[column])
+    
+    # Normalize numerical features
+    data_scaled = scaler.transform(data)
+    
+    return data_scaled
 
 
 warnings.filterwarnings('ignore')
@@ -192,7 +117,7 @@ flag = 0
 # Carregar o modelo do arquivo
 model_Automl = joblib.load('./models/tpot_model.pkl')
 
-preprocessor = pickle.load(open('models/preprocessor.pickle', 'rb'))
+# preprocessor = pickle.load(open('models/preprocessor.pickle', 'rb'))
 
 id_over05HTmodel = []
 winht_model = 0
@@ -209,37 +134,36 @@ value_pred_automl = 0
 
 df_jogos = {}
 
+# Criar uma sessão
+session = requests.Session()
+
 while True:
     print('🤖 Procurando jogos...\n')
 
     try:
 
-        url = "https://api.sportsanalytics.com.br/api/v1/fixtures-svc/fixtures/livescores"
-
-        querystring = {"matchSlug": "\"31-01-2023-union-berlin-vfl-wolfsburg\"", "sportSlug": "soccer",
-                       "include": "weatherReport,additionalInfo,league,stats,pressureStats,probabilities"}
+        url = "https://playscores.sportsat.app/gateway/api/v1/fixtures-svc/v2/fixtures/livescores?include=league,stats,pressureStats&take=3000"
 
         payload = ""
         headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Encoding': 'gzip, deflate, br, zstd',
             'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Cookie': 'route=f69973370a0dd0883a57c7b955dfc742',
-            'If-Modified-Since': 'Sat, 05 Aug 2023 14:38:28 GMT',
-            'Sec-Ch-Ua': '"Not/A)Brand";v="99", "Google Chrome";v="115", "Chromium";v="115"',
+            'If-Modified-Since': 'Sun, 28 Jul 2024 17:44:41 GMT',
+            'Origin': 'https://www.playscores.com',
+            'Referer': 'https://www.playscores.com/',
+            'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
             'Sec-Ch-Ua-Mobile': '?0',
             'Sec-Ch-Ua-Platform': '"Windows"',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'none',
-            'Sec-Fetch-User': '?1',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'cross-site',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+
         }
 
-        response = requests.request(
-            "GET", url, data=payload, headers=headers, params=querystring)
+        response = session.request(
+            "GET", url, data=payload, headers=headers)
 
         dic_response = response.json()
         numero_jogos = len(dic_response['data'])
@@ -281,7 +205,7 @@ while True:
                 if game['stats'] == None:
                     continue
 
-                iD = game['stats']['_id']
+                iD = game['stats']['fixtureId']
 
                 corners_home = game['stats']['corners']['home']
                 corners_away = game['stats']['corners']['away']
@@ -317,6 +241,8 @@ while True:
                 yellowcards_away = game['stats']['yellowcards']['away']
 
                 novo_dado = {
+                    'homeTeam': homeTeam,
+                    'awayTeam': awayTeam,
                     'goal_home': goals_home,
                     'goal_away': goals_away,
                     'minute': minute,
@@ -346,10 +272,11 @@ while True:
                 }
 
                 Xht = pd.DataFrame(novo_dado, index=[0])
+                Xht.fillna(0, inplace=True)
+                
                 Xht['shots_home'] = Xht['shotsOngoal_home'] + Xht['shotsOffgoal_home']
                 Xht['shots_away'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
 
-                Xht.fillna(0, inplace=True)
                 if minute > 1:
                     calculate_efficiency_attack(Xht)
                     calculate_defense_performance(Xht)
@@ -358,7 +285,7 @@ while True:
 
                     gols_columns = ['f_attack_home', 'f_defensive_away', 'f_defensive_home', 'f_attack_away',
                                     'win_rate_home', 'loss_rate_home', 'draw_rate_home', 'win_rate_away',
-                                    'loss_rate_away', 'draw_rate_away', '05ht_home', '05ht_away']
+                                    'loss_rate_away', 'draw_rate_away', '05ht_home', '05ht_away', '15ht_home', '25ht_home', '15ht_away', '25ht_away']
 
                     ligas_df = dataframe['league'].unique()
 
@@ -481,19 +408,24 @@ while True:
                     condicao_Automl = 0
 
                     # ordenando as colunas
-                    colunas = ['minute', 'shots_home', 'shots_away', 'league', 'corners_home',
-                                'corners_away', 'shotsOffgoal_home', 'shotsOffgoal_away',
-                                'shotsOngoal_home', 'fouls_home', 'fouls_away', 'tackles_home',
-                                'tackles_away', 'possessiontime_away', 'possessiontime_home',
-                                'f_attack_home', 'f_defensive_away', 'f_defensive_home',
-                                'f_attack_away', 'win_rate_home', 'loss_rate_home', 'draw_rate_home',
-                                'win_rate_away', 'loss_rate_away', 'draw_rate_away',
-                                'shotAccuracy_home', 'shotAccuracy_away', 'attackPressureOverTime_home',
+                    colunas = ['minute', 'homeTeam', 'awayTeam', 'goal_home', 'goal_away',
+                                'shots_home', 'shots_away', 'blockedShots_home', 'blockedShots_away',
+                                'league', 'corners_home', 'corners_away', 'redcards_home',
+                                'redcards_away', 'shotsOffgoal_home', 'shotsOffgoal_away',
+                                'shotsOngoal_home', 'shotsOngoal_away', 'yellowcards_home',
+                                'yellowcards_away', 'fouls_home', 'fouls_away', 'offsides_home',
+                                'offsides_away', 'tackles_home', 'tackles_away',
+                                'possessiontime_away', 'possessiontime_home', 'f_attack_home',
+                                'f_defensive_away', 'f_defensive_home', 'f_attack_away',
+                                'win_rate_home', 'loss_rate_home', 'draw_rate_home', 'win_rate_away',
+                                'loss_rate_away', 'draw_rate_away', 'shotAccuracy_home',
+                                'shotAccuracy_away', 'attackPressureOverTime_home',
                                 'attackPressureOverTime_away', 'aggrressionOverTime_home',
                                 'aggresssionOverTime_away', 'defensiveEfficacy_home',
                                 'defensiveEfficacy_away', 'taklesOverTime_home', 'taklesOverTime_away',
-                                'possessionControl', 'passRisk_home', 'passRisk_away', '05ht_home',
-                                '05ft_home', '05_home', '05ht_away', '05ft_away', '05_away']
+                                'possessionControl', 'passRisk_home', 'passRisk_away',
+                                'TotalCards_home', 'TotalCards_away', '05ht_home', '15ht_home',
+                                '25ht_home', '05ht_away', '15ht_away', '25ht_away']
                     
                     Xht = Xht[colunas]
 
@@ -501,13 +433,16 @@ while True:
 
                         if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
                             try:
-                                Xht = preprocessor.transform(Xht)
+                                # Xht = preprocessor.transform(Xht)
+                                # Preprocess the new data
+                                Xht = preprocess_new_data(Xht, label_encoders, scaler)
                             except Exception as e:
                                 traceback.print_exc()
                                 continue
 
                             # value_pred_automl = model_Automl.predict(Xht)[0]
-                            value_pred_automl = simulate_with_saved_agent(saved_agent, Xht)[0][1]
+                            # value_pred_automl = simulate_with_saved_agent(saved_agent, Xht)[0][1]
+                            predictions = model.predict(Xht)[0]
 
                             
                             print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
