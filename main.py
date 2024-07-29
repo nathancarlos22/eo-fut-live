@@ -26,11 +26,10 @@ label_encoders = joblib.load('models/label_encoders.pkl')
 scaler = joblib.load('models/scaler.pkl')
 model = joblib.load('models/random_forest_model.pkl')
 
-# Function to preprocess new data
 def preprocess_new_data(data, label_encoders, scaler):
     # Encode categorical variables
     for column, le in label_encoders.items():
-        data[column] = le.transform(data[column])
+        data[column] = data[column].apply(lambda x: le.transform([x])[0] if x in le.classes_ else -1)
     
     # Normalize numerical features
     data_scaled = scaler.transform(data)
