@@ -43,6 +43,17 @@ load_dotenv()
 
 dataframe = pd.read_csv('src/data_live_engineer_filtered.csv', encoding='utf-8')
 
+# Define a function to normalize text using unicodedata
+def normalize_text_unicode(text):
+    text = unicodedata.normalize('NFKD', text)
+    text = text.encode('ascii', 'ignore').decode('utf-8')
+    return text.lower()
+
+# Apply the function to the relevant columns
+dataframe['league'] = dataframe['league'].apply(normalize_text_unicode)
+dataframe['homeTeam'] = dataframe['homeTeam'].apply(normalize_text_unicode)
+dataframe['awayTeam'] = dataframe['awayTeam'].apply(normalize_text_unicode)
+
 # renomeando colunas para um padrao _home e _away
 colunas = ['goal', 'shots', 'blockedShots' ]
 for coluna in colunas:
@@ -285,6 +296,10 @@ while True:
                     gols_columns = ['f_attack_home', 'f_defensive_away', 'f_defensive_home', 'f_attack_away',
                                     'win_rate_home', 'loss_rate_home', 'draw_rate_home', 'win_rate_away',
                                     'loss_rate_away', 'draw_rate_away', '05ht_home', '05ht_away', '15ht_home', '25ht_home', '15ht_away', '25ht_away']
+
+                    Xht['league'] = Xht['league'].apply(normalize_text_unicode)
+                    Xht['homeTeam'] = Xht['homeTeam'].apply(normalize_text_unicode)
+                    Xht['awayTeam'] = Xht['awayTeam'].apply(normalize_text_unicode)
 
                     ligas_df = dataframe['league'].unique()
 
