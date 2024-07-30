@@ -16,7 +16,7 @@ import numpy as np
 from rapidfuzz import fuzz
 import betfairlightweight
 import configparser
-
+import unicodedata
 
 def calculate_similarity(vector, reference):
     return np.array([fuzz.ratio(reference, x) for x in vector])
