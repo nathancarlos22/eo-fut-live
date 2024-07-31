@@ -302,6 +302,7 @@ while True:
                     Xht['awayTeam'] = Xht['awayTeam'].apply(normalize_text_unicode)
 
                     ligas_df = dataframe['league'].unique()
+                    league = normalize_text_unicode(league)
 
                     for l in ligas_df:
                         if league in l:
