@@ -423,7 +423,7 @@ while True:
                     condicao_Automl = 0
 
                     # ordenando as colunas
-                    colunas = ['minute', 'homeTeam', 'awayTeam', 'goal_home', 'goal_away',
+                    colunas = ['minute', 'goal_home', 'goal_away',
                                 'shots_home', 'shots_away', 'blockedShots_home', 'blockedShots_away',
                                 'league', 'corners_home', 'corners_away', 'redcards_home',
                                 'redcards_away', 'shotsOffgoal_home', 'shotsOffgoal_away',
