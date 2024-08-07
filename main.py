@@ -140,7 +140,7 @@ loseht_Automl = 0
 id_evento = ''
 
 value_pred_rede = 0
-value_pred_automl = 0
+predictions = 0
 
 df_jogos = {}
 
@@ -455,14 +455,14 @@ while True:
                                 traceback.print_exc()
                                 continue
 
-                            # value_pred_automl = model_Automl.predict(Xht)[0]
-                            # value_pred_automl = simulate_with_saved_agent(saved_agent, Xht)[0][1]
+                            # predictions = model_Automl.predict(Xht)[0]
+                            # predictions = simulate_with_saved_agent(saved_agent, Xht)[0][1]
                             predictions = model.predict(Xht)[0]
 
                             
-                            print(f"{homeTeam} x {awayTeam} Automl: {value_pred_automl}")
+                            print(f"{homeTeam} x {awayTeam} Automl: {predictions}")
                             
-                            if value_pred_automl >= 0.52:
+                            if predictions >= 0.52:
                                 condicao_Automl = 1
 
                             
@@ -474,7 +474,7 @@ while True:
                                     text = f'''
                                     👑 Modelo Automl
                                                                             
-                                    💭 Previsão: {value_pred_automl}
+                                    💭 Previsão: {predictions}
                                     {print_jogos}
                                     '''
                                     if '&' in text:
@@ -530,7 +530,7 @@ while True:
                         text = f'''
                         👑 Modelo Automl 
                         
-                        💭 Previsão: {value_pred_automl}
+                        💭 Previsão: {predictions}
                         {print_jogos}
                         '''
                         if '&' in text:
