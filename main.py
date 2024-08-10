@@ -429,17 +429,20 @@ while True:
                                 'redcards_away', 'shotsOffgoal_home', 'shotsOffgoal_away',
                                 'shotsOngoal_home', 'shotsOngoal_away', 'yellowcards_home',
                                 'yellowcards_away', 'fouls_home', 'fouls_away', 'offsides_home',
-                                'offsides_away', 'tackles_home', 'tackles_away', 'possessiontime_away',
-                                'possessiontime_home', 'f_attack_home', 'f_defensive_away',
-                                'f_defensive_home', 'f_attack_away', 'win_rate_home', 'loss_rate_home',
-                                'draw_rate_home', 'win_rate_away', 'loss_rate_away', 'draw_rate_away',
+                                'offsides_away', 'tackles_home', 'tackles_away', 'match_result',
+                                'win_rate', 'draw_rate', 'loss_rate', 'homeTeam_win', 'homeTeam_loss',
+                                'homeTeam_draw', 'win_rate_homeTeam', 'loss_rate_homeTeam',
+                                'draw_rate_homeTeam', 'awayTeam_win', 'awayTeam_loss', 'awayTeam_draw',
+                                'win_rate_awayTeam', 'loss_rate_awayTeam', 'draw_rate_awayTeam',
+                                'f_attack_home', 'f_attack_away', 'f_defensive_home',
+                                'f_defensive_away', '05ht_home', '15ht_home', '25ht_home', '05ht_away',
+                                '15ht_away', '25ht_away', 'possessiontime_away', 'possessiontime_home',
                                 'shotAccuracy_home', 'shotAccuracy_away', 'attackPressureOverTime_home',
                                 'attackPressureOverTime_away', 'aggrressionOverTime_home',
                                 'aggresssionOverTime_away', 'defensiveEfficacy_home',
                                 'defensiveEfficacy_away', 'taklesOverTime_home', 'taklesOverTime_away',
                                 'possessionControl', 'passRisk_home', 'passRisk_away',
-                                'TotalCards_home', 'TotalCards_away', '05ht_home', '15ht_home',
-                                '25ht_home', '05ht_away', '15ht_away', '25ht_away']
+                                'TotalCards_home', 'TotalCards_away']
                     
                     Xht = Xht[colunas]
 
