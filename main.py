@@ -351,12 +351,9 @@ while True:
                     f_defensive_away = Xht['f_defensive_away'].values[0]
                     f_defensive_home = Xht['f_defensive_home'].values[0]
                     f_attack_away = Xht['f_attack_away'].values[0]
-                    win_rate_home = Xht['win_rate_home'].values[0]
-                    loss_rate_home = Xht['loss_rate_home'].values[0]
-                    draw_rate_home = Xht['draw_rate_home'].values[0]
-                    win_rate_away = Xht['win_rate_away'].values[0]
-                    loss_rate_away = Xht['loss_rate_away'].values[0]
-                    draw_rate_away = Xht['draw_rate_away'].values[0]
+                    win_rate_homeTeam = Xht['win_rate_homeTeam'].values[0]
+                    loss_rate_homeTeam = Xht['loss_rate_homeTeam'].values[0]
+                    draw_rate_homeTeam = Xht['draw_rate_homeTeam'].values[0]
                     shotAccuracy_home = Xht['shotAccuracy_home'].values[0]
                     shotAccuracy_away = Xht['shotAccuracy_away'].values[0]
                     attackPressureOverTime_home = Xht['attackPressureOverTime_home'].values[0]
@@ -364,18 +361,14 @@ while True:
                     aggrressionOverTime_home = Xht['aggrressionOverTime_home'].values[0]
                     aggresssionOverTime_away = Xht['aggresssionOverTime_away'].values[0]
                     defensiveEfficacy_home = Xht['defensiveEfficacy_home'].values[0]
-                    # defensiveEfficacy_away = Xht['defensiveEfficacy_away'].values[0]
+                    defensiveEfficacy_away = Xht['defensiveEfficacy_away'].values[0]
                     possessionControl = Xht['possessionControl'].values[0]
                     taklesOverTime_home = Xht['taklesOverTime_home'].values[0]
                     taklesOverTime_away = Xht['taklesOverTime_away'].values[0]
                     passRisk_home = Xht['passRisk_home'].values[0]
                     passRisk_away = Xht['passRisk_away'].values[0]
                     zero_meioht_home = Xht['05ht_home'].values[0]
-                    # zero_meioft_home = Xht['05ft_home'].values[0]
-                    # zero_meio_home = Xht['05_home'].values[0]
                     zero_meio_ht_away = Xht['05ht_away'].values[0]
-                    # zero_meioft_away = Xht['05ft_away'].values[0]
-                    # zero_meio_away = Xht['05_away'].values[0]
                     
                     print(f'{homeTeam} x {awayTeam} - {minute} - {status} - {homeTeamScore} x {awayTeamScore} ({league})')
                     print_jogos = f'''
@@ -403,12 +396,9 @@ while True:
                     ⏰ Tempo de posse Casa: {possessiontime_home:.2f}
                     ⏰ Tempo de posse Fora: {possessiontime_away:.2f}
                     🎮 Controle de Posse: {possessionControl:.2f}
-                    🏅 Taxa de vitória Casa: {win_rate_home:.2f}
-                    🏅 Taxa de derrota Casa: {loss_rate_home:.2f}
-                    🏅 Taxa de empate Casa: {draw_rate_home:.2f}
-                    🏅 Taxa de vitória Fora: {win_rate_away:.2f}
-                    🏅 Taxa de derrota Fora: {loss_rate_away:.2f}
-                    🏅 Taxa de empate Fora: {draw_rate_away:.2f}
+                    🏅 Taxa de vitória Casa: {win_rate_homeTeam:.2f}
+                    🏅 Taxa de derrota Casa: {loss_rate_homeTeam:.2f}
+                    🏅 Taxa de empate Casa: {draw_rate_homeTeam:.2f}
                     ⚡ Pressão de Ataque ao Longo do Tempo Casa: {attackPressureOverTime_home:.2f}
                     ⚡ Pressão de Ataque ao Longo do Tempo Fora: {attackPressureOverTime_away:.2f}
                     🚀 Agressividade ao Longo do Tempo Casa: {aggrressionOverTime_home:.2f}
