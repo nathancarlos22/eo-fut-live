@@ -296,11 +296,13 @@ while True:
 
                     gols_columns = ['f_attack_home', 'f_defensive_away', 'f_defensive_home', 'f_attack_away',
                                     'win_rate_home', 'loss_rate_home', 'draw_rate_home', 'win_rate_away',
-                                    'loss_rate_away', 'draw_rate_away', '05ht_home', '05ht_away', '15ht_home', '25ht_home', '15ht_away', '25ht_away']
+                                    'loss_rate_away', 'draw_rate_away', '05ht_home', '05ht_away', '15ht_home', '25ht_home', '15ht_away', '25ht_away',
+                                    'win_rate', 'draw_rate', 'loss_rate', 'homeTeam_win', 'homeTeam_loss','homeTeam_draw',]
 
                     Xht['league'] = Xht['league'].apply(normalize_text_unicode)
                     Xht['homeTeam'] = Xht['homeTeam'].apply(normalize_text_unicode)
                     Xht['awayTeam'] = Xht['awayTeam'].apply(normalize_text_unicode)
+                    Xht['match_result'] = 0
 
                     ligas_df = dataframe['league'].unique()
 
