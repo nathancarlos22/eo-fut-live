@@ -329,7 +329,7 @@ while True:
                     for gols_c in gols_columns:
                         if 'home' in gols_c:
                             Xht[gols_c] = dataframe_league[dataframe_league['homeTeam'] == string_mais_similar_home][gols_c].tail(1).values[0]
-                        else:
+                        if 'away' in gols_c:
                             Xht[gols_c] = dataframe_league[dataframe_league['awayTeam'] == string_mais_similar_away][gols_c].tail(1).values[0]
 
                     shotsHome = Xht['shots_home'].values[0]
