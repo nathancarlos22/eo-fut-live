@@ -17,31 +17,17 @@ from rapidfuzz import fuzz
 import betfairlightweight
 import configparser
 import unicodedata
-
-def calculate_similarity(vector, reference):
-    return np.array([fuzz.ratio(reference, x) for x in vector])
-
-# Load the saved label encoders, scaler, and model
-label_encoders = joblib.load('models/label_encoders.pkl')
-scaler = joblib.load('models/scaler.pkl')
-model = joblib.load('models/random_forest_model.pkl')
-
-def preprocess_new_data(data, label_encoders, scaler):
-    # Encode categorical variables
-    for column, le in label_encoders.items():
-        data[column] = data[column].apply(lambda x: le.transform([x])[0] if x in le.classes_ else -1)
-    
-    # Normalize numerical features
-    data_scaled = scaler.transform(data)
-    
-    return data_scaled
-
-
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.ensemble import RandomForestClassifier
+from imblearn.over_sampling import SMOTE
 warnings.filterwarnings('ignore')
 
 load_dotenv()
 
-dataframe = pd.read_csv('src/data_live_engineer_filtered.csv', encoding='utf-8')
+def calculate_similarity(vector, reference):
+    return np.array([fuzz.ratio(reference, x) for x in vector])
+
 
 # Define a function to normalize text using unicodedata
 def normalize_text_unicode(text):
@@ -50,15 +36,11 @@ def normalize_text_unicode(text):
     return text.lower()
 
 # Apply the function to the relevant columns
+dataframe = pd.read_csv('src/data_live_engineer_filtered.csv', encoding='utf-8')
+
 dataframe['league'] = dataframe['league'].apply(normalize_text_unicode)
 dataframe['homeTeam'] = dataframe['homeTeam'].apply(normalize_text_unicode)
 dataframe['awayTeam'] = dataframe['awayTeam'].apply(normalize_text_unicode)
-
-# renomeando colunas para um padrao _home e _away
-colunas = ['goal', 'shots', 'blockedShots' ]
-for coluna in colunas:
-    dataframe.rename(columns={coluna+'Home': coluna+'_home'}, inplace=True)
-    dataframe.rename(columns={coluna+'Away': coluna+'_away'}, inplace=True)
 
 chat_id = os.getenv('CHAT_ID')
 token = os.getenv('TOKEN')
@@ -106,7 +88,7 @@ def calculate_cards(df):
 
 id_jogos_mensagem = {
     "id_over05HTmodel": [],
-    "id_over05HTAutoml": [],
+    "id_over05HTRandomForest": [],
 }
 
 
@@ -114,9 +96,9 @@ id_over05HTmodel = []
 winht_model = 0
 loseht_model = 0
 
-id_over05HTAutoml = []
-winht_Automl = 0
-loseht_Automl = 0
+id_over05HTRandomForest = []
+winht_RandomForest = 0
+loseht_RandomForest = 0
 
 text = ' '
 resultados = {}
@@ -125,17 +107,15 @@ minutoss = datetime.now().minute
 flag = 0
 
 # Carregar o modelo do arquivo
-model_Automl = joblib.load('./models/tpot_model.pkl')
-
-# preprocessor = pickle.load(open('models/preprocessor.pickle', 'rb'))
+model_RandomForest = joblib.load('./models/tpot_model.pkl')
 
 id_over05HTmodel = []
 winht_model = 0
 loseht_model = 0
 
-id_over05HTAutoml = []
-winht_Automl = 0
-loseht_Automl = 0
+id_over05HTRandomForest = []
+winht_RandomForest = 0
+loseht_RandomForest = 0
 
 id_evento = ''
 
@@ -283,7 +263,7 @@ while True:
                 }
 
                 Xht = pd.DataFrame(novo_dado, index=[0])
-                Xht.fillna(0, inplace=True)
+                
                 
                 Xht['shots_home'] = Xht['shotsOngoal_home'] + Xht['shotsOffgoal_home']
                 Xht['shots_away'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
@@ -294,43 +274,43 @@ while True:
                     calculate_passing_performance(Xht)
                     calculate_cards(Xht)
 
-                    gols_columns = ['f_attack_home', 'f_defensive_away', 'f_defensive_home', 'f_attack_away',
-                                   'win_rate', 'draw_rate', 'loss_rate', 'homeTeam_win', 'homeTeam_loss',
-                                    'homeTeam_draw', 'win_rate_homeTeam', 'loss_rate_homeTeam',
-                                    'draw_rate_homeTeam', 'awayTeam_win', 'awayTeam_loss', 'awayTeam_draw',
-                                    'win_rate_awayTeam', 'loss_rate_awayTeam', 'draw_rate_awayTeam',
-                                    '05ht_home', '05ht_away', '15ht_home', '25ht_home', '15ht_away', '25ht_away']
-
                     Xht['league'] = Xht['league'].apply(normalize_text_unicode)
                     Xht['homeTeam'] = Xht['homeTeam'].apply(normalize_text_unicode)
                     Xht['awayTeam'] = Xht['awayTeam'].apply(normalize_text_unicode)
                     Xht['match_result'] = 0
+
+                    
 
                     ligas_df = dataframe['league'].unique()
 
                     for l in ligas_df:
                         if league in l:
                             league = l
-                            # break
                     
                     if league not in ligas_df:
-                        continue
-                    
-                    
+                        string_mais_similar_league = max(ligas_df, key=lambda item: fuzz.ratio(item, league))
+                        league = string_mais_similar_league
+
                     dataframe_league = dataframe[dataframe['league'] == league]
+                    if dataframe_league.shape[0] == 0:
+                        print('Dataframe vazio')
+                        continue
 
-                    dataframe_league['similaridade_home'] = calculate_similarity(dataframe_league['homeTeam'], homeTeam)
-                    dataframe_league['similaridade_away'] = calculate_similarity(dataframe_league['awayTeam'], awayTeam)
-
-                    # Encontrando a string com a maior similaridade (usando a abordagem vetorizada)
-                    string_mais_similar_home = dataframe_league.loc[dataframe_league['similaridade_home'].idxmax()]['homeTeam']
-                    string_mais_similar_away = dataframe_league.loc[dataframe_league['similaridade_away'].idxmax()]['awayTeam']
+                    gols_columns = ['win_rate_home', 'draw_rate_home', 'loss_rate_home',
+                                    'win_rate_away', 'draw_rate_away', 'loss_rate_away', 'f_attack_home',
+                                    'f_attack_away', 'f_defensive_home', 'f_defensive_away', '05ht_home',
+                                    '15ht_home', '25ht_home', '05ht_away', '15ht_away', '25ht_away']
                     
                     for gols_c in gols_columns:
                         if 'home' in gols_c:
-                            Xht[gols_c] = dataframe_league[dataframe_league['homeTeam'] == string_mais_similar_home][gols_c].tail(1).values[0]
+                            Xht[gols_c] = dataframe_league.tail(1)[gols_c].values[0]
                         if 'away' in gols_c:
-                            Xht[gols_c] = dataframe_league[dataframe_league['awayTeam'] == string_mais_similar_away][gols_c].tail(1).values[0]
+                            Xht[gols_c] = dataframe_league.tail(1)[gols_c].values[0]
+
+                    # colunas_nulas = Xht.columns[Xht.isnull().any()].tolist()
+                    # print("Colunas nulas: ", colunas_nulas)
+                    
+                    Xht.fillna(0, inplace=True)
 
                     shotsHome = Xht['shots_home'].values[0]
                     shotsAway = Xht['shots_away'].values[0]
@@ -351,9 +331,12 @@ while True:
                     f_defensive_away = Xht['f_defensive_away'].values[0]
                     f_defensive_home = Xht['f_defensive_home'].values[0]
                     f_attack_away = Xht['f_attack_away'].values[0]
-                    win_rate_homeTeam = Xht['win_rate_homeTeam'].values[0]
-                    loss_rate_homeTeam = Xht['loss_rate_homeTeam'].values[0]
-                    draw_rate_homeTeam = Xht['draw_rate_homeTeam'].values[0]
+                    win_rate_home = Xht['win_rate_home'].values[0]
+                    win_rate_away = Xht['win_rate_away'].values[0]
+                    loss_rate_home = Xht['loss_rate_home'].values[0]
+                    loss_rate_away = Xht['loss_rate_away'].values[0]
+                    draw_rate_home = Xht['draw_rate_home'].values[0]
+                    draw_rate_away = Xht['draw_rate_away'].values[0]
                     shotAccuracy_home = Xht['shotAccuracy_home'].values[0]
                     shotAccuracy_away = Xht['shotAccuracy_away'].values[0]
                     attackPressureOverTime_home = Xht['attackPressureOverTime_home'].values[0]
@@ -362,7 +345,8 @@ while True:
                     aggresssionOverTime_away = Xht['aggresssionOverTime_away'].values[0]
                     defensiveEfficacy_home = Xht['defensiveEfficacy_home'].values[0]
                     defensiveEfficacy_away = Xht['defensiveEfficacy_away'].values[0]
-                    possessionControl = Xht['possessionControl'].values[0]
+                    possessiontime_home = Xht['possessiontime_home'].values[0]
+                    possessiontime_away = Xht['possessiontime_away'].values[0]
                     taklesOverTime_home = Xht['taklesOverTime_home'].values[0]
                     taklesOverTime_away = Xht['taklesOverTime_away'].values[0]
                     passRisk_home = Xht['passRisk_home'].values[0]
@@ -378,97 +362,78 @@ while True:
                     ⏱️ Minuto: {minute}
 
                     📋 Estatísticas
-                    🎯 Chutes Casa: {shotsHome}
-                    🎯 Chutes Fora: {shotsAway}
-                    🎯 Precisão de Chutes Casa: {shotAccuracy_home:.2f}
-                    🎯 Precisão de Chutes Fora: {shotAccuracy_away:.2f}
-                    ⚔️ Força de Ataque Casa: {f_attack_home:.2f}
-                    ⚔️ Força de Ataque Fora: {f_attack_away:.2f}
-                    🛡️ Força Defensiva Casa: {f_defensive_home:.2f}
-                    🛡️ Força Defensiva Fora: {f_defensive_away:.2f}
-                    ⛳ Escanteios: {corners_home:.2f} - {corners_away:.2f}
-                    🦵 Chutes fora Casa: {shotsOffgoal_home:.2f}
-                    🦵 Chutes fora Fora: {shotsOffgoal_away:.2f}
-                    🔴 Faltas Casa: {fouls_home:.2f}
-                    🔴 Faltas Fora: {fouls_away:.2f}
-                    🛑 Desarmes Casa: {tackles_home:.2f}
-                    🛑 Desarmes Fora: {tackles_away:.2f}
-                    ⏰ Tempo de posse Casa: {possessiontime_home:.2f}
-                    ⏰ Tempo de posse Fora: {possessiontime_away:.2f}
-                    🎮 Controle de Posse: {possessionControl:.2f}
-                    🏅 Taxa de vitória Casa: {win_rate_homeTeam:.2f}
-                    🏅 Taxa de derrota Casa: {loss_rate_homeTeam:.2f}
-                    🏅 Taxa de empate Casa: {draw_rate_homeTeam:.2f}
-                    ⚡ Pressão de Ataque ao Longo do Tempo Casa: {attackPressureOverTime_home:.2f}
-                    ⚡ Pressão de Ataque ao Longo do Tempo Fora: {attackPressureOverTime_away:.2f}
-                    🚀 Agressividade ao Longo do Tempo Casa: {aggrressionOverTime_home:.2f}
-                    🚀 Agressividade ao Longo do Tempo Fora: {aggresssionOverTime_away:.2f}
-                    🛡️ Eficácia Defensiva Casa: {defensiveEfficacy_home:.2f}
-                    🎲 Risco de Passe Casa: {passRisk_home:.2f}
-                    🎲 Risco de Passe Fora: {passRisk_away:.2f}
-                    📊 Desarmes ao Longo do Tempo Casa: {taklesOverTime_home:.2f}
-                    📊 Desarmes ao Longo do Tempo Fora: {taklesOverTime_away:.2f}
-                    📈 Zero a Meio Tempo Casa: {zero_meioht_home:.2f}
-                    📈 Zero a Meio Tempo Fora: {zero_meio_ht_away:.2f}
-
+                    🎯 Chutes: {shotsHome} x {shotsAway}
+                    🎯 Precisão de Chutes: {shotAccuracy_home:.2f} x {shotAccuracy_away:.2f}
+                    ⚔️ Força de Ataque: {f_attack_home:.2f} x {f_attack_away:.2f}
+                    🛡️ Força Defensiva: {f_defensive_home:.2f} x {f_defensive_away:.2f}
+                    ⛳ Escanteios: {corners_home:.2f} x {corners_away:.2f}
+                    🦵 Chutes Fora: {shotsOffgoal_home:.2f} x {shotsOffgoal_away:.2f}
+                    🔴 Faltas: {fouls_home:.2f} x {fouls_away:.2f}
+                    🛑 Desarmes: {tackles_home:.2f} x {tackles_away:.2f}
+                    ⏰ Tempo de Posse: {possessiontime_home:.2f} x {possessiontime_away:.2f}
+                    🎮 Controle de Posse: {possessiontime_home:.2f} x {possessiontime_away:.2f}
+                    🏅 Taxa de Vitória: {win_rate_home:.2f} x {win_rate_away:.2f}
+                    🏅 Taxa de Derrota: {loss_rate_home:.2f} x {loss_rate_away:.2f}
+                    🏅 Taxa de Empate: {draw_rate_home:.2f} x {draw_rate_away:.2f}
+                    ⚡ Pressão de Ataque ao Longo do Tempo: {attackPressureOverTime_home:.2f} x {attackPressureOverTime_away:.2f}
+                    🚀 Agressividade ao Longo do Tempo: {aggrressionOverTime_home:.2f} x {aggresssionOverTime_away:.2f}
+                    🛡️ Eficácia Defensiva: {defensiveEfficacy_home:.2f} x {defensiveEfficacy_away:.2f}
+                    🎲 Risco de Passe: {passRisk_home:.2f} x {passRisk_away:.2f}
+                    📊 Desarmes ao Longo do Tempo: {taklesOverTime_home:.2f} x {taklesOverTime_away:.2f}
+                    📈 Zero a Meio Tempo: {zero_meioht_home:.2f} x {zero_meio_ht_away:.2f}
+                    
                     '''
 
+
                     condicao_rede = 0
-                    condicao_Automl = 0
+                    condicao_RandomForest = 0
 
-                    # ordenando as colunas
-                    colunas = ['minute', 'homeTeam', 'awayTeam', 'goal_home', 'goal_away',
-                                'shots_home', 'shots_away', 'blockedShots_home', 'blockedShots_away',
-                                'league', 'corners_home', 'corners_away', 'redcards_home',
-                                'redcards_away', 'shotsOffgoal_home', 'shotsOffgoal_away',
-                                'shotsOngoal_home', 'shotsOngoal_away', 'yellowcards_home',
-                                'yellowcards_away', 'fouls_home', 'fouls_away', 'offsides_home',
-                                'offsides_away', 'tackles_home', 'tackles_away', 'homeTeam_win',
-                                'homeTeam_loss', 'homeTeam_draw', 'win_rate_homeTeam',
-                                'loss_rate_homeTeam', 'draw_rate_homeTeam', 'awayTeam_win',
-                                'awayTeam_loss', 'awayTeam_draw', 'win_rate_awayTeam',
-                                'loss_rate_awayTeam', 'draw_rate_awayTeam', 'f_attack_home',
-                                'f_attack_away', 'f_defensive_home', 'f_defensive_away', '05ht_home',
-                                '15ht_home', '25ht_home', '05ht_away', '15ht_away', '25ht_away',
-                                'possessiontime_away', 'possessiontime_home', 'shotAccuracy_home',
-                                'shotAccuracy_away', 'attackPressureOverTime_home',
-                                'attackPressureOverTime_away', 'aggrressionOverTime_home',
-                                'aggresssionOverTime_away', 'defensiveEfficacy_home',
-                                'defensiveEfficacy_away', 'taklesOverTime_home', 'taklesOverTime_away',
-                                'possessionControl', 'passRisk_home', 'passRisk_away',
-                                'TotalCards_home', 'TotalCards_away']
-                    
-                    Xht = Xht[colunas]
-
-                    if status == 'LIVE' and minute < 45:
-
+                    # if status == 'LIVE' and minute <= 45:
+                    if status == 'LIVE':
                         if (awayTeamScore + homeTeamScore) == 0:  # 0 gols
                             try:
-                                # Xht = preprocessor.transform(Xht)
-                                # Preprocess the new data
-                                Xht = preprocess_new_data(Xht, label_encoders, scaler)
+                                X = dataframe_league.drop(['result', 'league', 'match_id', 'homeTeam', 'awayTeam'], axis=1)
+                                colunas = X.columns
+
+                                y = dataframe_league['result']
+
+                                smote = SMOTE(random_state=42)
+
+                                # Split the df into training and testing sets
+                                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+                                
+                                X_train, y_train = smote.fit_resample(X_train, y_train)
+
+                                # Normalize numerical features
+                                scaler = StandardScaler()
+                                X_train = scaler.fit_transform(X_train)
+                                Xht = Xht[colunas]
+                                Xht = scaler.transform(Xht)
+
+                                # Train a Random Forest classifier
+                                model = RandomForestClassifier(random_state=42)
+                                model.fit(X_train, y_train)
+
                             except Exception as e:
                                 traceback.print_exc()
                                 continue
-
-                            # predictions = model_Automl.predict(Xht)[0]
-                            # predictions = simulate_with_saved_agent(saved_agent, Xht)[0][1]
-                            predictions = model.predict(Xht)[0]
-
                             
-                            print(f"{homeTeam} x {awayTeam} Automl: {predictions}")
+                            
+                            predictions = model.predict(Xht)[0]
+                            
+                            print(f"{homeTeam} x {awayTeam} RandomForest: {predictions}")
                             
                             if predictions >= 0.52:
-                                condicao_Automl = 1
+                                condicao_RandomForest = 1
 
                             
 
                     for key, value in id_jogos_mensagem.items():
-                        if key == 'id_over05HTAutoml':
+                        if key == 'id_over05HTRandomForest':
                             for jogos in value:
                                 if jogos['id'] == iD:
                                     text = f'''
-                                    👑 Modelo Automl
+                                    👑 Modelo RandomForest
                                                                             
                                     💭 Previsão: {predictions}
                                     {print_jogos}
@@ -478,20 +443,20 @@ while True:
                                     editMessageTelegram(jogos['message_id'], text)
 
 
-                    # Automl
-                    if iD in id_over05HTAutoml:
+                    # RandomForest
+                    if iD in id_over05HTRandomForest:
                         if (awayTeamScore + homeTeamScore) > 0:
-                            winht_Automl += 1
-                            id_over05HTAutoml.remove(iD)
+                            winht_RandomForest += 1
+                            id_over05HTRandomForest.remove(iD)
                             
                             for key, value in id_jogos_mensagem.items():
-                                if key == 'id_over05HTAutoml':
+                                if key == 'id_over05HTRandomForest':
                                     for jogos in value:
                                         if jogos['id'] == iD:
                                             text = f'''
-                                            👑 Modelo Automl
+                                            👑 Modelo RandomForest
 
-                                            ✅ Win {winht_Automl} - {loseht_Automl}
+                                            ✅ Win {winht_RandomForest} - {loseht_RandomForest}
                                             {print_jogos}
                                             '''
                                             if '&' in text:
@@ -500,18 +465,18 @@ while True:
                                             id_jogos_mensagem[key].remove(jogos)
                         
                         if (minute > 45 and (awayTeamScore + homeTeamScore) == 0):
-                            loseht_Automl += 1
-                            id_over05HTAutoml.remove(iD)
+                            loseht_RandomForest += 1
+                            id_over05HTRandomForest.remove(iD)
                             
                             # lucro -= 5
                             for key, value in id_jogos_mensagem.items():
-                                if key == 'id_over05HTAutoml':
+                                if key == 'id_over05HTRandomForest':
                                     for jogos in value:
                                         if jogos['id'] == iD:
                                             text = f'''
-                                            👑 Modelo Automl
+                                            👑 Modelo RandomForest
                                                                                                 
-                                            🛑 Lose {winht_Automl} - {loseht_Automl}
+                                            🛑 Lose {winht_RandomForest} - {loseht_RandomForest}
                                             {print_jogos}
                                             '''
                                             if '&' in text:
@@ -520,11 +485,11 @@ while True:
                                             sendMenssageTelegram(text)
                                             id_jogos_mensagem[key].remove(jogos)
 
-                    if condicao_Automl == 1 and iD not in id_over05HTAutoml:
-                        id_over05HTAutoml.append(iD)
+                    if condicao_RandomForest == 1 and iD not in id_over05HTRandomForest:
+                        id_over05HTRandomForest.append(iD)
 
                         text = f'''
-                        👑 Modelo Automl 
+                        👑 Modelo RandomForest 
                         
                         💭 Previsão: {predictions}
                         {print_jogos}
@@ -532,7 +497,7 @@ while True:
                         if '&' in text:
                             text = text.replace('&', '')
 
-                        id_jogos_mensagem["id_over05HTAutoml"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
+                        id_jogos_mensagem["id_over05HTRandomForest"].append({"id": iD, "message_id": sendMenssageTelegram(text)})
             except Exception as e:
                 time.sleep(60)
                 traceback.print_exc()
