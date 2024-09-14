@@ -106,9 +106,6 @@ resultados = {}
 minutoss = datetime.now().minute
 flag = 0
 
-# Carregar o modelo do arquivo
-model_RandomForest = joblib.load('./models/tpot_model.pkl')
-
 id_over05HTmodel = []
 winht_model = 0
 loseht_model = 0
