@@ -13,4 +13,3 @@ venv
 credenciais.ini
 *.txt
 *.json
-!data_live_engineer_filtered.csv
