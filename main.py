@@ -274,7 +274,7 @@ def main():
 
                         # Make prediction
                         prediction = model.predict(Xht_model)[0]
-                        print(f'{homeTeam} x {awayTeam} - {minute} - {game["status"]} - {stats["goals"]["home"] } x {stats["goals"]["away"]} ({league})')
+                        print(f'{home_team} x {away_team} - {minute} - {game["status"]} - {stats["goals"]["home"] } x {stats["goals"]["away"]} ({league})')
 
                         # Conditions for sending messages
                         total_goals = stats['goals']['home'] + stats['goals']['away']
