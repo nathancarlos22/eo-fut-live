@@ -271,7 +271,8 @@ def main():
 
                         # Train the model
                         model = RandomForestClassifier(random_state=42)
-                        model.fit(X_resampled, y_resampled)
+                        # model.fit(X_resampled, y_resampled)
+                        model.fit(X_resampled, y)
 
                         # Make prediction
                         prediction = model.predict(Xht_model)[0]
