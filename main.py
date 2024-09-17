@@ -260,12 +260,13 @@ def main():
                         y = dataframe_league['result']
 
                         # Oversampling to handle imbalance
-                        smote = SMOTE(random_state=42)
-                        X_resampled, y_resampled = smote.fit_resample(X, y)
+                        # smote = SMOTE(random_state=42)
+                        # X_resampled, y_resampled = smote.fit_resample(X, y)
 
                         # Normalize features
                         scaler = StandardScaler()
-                        X_resampled = scaler.fit_transform(X_resampled)
+                        # X_resampled = scaler.fit_transform(X_resampled)
+                        X_resampled = scaler.fit_transform(X)
                         Xht_model = scaler.transform(Xht[X.columns])
 
                         # Train the model
