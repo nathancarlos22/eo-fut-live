@@ -232,7 +232,7 @@ def main():
                     Xht['shots_home'] = Xht['shotsOngoal_home'] + Xht['shotsOffgoal_home']
                     Xht['shots_away'] = Xht['shotsOngoal_away'] + Xht['shotsOffgoal_away']
 
-                    if minute > 1 and minute < 45:
+                    if minute > 1:
                         # Calculate additional features
                         calculate_efficiency_attack(Xht)
                         calculate_defense_performance(Xht)
