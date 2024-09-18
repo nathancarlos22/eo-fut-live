@@ -280,7 +280,7 @@ def main():
 
                         # Conditions for sending messages
                         total_goals = stats['goals']['home'] + stats['goals']['away']
-                        if total_goals == 0 and prediction >= 0.52 and fixture_id not in id_over05HTRandomForest:
+                        if total_goals == 0 and prediction >= 0.52 and fixture_id not in id_over05HTRandomForest and minute < 45:
                             id_over05HTRandomForest.add(fixture_id)
                             message = f'''
 👑 Modelo RandomForest 
