@@ -182,12 +182,16 @@ def main():
                     # Extract teams and league information
                     home_team = normalize_text_unicode(game['homeTeam']['name'])
                     away_team = normalize_text_unicode(game['awayTeam']['name'])
-                    league_name = f"{game['league']['countryName']} - {game['league']['name']}"
-                    league_name = normalize_text_unicode(league_name)
+                    league = f"{game['league']['countryName']} - {game['league']['name']}"
+                    league = normalize_text_unicode(league)
 
                     # Match league name
                     league_list = dataframe['league'].unique()
-                    league = find_matching_league(league_name, league_list)
+                    # league = find_matching_league(league, league_list)
+
+                    if league not in league_list:
+                        continue
+
                     dataframe_league = dataframe[dataframe['league'] == league]
                     if dataframe_league.empty:
                         print(f"No data for league: {league}")
