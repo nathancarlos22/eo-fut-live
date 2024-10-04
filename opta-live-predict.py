@@ -168,38 +168,42 @@ def extract_match_stats(match_url):
     homeTeam.append(home_team)
     awayTeam.append(away_team)
     liga.append(league)
-    goalHome.append(team1_stats['G'].iloc[-1])
-    goalAway.append(team2_stats['G'].iloc[-1])
-    shotsHome.append(team1_stats['S'].iloc[-1])
-    shotsAway.append(team2_stats['S'].iloc[-1])
-    crossesHome.append(team1_stats['Crn'].iloc[-1])
-    crossesAway.append(team2_stats['Crn'].iloc[-1])
-    assistsHome.append(team1_stats['A'].iloc[-1])
-    assistsAway.append(team2_stats['A'].iloc[-1])
-    blockedShotsHome.append(team1_stats['BS'].iloc[-1])
-    blockedShotsAway.append(team2_stats['BS'].iloc[-1])
+    try:
+        goalHome.append(team1_stats['G'].iloc[-1])
+        goalAway.append(team2_stats['G'].iloc[-1])
+        shotsHome.append(team1_stats['S'].iloc[-1])
+        shotsAway.append(team2_stats['S'].iloc[-1])
+        crossesHome.append(team1_stats['Crn'].iloc[-1])
+        crossesAway.append(team2_stats['Crn'].iloc[-1])
+        assistsHome.append(team1_stats['A'].iloc[-1])
+        assistsAway.append(team2_stats['A'].iloc[-1])
+        blockedShotsHome.append(team1_stats['BS'].iloc[-1])
+        blockedShotsAway.append(team2_stats['BS'].iloc[-1])
 
-    corners_home.append(team1_stats['Crn'].iloc[-1])
-    redcards_home.append(team1_stats['RC'].iloc[-1])
-    shotsOffgoal_home.append(team1_stats['S'].iloc[-1] - team1_stats['SOnT'].iloc[-1])
-    shotsOngoal_home.append(team1_stats['SOnT'].iloc[-1])
-    yellowcards_home.append(team1_stats['YC'].iloc[-1])
-    passes_home.append(team1_stats['P'].iloc[-1])
-    fouls_c_home.append(team1_stats['FC'].iloc[-1])
-    fouls_won_home.append(team1_stats['FW'].iloc[-1])
-    offsides_home.append(team1_stats['O'].iloc[-1])
-    tackles_home.append(team1_stats['Tk'].iloc[-1])
+        corners_home.append(team1_stats['Crn'].iloc[-1])
+        redcards_home.append(team1_stats['RC'].iloc[-1])
+        shotsOffgoal_home.append(team1_stats['S'].iloc[-1] - team1_stats['SOnT'].iloc[-1])
+        shotsOngoal_home.append(team1_stats['SOnT'].iloc[-1])
+        yellowcards_home.append(team1_stats['YC'].iloc[-1])
+        passes_home.append(team1_stats['P'].iloc[-1])
+        fouls_c_home.append(team1_stats['FC'].iloc[-1])
+        fouls_won_home.append(team1_stats['FW'].iloc[-1])
+        offsides_home.append(team1_stats['O'].iloc[-1])
+        tackles_home.append(team1_stats['Tk'].iloc[-1])
 
-    corners_away.append(team2_stats['Crn'].iloc[-1])
-    redcards_away.append(team2_stats['RC'].iloc[-1])
-    shotsOffgoal_away.append(team2_stats['S'].iloc[-1] - team2_stats['SOnT'].iloc[-1])
-    shotsOngoal_away.append(team2_stats['SOnT'].iloc[-1])
-    yellowcards_away.append(team2_stats['YC'].iloc[-1])
-    passes_away.append(team2_stats['P'].iloc[-1])
-    fouls_c_away.append(team2_stats['FC'].iloc[-1])
-    fouls_won_away.append(team2_stats['FW'].iloc[-1])
-    offsides_away.append(team2_stats['O'].iloc[-1])
-    tackles_away.append(team2_stats['Tk'].iloc[-1])
+        corners_away.append(team2_stats['Crn'].iloc[-1])
+        redcards_away.append(team2_stats['RC'].iloc[-1])
+        shotsOffgoal_away.append(team2_stats['S'].iloc[-1] - team2_stats['SOnT'].iloc[-1])
+        shotsOngoal_away.append(team2_stats['SOnT'].iloc[-1])
+        yellowcards_away.append(team2_stats['YC'].iloc[-1])
+        passes_away.append(team2_stats['P'].iloc[-1])
+        fouls_c_away.append(team2_stats['FC'].iloc[-1])
+        fouls_won_away.append(team2_stats['FW'].iloc[-1])
+        offsides_away.append(team2_stats['O'].iloc[-1])
+        tackles_away.append(team2_stats['Tk'].iloc[-1])
+    
+    except:
+        return None
 
     return {
     'minute': minute,
@@ -402,7 +406,13 @@ def run_code():
         current_matches = {}
     
         for match in jogos_links:
-            Xht = pd.DataFrame(extract_match_stats(match))
+
+            match_stats = extract_match_stats(match)
+            if match_stats == None:
+                print("Erro ao pegar dados da tabela de jogo")
+                continue
+            
+            Xht = pd.DataFrame(match_stats)
             
             print(Xht)
 
