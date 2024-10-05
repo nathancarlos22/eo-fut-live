@@ -13,3 +13,4 @@ venv
 credenciais.ini
 *.txt
 *.json
+*.ipynb

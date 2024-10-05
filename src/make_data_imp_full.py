@@ -22,8 +22,6 @@ def main_function_full(date_str):
 
     try:
         df = pd.read_csv(file_path, encoding='utf-8')
-        # service = Service(ChromeDriverManager().install())
-        # driver = webdriver.Chrome(service=service)
         options = webdriver.ChromeOptions()
         driver = webdriver.Remote(command_executor='http://localhost:4444', options=options)
 
@@ -33,7 +31,6 @@ def main_function_full(date_str):
         driver.get(
             f'https://optaplayerstats.statsperform.com/en_GB/soccer?date={date_str}')
         driver.maximize_window()
-        
 
         # Espera a página carregar
         WebDriverWait(driver, 30).until(lambda d: d.execute_script(
@@ -167,11 +164,6 @@ def main_function_full(date_str):
                     # Localiza o elemento e altera seu valor de transform
                     dragger = driver.find_element(
                         By.CSS_SELECTOR, '.Opta-Dragger.Opta-Dragger-end')
-
-                    # driver.execute_script(
-                    #     f"arguments[0].setAttribute('transform', 'translate({value}, 45)')", dragger)
-                    # actions.click_and_hold(dragger).move_by_offset(
-                    #     4, 0).release().perform()
 
                     # Obter a posição atual do dragger
                     dragger_location = dragger.location
