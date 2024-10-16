@@ -548,5 +548,8 @@ def run_code():
                 continue
 
 while True:
-    run_code()
-    time.sleep(60)  # Pausa por 60 segundos (1 minuto)
+    try:
+        run_code()
+        time.sleep(60)  # Pausa por 60 segundos (1 minuto)
+    except:
+        continue
